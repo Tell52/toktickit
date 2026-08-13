@@ -14,6 +14,14 @@ export default function App() {
     //   - success: store categories and show Online + the list, or
     //   - error: show Offline + a useful message.
     setState("loading");
+    try {
+      const status = await checkSystem();
+      if (status.online) {
+        setState("success");
+      }
+    } catch (error) {
+      setState("error");
+    }
   }
 
   return (
@@ -25,6 +33,17 @@ export default function App() {
       <button className="btn btn-success" onClick={handleCheck} disabled={state === "loading"}>
         {state === "loading" ? "Loading…" : "Check System"}
       </button>
+      <div className="mt-4">
+        {state === "success" && (
+          <p>System Status: <strong>Online</strong></p>
+        )}
+        {state === "error" && (
+          <div>
+            <p>System Status: <strong>Offline</strong></p>
+            <p className="text-danger">Unable to connect to TokTickIT API</p>
+          </div>
+        )}
+      </div>
 
       {/* TODO(Issue 4): render loading / success (Online + categories) / error (Offline) states. */}
     </div>
