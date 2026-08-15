@@ -17,6 +17,7 @@ export default function App() {
     try {
       const status = await checkSystem();
       if (status.online) {
+        setCategories(status.categories);
         setState("success");
       }
     } catch (error) {
@@ -35,7 +36,15 @@ export default function App() {
       </button>
       <div className="mt-4">
         {state === "success" && (
-          <p>System Status: <strong>Online</strong></p>
+          <div>
+            <p>System Status: <strong>Online</strong></p>
+            <p>Supported Request Categories:</p>
+            <ul>
+              {categories.map((cat) => (
+                <li key={cat.id}>{cat.name}</li>
+              ))}
+            </ul>
+          </div>
         )}
         {state === "error" && (
           <div>
@@ -44,8 +53,6 @@ export default function App() {
           </div>
         )}
       </div>
-
-      {/* TODO(Issue 4): render loading / success (Online + categories) / error (Offline) states. */}
     </div>
   );
 }
