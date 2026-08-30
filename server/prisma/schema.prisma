@@ -24,3 +24,17 @@ model Category {
   name      String   @unique
   createdAt DateTime @default(now())
 }
+
+// Lab2 Issue 2 - Development Requester Context Foundation
+
+model Requester {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String  @unique
+  isActive Boolean @default(true)
+}
+
+model RelatedSystem {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
