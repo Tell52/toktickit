@@ -39,6 +39,9 @@ export default function RequesterSelection({ onSelect }: Props) {
             <div className="card shadow-sm border-0" style={{ backgroundColor: "#F5F7F6" }}>
                 <div className="card-body p-5">
                     <div className="text-center mb-4">
+                        {/* เพิ่มชื่อแอปพลิเคชัน TokTickIT ตรงนี้เพื่อให้เทสผ่านและตรงตาม Spec Lab 2 */}
+                        <h1 className="fw-bold mb-3" style={{ color: "#006B3C" }}>TokTickIT</h1>
+
                         <h2 className="h4" style={{ color: "#006B3C" }}>Select Development Requester</h2>
                         <p className="text-muted small">
                             Choose a development requester to simulate the current requester context for Lab 2.

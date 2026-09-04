@@ -10,19 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------------------------------------------------------------------------
-// Issue 3 — Create and seed IT request categories
-// Define a Category model with:
-//   id        Int      @id @default(autoincrement())
-//   name      String   @unique
-//   createdAt DateTime @default(now())
-// Then run:  npx prisma migrate dev --name init
-// TODO(Issue 3): add the Category model below.
-// ---------------------------------------------------------------------------
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   createdAt DateTime @default(now())
+  tickets   Ticket[]
 }
 
 // Lab2 Issue 2 - Development Requester Context Foundation
@@ -32,9 +24,31 @@ model Requester {
   name     String
   email    String  @unique
   isActive Boolean @default(true)
+  tickets  Ticket[]
 }
 
 model RelatedSystem {
   id   Int    @id @default(autoincrement())
   name String @unique
+  tickets  Ticket[]
+}
+
+model Ticket {
+  id                Int           @id @default(autoincrement())
+  ticketNumber      String        @unique
+  summary           String
+  description       String
+  requestedPriority String        // "Low", "Medium", "High"
+  currentStatus     String        @default("New")
+  createdAt         DateTime      @default(now())
+
+  //(Foreign Keys)
+  requesterId       Int
+  requester         Requester     @relation(fields: [requesterId], references: [id])
+  
+  categoryId        Int
+  category          Category      @relation(fields: [categoryId], references: [id])
+  
+  relatedSystemId   Int
+  relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
 }
