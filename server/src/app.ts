@@ -55,4 +55,49 @@ app.get("/api/requesters", async (_req: Request, res: Response) => {
   }
 });
 
+app.get("/api/related-systems", async (_req: Request, res: Response) => {
+  try {
+    const systems = await getPrisma().relatedSystem.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" }, // เรียงตามตัวอักษร
+    });
+    res.status(200).json(systems);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/api/tickets", async (req: Request, res: Response) => {
+  const { requesterId, summary, description, categoryId, relatedSystemId, requestedPriority } = req.body;
+
+  // ตรวจสอบ Validation เบื้องต้น (400 Bad Request)
+  if (!requesterId || !summary || !description || !categoryId || !relatedSystemId || !requestedPriority) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    // จำลองการสร้าง Ticket Number เช่น TKT-2026-0001
+    const ticketCount = await getPrisma().ticket.count();
+    const generatedTicketNumber = `TKT-2026-${String(ticketCount + 1).padStart(4, "0")}`;
+
+    const newTicket = await getPrisma().ticket.create({
+      data: {
+        ticketNumber: generatedTicketNumber,
+        summary,
+        description,
+        requestedPriority,
+        currentStatus: "New",
+        requesterId,
+        categoryId,
+        relatedSystemId,
+      },
+    });
+
+    // คืนค่าสถานะ 201 Created
+    res.status(201).json(newTicket);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create ticket" });
+  }
+});
+
 export default app;
