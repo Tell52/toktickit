@@ -69,3 +69,16 @@ export async function createTicket(ticketData: any) {
   if (!res.ok) throw new Error("Failed to create ticket");
   return res.json();
 }
+
+export async function getMyTickets(requesterId: number, queryParams: any = {}) {
+  const url = new URL(`${API_URL}/api/tickets`);
+  url.searchParams.append("requesterId", requesterId.toString());
+
+  if (queryParams.page) url.searchParams.append("page", queryParams.page);
+  if (queryParams.search) url.searchParams.append("search", queryParams.search);
+  if (queryParams.status) url.searchParams.append("status", queryParams.status);
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error("Failed to load tickets");
+  return res.json();
+}

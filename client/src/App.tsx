@@ -2,6 +2,7 @@ import { useState } from "react";
 import { checkSystem, Category, Requester } from "./api.js";
 import RequesterSelection from "./RequesterSelection.js";
 import CreateTicket from "./components/CreateTicket.js";
+import MyTickets from "./MyTickets.js";
 
 type UiState = "idle" | "loading" | "success" | "error";
 type PageState = "create" | "list" | "system-check";
@@ -79,7 +80,7 @@ export default function App() {
 
         {activePage === "list" && (
           <div className="alert alert-info mt-4">
-            My Tickets page coming in Issue 4...
+            <MyTickets requesterId={currentRequester.id} />
           </div>
         )}
 
