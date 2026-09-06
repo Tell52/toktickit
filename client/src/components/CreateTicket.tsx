@@ -6,6 +6,7 @@ interface CreateTicketProps {
 }
 
 export default function CreateTicket({ requesterId }: CreateTicketProps) {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [systems, setSystems] = useState<RelatedSystem[]>([]);
 
@@ -77,7 +78,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
             <div className="alert mt-4 p-4 rounded" style={{ backgroundColor: "#EAF6EF", border: "1px solid #0B7A46" }}>
                 <h4 style={{ color: "#006B3C" }}>Ticket Created Successfully!</h4>
                 <p className="mb-0" style={{ color: "#0B7A46" }}>
-                    Your official Ticket Number is: <strong>{createdTicketNumber}</strong>
+                    Your official Ticket Number is: <strong className="ticket-number-success">{createdTicketNumber}</strong>
                 </p>
                 <button
                     className="btn mt-3 text-white"
@@ -89,6 +90,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                         setCategoryId("");
                         setRelatedSystemId("");
                         setRequestedPriority("");
+                        setSelectedFile(null); // เคลียร์ไฟล์ที่เลือกเมื่อกดสร้างตั๋วใหม่
                     }}
                 >
                     Create Another Ticket
@@ -195,6 +197,37 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                             ></textarea>
                             {validationErrors.description && <div className="invalid-feedback">{validationErrors.description}</div>}
                         </div>
+
+                        {/* --- ส่วนที่เพิ่มใหม่: อัปโหลดไฟล์ --- */}
+                        <div className="col-md-12 mb-4">
+                            <label className="form-label fw-bold" style={{ color: "#334D41" }}>
+                                Attachment (Optional)
+                            </label>
+                            <div className="d-flex gap-2">
+                                <input
+                                    type="file"
+                                    className="form-control"
+                                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                                    disabled={status === "submitting"}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => console.log("Upload clicked", selectedFile?.name)}
+                                    disabled={status === "submitting" || !selectedFile}
+                                >
+                                    Upload
+                                </button>
+                            </div>
+                            {selectedFile && (
+                                <div className="form-text text-success mt-2">
+                                    <i className="bi bi-check-circle-fill me-1"></i>
+                                    Ready to upload: {selectedFile.name}
+                                </div>
+                            )}
+                        </div>
+                        {/* ------------------------------------- */}
+
                     </div>
 
                     <button

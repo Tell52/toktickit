@@ -3,9 +3,10 @@ import { checkSystem, Category, Requester } from "./api.js";
 import RequesterSelection from "./RequesterSelection.js";
 import CreateTicket from "./components/CreateTicket.js";
 import MyTickets from "./MyTickets.js";
+import RequesterTicketDetail from "./RequesterTicketDetail.js";
 
 type UiState = "idle" | "loading" | "success" | "error";
-type PageState = "create" | "list" | "system-check";
+type PageState = "create" | "list" | "system-check" | "detail";
 
 export default function App() {
   const [state, setState] = useState<UiState>("idle");
@@ -13,6 +14,12 @@ export default function App() {
   const [currentRequester, setCurrentRequester] = useState<Requester | null>(null);
 
   const [activePage, setActivePage] = useState<PageState>("create");
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+
+  const handleViewTicket = (ticketId: string) => {
+    setSelectedTicketId(ticketId);
+    setActivePage("detail");
+  };
 
   async function handleCheck() {
     setState("loading");
@@ -37,32 +44,35 @@ export default function App() {
         <div className="d-flex align-items-center gap-4">
           <h1 className="h5 mb-0 m-0 fw-bold">TokTickIT</h1>
           <nav className="d-flex gap-4">
-            <span
-              className={activePage === "list" ? "fw-bold" : ""}
-              style={{ cursor: "pointer", opacity: activePage === "list" ? 1 : 0.8 }}
-              onClick={() => setActivePage("list")}
+            <a
+              href="#"
+              className={`text-white text-decoration-none ${activePage === "list" ? "fw-bold" : ""}`}
+              style={{ opacity: activePage === "list" ? 1 : 0.8 }}
+              onClick={(e) => { e.preventDefault(); setActivePage("list"); }}
             >
               My Tickets
-            </span>
-            <span
-              className={activePage === "create" ? "fw-bold" : ""}
-              style={{ cursor: "pointer", opacity: activePage === "create" ? 1 : 0.8 }}
-              onClick={() => setActivePage("create")}
+            </a>
+            <a
+              href="#"
+              className={`text-white text-decoration-none ${activePage === "create" ? "fw-bold" : ""}`}
+              style={{ opacity: activePage === "create" ? 1 : 0.8 }}
+              onClick={(e) => { e.preventDefault(); setActivePage("create"); }}
             >
               Create Ticket
-            </span>
-            <span
-              className={activePage === "system-check" ? "fw-bold" : ""}
-              style={{ cursor: "pointer", opacity: activePage === "system-check" ? 1 : 0.8 }}
-              onClick={() => setActivePage("system-check")}
+            </a>
+            <a
+              href="#"
+              className={`text-white text-decoration-none ${activePage === "system-check" ? "fw-bold" : ""}`}
+              style={{ opacity: activePage === "system-check" ? 1 : 0.8 }}
+              onClick={(e) => { e.preventDefault(); setActivePage("system-check"); }}
             >
               System Check
-            </span>
+            </a>
           </nav>
         </div>
 
         <div className="d-flex align-items-center gap-3">
-          <span className="small">👤 {currentRequester.name}</span>
+          <span className="small">👤 <span>{currentRequester.name}</span></span>
           <button
             className="btn btn-sm btn-outline-light"
             onClick={() => setCurrentRequester(null)}
@@ -72,15 +82,31 @@ export default function App() {
         </div>
       </header>
 
-      <main className="container py-4" style={{ maxWidth: activePage === "create" ? 800 : 640 }}>
+      <main className="container py-4" style={{ maxWidth: (activePage === "create" || activePage === "detail") ? 800 : 640 }}>
 
         {activePage === "create" && (
           <CreateTicket requesterId={currentRequester.id} />
         )}
 
         {activePage === "list" && (
-          <div className="alert alert-info mt-4">
-            <MyTickets requesterId={currentRequester.id} />
+          <MyTickets
+            requesterId={currentRequester.id}
+            onViewTicket={handleViewTicket}
+          />
+        )}
+
+        {activePage === "detail" && selectedTicketId && (
+          <div>
+            <button
+              className="btn btn-outline-secondary mb-3"
+              onClick={() => setActivePage("list")}
+            >
+              &larr; Back to My Tickets
+            </button>
+            <RequesterTicketDetail
+              ticketId={selectedTicketId}
+              currentRequesterId={currentRequester.id}
+            />
           </div>
         )}
 

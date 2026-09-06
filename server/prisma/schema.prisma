@@ -51,4 +51,22 @@ model Ticket {
   
   relatedSystemId   Int
   relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
+
+  attachments Attachment[]
+}
+
+model Attachment {
+  id            Int      @id @default(autoincrement())
+  fileName      String
+  fileType      String
+  fileSize      Int
+  fileUrl       String   // เก็บ path ของไฟล์
+  createdAt     DateTime @default(now())
+  
+  // สำหรับระบบ Soft Removal
+  isRemoved     Boolean  @default(false)
+  removalReason String?  // เหตุผลการลบ
+
+  ticketId      Int
+  ticket        Ticket   @relation(fields: [ticketId], references: [id])
 }

@@ -1,12 +1,10 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { getPrisma } from "./prisma.js";
-// getPrisma() is your lazy database handle. Call it INSIDE a route when you
-// need the DB (Issue 4). It is intentionally unused until then.
+import multer from "multer";
+
 void getPrisma;
 
-// The Express app is exported separately from app.listen() (see index.ts) so
-// Supertest can import `app` without opening a port. Do not merge these files.
 export const app = express();
 
 app.use(cors());
@@ -140,6 +138,179 @@ app.get("/api/tickets", async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve tickets" });
+  }
+});
+
+// ตั้งค่า Multer สำหรับจัดการไฟล์อัปโหลดในหน่วยความจำ (เพื่อตรวจสอบขนาดและประเภทก่อนบันทึก)
+const upload = multer({
+  limits: { fileSize: 5 * 1024 * 1024 }, // บังคับขนาดสูงสุด 5 MB ต่อไฟล์[cite: 8]
+  fileFilter: (_req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"]; // อนุญาตเฉพาะประเภทที่กำหนด[cite: 8]
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type"));
+    }
+  },
+});
+
+// ---------------------------------------------------------------------------
+// 1. API ดึงรายละเอียดตั๋ว 1 ใบ (Ticket Detail)
+// ---------------------------------------------------------------------------
+app.get("/api/tickets/:id", async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const requesterId = Number(req.query.requesterId);
+
+  if (!requesterId) {
+    return res.status(403).json({ error: "Requester ID is required" });
+  }
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({
+      where: { id: ticketId },
+      include: {
+        category: true,
+        relatedSystem: true,
+        attachments: true // ดึงข้อมูลไฟล์แนบมาด้วย[cite: 8]
+      },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({ error: "Ticket not found" });
+    }
+
+    // ตรวจสอบสิทธิ์: ป้องกันการเข้าถึงตั๋วของคนอื่น[cite: 8]
+    if (ticket.requesterId !== requesterId) {
+      return res.status(403).json({ error: "Unauthorized access to this ticket" });
+    }
+
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve ticket details" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 2. API อัปโหลดไฟล์แนบ (Upload Attachment)
+// ---------------------------------------------------------------------------
+app.post("/api/tickets/:id/attachments", (req: Request, res: Response, next) => {
+  // ดักจับ Error จาก Multer โดยตรง
+  upload.single("file")(req, res, (err: any) => {
+    if (err) {
+      if (err.message === "Invalid file type") {
+        return res.status(400).json({ error: "Unsupported file type" });
+      }
+      return res.status(400).json({ error: "File upload error" });
+    }
+    next();
+  });
+}, async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const requesterId = Number(req.body.requesterId);
+  const file = req.file;
+
+  if (!requesterId || !file) {
+    return res.status(400).json({ error: "Requester ID and file are required" });
+  }
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({
+      where: { id: ticketId },
+      include: { attachments: { where: { isRemoved: false } } },
+    });
+
+    if (!ticket || ticket.requesterId !== requesterId) {
+      return res.status(403).json({ error: "Unauthorized access" });
+    }
+
+    // ตรวจสอบโควต้าไฟล์แนบ: ต้องไม่เกิน 5 ไฟล์ต่อตั๋ว
+    if (ticket.attachments.length >= 5) {
+      return res.status(400).json({ error: "Maximum of 5 active attachments allowed" });
+    }
+
+    const mockFileUrl = `/uploads/${Date.now()}-${file.originalname}`;
+
+    const newAttachment = await getPrisma().attachment.create({
+      data: {
+        fileName: file.originalname,
+        fileType: file.mimetype,
+        fileSize: file.size,
+        fileUrl: mockFileUrl,
+        ticketId: ticketId,
+      },
+    });
+
+    res.status(201).json(newAttachment);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to upload attachment" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 3. API ดาวน์โหลด/ดูข้อมูลไฟล์แนบ (Retrieve/Download Attachment)
+// ---------------------------------------------------------------------------
+app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const attachmentId = Number(req.params.attachmentId);
+  const requesterId = Number(req.query.requesterId);
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket || ticket.requesterId !== requesterId) {
+      return res.status(403).json({ error: "Unauthorized access" });
+    }
+
+    const attachment = await getPrisma().attachment.findUnique({
+      where: { id: attachmentId },
+    });
+
+    if (!attachment || attachment.ticketId !== ticketId) {
+      return res.status(404).json({ error: "Attachment not found" });
+    }
+
+    // บล็อกการดาวน์โหลดหากไฟล์ถูกลบไปแล้ว[cite: 8]
+    if (attachment.isRemoved) {
+      return res.status(403).json({ error: "This attachment has been removed and cannot be downloaded" });
+    }
+
+    // ในระบบจริง จะใช้ res.download() หรือส่งไฟล์สตรีมกลับไป
+    res.status(200).json({ message: "File ready for download", fileUrl: attachment.fileUrl });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve attachment" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 4. API ลบไฟล์แนบแบบ Soft Removal
+// ---------------------------------------------------------------------------
+app.delete("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const attachmentId = Number(req.params.attachmentId);
+  const { requesterId, reason } = req.body;
+
+  // บังคับให้ต้องใส่เหตุผลในการลบ[cite: 8]
+  if (!requesterId || !reason) {
+    return res.status(400).json({ error: "Requester ID and removal reason are required" });
+  }
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket || ticket.requesterId !== requesterId) {
+      return res.status(403).json({ error: "Unauthorized access" });
+    }
+
+    // เปลี่ยนสถานะเป็นลบ พร้อมบันทึกเหตุผล[cite: 8]
+    const removedAttachment = await getPrisma().attachment.update({
+      where: { id: attachmentId },
+      data: {
+        isRemoved: true,
+        removalReason: reason,
+      },
+    });
+
+    res.status(200).json(removedAttachment);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to remove attachment" });
   }
 });
 

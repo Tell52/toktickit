@@ -1,0 +1,25 @@
+{
+  "name": "toktickit",
+  "version": "1.0.0",
+  "description": "* **Frontend:** React + TypeScript + Vite + Bootstrap\r * **Backend:** Node.js + Express + TypeScript\r * **Database:** PostgreSQL + Prisma ORM\r * **Testing:** Vitest , Supertest\r ## Prerequisites\r * Node.js\r * PostgreSQL",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tell52/toktickit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tell52/toktickit/issues"
+  },
+  "homepage": "https://github.com/Tell52/toktickit#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.4.1"
+  }
+}

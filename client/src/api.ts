@@ -82,3 +82,32 @@ export async function getMyTickets(requesterId: number, queryParams: any = {}) {
   if (!res.ok) throw new Error("Failed to load tickets");
   return res.json();
 }
+
+export async function getTicketDetail(ticketId: string, requesterId: number) {
+  const res = await fetch(`${API_URL}/api/tickets/${ticketId}?requesterId=${requesterId}`);
+  if (!res.ok) throw new Error("Failed to load ticket details");
+  return res.json();
+}
+
+export async function softRemoveAttachment(ticketId: string, attachmentId: number, reason: string, requesterId: number) {
+  const res = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ requesterId, reason })
+  });
+  if (!res.ok) throw new Error("Failed to remove attachment");
+  return res.json();
+}
+
+export async function uploadAttachment(ticketId: string, file: File, requesterId: number) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("requesterId", requesterId.toString());
+
+  const res = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
+    method: "POST",
+    body: formData, // Fetch จะจัดการเรื่อง headers Content-Type แบบ multipart ให้เอง
+  });
+  if (!res.ok) throw new Error("Failed to upload attachment");
+  return res.json();
+}
