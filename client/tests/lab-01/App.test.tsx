@@ -1,48 +1,35 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import App from "../../src/App.js";
 import * as api from "../../src/api.js";
 
-describe("App", () => {
-  it("renders the TokTickIT heading", () => {
-    render(<App />);
-    expect(screen.getByText(/TokTickIT/i)).toBeInTheDocument();
+// จำลองการเรียก API สำหรับ Lab 2
+vi.mock("../../src/api.js");
+
+describe("App & Requester Selection (Lab 2)", () => {
+  beforeEach(() => {
+    // จำลองผลลัพธ์ของ getRequesters เพื่อไม่ให้หน้าจอค้างอยู่ที่ Loading
+    vi.mocked(api.getRequesters).mockResolvedValue([
+      { id: 1, name: "Jennifer Anderson", email: "jen@example.com", isActive: true }
+    ] as any);
   });
 
-  // Issue 4 — write these yourself.
-  it("shows Online and the seeded categories on success", async () => {
-    vi.spyOn(api, "checkSystem").mockResolvedValue({
-      online: true,
-      categories: [
-        { id: 1, name: "Account and Access" },
-        { id: 2, name: "Hardware" },
-        { id: 3, name: "Software" },
-        { id: 4, name: "Network" },
-      ],
-    });
-
+  it("renders the TokTickIT heading", async () => {
     render(<App />);
-
-    const button = screen.getByRole("button", { name: /Check System/i });
-    fireEvent.click(button);
-
+    // ในหน้า Requester Selection ยังคงต้องมีคำว่า TokTickIT อยู่[cite: 8]
     await waitFor(() => {
-      expect(screen.getByText(/Online/i)).toBeInTheDocument();
-      expect(screen.getByText(/Account and Access/i)).toBeInTheDocument();
-      expect(screen.getByText(/Hardware/i)).toBeInTheDocument();
-      expect(screen.getByText(/Software/i)).toBeInTheDocument();
-      expect(screen.getByText(/Network/i)).toBeInTheDocument();
+      expect(screen.getByText(/TokTickIT/i)).toBeInTheDocument();
     });
   });
 
-  it("shows an Offline error message when the API is unavailable", async () => {
-    vi.spyOn(api, "checkSystem").mockRejectedValue(new Error("Unable to connect to TokTickIT API"));
+  it("UI-01: Access App without active Requester renders Requester Selection screen", async () => {
     render(<App />);
-    const button = screen.getByRole("button", { name: /Check System/i });
-    fireEvent.click(button);
+
+    // ตรวจสอบว่าหน้าจอจำลองล็อกอิน (Development Requester Selection) แสดงขึ้นมา[cite: 8]
     await waitFor(() => {
-      expect(screen.getByText(/Offline/i)).toBeInTheDocument();
-      expect(screen.getByText(/Unable to connect to TokTickIT API/i)).toBeInTheDocument();
+      expect(screen.getByText(/Select Development Requester/i)).toBeInTheDocument();
+      // เช็คว่ามีข้อความอธิบายตามที่ Lab 2 กำหนดว่าใช้สำหรับเทสเท่านั้น[cite: 8]
+      expect(screen.getByText(/This is for testing only/i)).toBeInTheDocument();
     });
   });
 });

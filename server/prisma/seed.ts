@@ -23,7 +23,36 @@ async function main() {
   }
 
   console.log("Categories seeded successfully.");
+
+  const requesters = [
+    { name: "Jennifer Anderson", email: "jennifer@example.com", isActive: true },
+    { name: "Michael Brown", email: "michael@example.com", isActive: true },
+    { name: "Sarah Johnson", email: "sarah@example.com", isActive: true },
+    { name: "David Lee", email: "david@example.com", isActive: true },
+    { name: "Inactive User", email: "inactive@example.com", isActive: false },
+  ];
+
+  for (const req of requesters) {
+    await prisma.requester.upsert({
+      where: { email: req.email },
+      update: {},
+      create: req,
+    });
+  }
+
+  const systems = [
+    "Email", "Campus Wi-Fi", "VPN", "LEB2 App", "Grade Submission App", "Printer", "Corporate Laptop"
+  ];
+
+  for (const sys of systems) {
+    await prisma.relatedSystem.upsert({
+      where: { name: sys },
+      update: {},
+      create: { name: sys },
+    });
+  }
 }
+
 
 main()
   .catch((e) => {
