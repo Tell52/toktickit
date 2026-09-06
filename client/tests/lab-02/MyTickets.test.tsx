@@ -15,7 +15,7 @@ describe("App & Requester Selection (Lab 2)", () => {
 
         render(<App />);
 
-        // ตรวจสอบว่าหน้าจอจำลองล็อกอิน (Development Requester Selection) แสดงขึ้นมา[cite: 8]
+        // ตรวจสอบว่าหน้าจอจำลองล็อกอิน (Development Requester Selection) แสดงขึ้นมา
         await waitFor(() => {
             expect(screen.getByText(/Select Development Requester/i)).toBeInTheDocument();
             expect(screen.getByText(/This is for testing only/i)).toBeInTheDocument();
@@ -40,8 +40,8 @@ describe("MyTickets Component Data View", () => {
             meta: { totalPages: 1 }
         });
 
-        // เรนเดอร์เฉพาะคอมโพเนนต์ MyTickets โดยส่ง requesterId จำลองเข้าไป
-        render(<MyTickets requesterId={1} />);
+        // แก้ไข: เพิ่ม onViewTicket={vi.fn()} เข้าไป
+        render(<MyTickets requesterId={1} onViewTicket={vi.fn()} />);
 
         // ตรวจสอบว่ามีข้อมูลตั๋วปรากฏบนหน้าจอ
         await waitFor(() => {
@@ -57,7 +57,8 @@ describe("MyTickets Component Data View", () => {
             meta: { totalPages: 1 }
         });
 
-        render(<MyTickets requesterId={1} />);
+        // แก้ไข: เพิ่ม onViewTicket={vi.fn()} เข้าไป
+        render(<MyTickets requesterId={1} onViewTicket={vi.fn()} />);
 
         // ตรวจสอบว่าแสดงข้อความแจ้งเตือนเมื่อไม่มีตั๋ว
         await waitFor(() => {

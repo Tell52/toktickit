@@ -12,9 +12,10 @@ interface Ticket {
 
 interface MyTicketsProps {
     requesterId: number;
+    onViewTicket?: (ticketId: string) => void;
 }
 
-export default function MyTickets({ requesterId }: MyTicketsProps) {
+export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps) {
     // 1. จัดการ States ทั้งหมด
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -135,7 +136,17 @@ export default function MyTickets({ requesterId }: MyTicketsProps) {
                                     <tr key={ticket.id}>
                                         <td className="fw-bold">{ticket.ticketNumber}</td>
                                         <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
-                                        <td>{ticket.summary}</td>
+
+                                        {/* แก้ไขที่ 1 (Desktop): ทำให้ Summary กดคลิกได้ */}
+                                        <td>
+                                            <span
+                                                style={{ cursor: "pointer", color: "#006B3C", textDecoration: "underline" }}
+                                                onClick={() => onViewTicket?.(ticket.id.toString())}
+                                            >
+                                                {ticket.summary}
+                                            </span>
+                                        </td>
+
                                         <td>{ticket.category.name}</td>
                                         <td>
                                             <span className="badge bg-success bg-opacity-75">
@@ -157,7 +168,17 @@ export default function MyTickets({ requesterId }: MyTicketsProps) {
                                         <span className="fw-bold" style={{ color: "#006B3C" }}>{ticket.ticketNumber}</span>
                                         <span className="badge bg-success bg-opacity-75">{ticket.currentStatus}</span>
                                     </div>
-                                    <h6 className="card-title">{ticket.summary}</h6>
+
+                                    {/* แก้ไขที่ 2 (Mobile): ทำให้ Summary กดคลิกได้ */}
+                                    <h6 className="card-title">
+                                        <span
+                                            style={{ cursor: "pointer", color: "#006B3C", textDecoration: "underline" }}
+                                            onClick={() => onViewTicket?.(ticket.id.toString())}
+                                        >
+                                            {ticket.summary}
+                                        </span>
+                                    </h6>
+
                                     <p className="card-text text-muted small mb-0">
                                         {ticket.category.name} • {new Date(ticket.createdAt).toLocaleDateString()}
                                     </p>

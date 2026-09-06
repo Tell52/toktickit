@@ -59,10 +59,11 @@ export default function RequesterSelection({ onSelect }: Props) {
                     {!error && requesters.length > 0 && (
                         <>
                             <div className="mb-3">
-                                <label className="form-label fw-bold" style={{ color: "#0B7A46" }}>
+                                <label htmlFor="requester-select" className="form-label fw-bold" style={{ color: "#0B7A46" }}>
                                     Development Requester <span className="text-danger">*</span>
                                 </label>
                                 <select
+                                    id="requester-select"
                                     className="form-select"
                                     value={selectedId}
                                     onChange={(e) => setSelectedId(Number(e.target.value))}
