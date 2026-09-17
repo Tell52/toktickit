@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum สำหรับจัดการ Role[cite: 8]
+enum Role {
+  REQUESTER
+  IT_STAFF
+  ADMINISTRATOR
+}
+
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
@@ -17,20 +24,29 @@ model Category {
   tickets   Ticket[]
 }
 
-// Lab2 Issue 2 - Development Requester Context Foundation
-
-model Requester {
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String  @unique
-  isActive Boolean @default(true)
-  tickets  Ticket[]
+model RelatedSystem {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  tickets   Ticket[]
 }
 
-model RelatedSystem {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  tickets  Ticket[]
+// สร้าง Model User[cite: 8]
+model User {
+  id                 String     @id @default(uuid())
+  name               String
+  email              String     @unique // case-insensitive จะถูกจัดการใน API หรือ logic
+  passwordHash       String
+  role               Role       @default(REQUESTER)
+  isActive           Boolean    @default(true)
+  mustChangePassword Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  // ความสัมพันธ์
+  ticketsRequested   Ticket[]   @relation("RequesterTickets")
+  ticketsOwned       Ticket[]   @relation("OwnerTickets")
+  comments           Comment[]
+  notes              Note[]
 }
 
 model Ticket {
@@ -39,20 +55,28 @@ model Ticket {
   summary           String
   description       String
   requestedPriority String        // "Low", "Medium", "High"
+  itPriority        String?       // ฟิลด์ใหม่คัดลอกค่าจาก requestedPriority ตอนสร้าง[cite: 8]
   currentStatus     String        @default("New")
   createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  //(Foreign Keys)
-  requesterId       Int
-  requester         Requester     @relation(fields: [requesterId], references: [id])
+  // เปลี่ยนมาใช้ User (แทน Requester เดิม)[cite: 8]
+  requesterId       String
+  requester         User          @relation("RequesterTickets", fields: [requesterId], references: [id])
   
+  // ฟิลด์ใหม่: เจ้าของ Ticket (IT Staff / Admin)[cite: 8]
+  ownerId           String?
+  owner             User?         @relation("OwnerTickets", fields: [ownerId], references: [id])
+
   categoryId        Int
   category          Category      @relation(fields: [categoryId], references: [id])
   
   relatedSystemId   Int
   relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
 
-  attachments Attachment[]
+  attachments       Attachment[]
+  comments          Comment[]
+  notes             Note[]
 }
 
 model Attachment {
@@ -69,4 +93,32 @@ model Attachment {
 
   ticketId      Int
   ticket        Ticket   @relation(fields: [ticketId], references: [id])
+}
+
+// สร้าง Model Comment สำหรับ Public Comments[cite: 8]
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  
+  ticketId  Int      // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  
+  authorId  String   // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+// สร้าง Model Note สำหรับ Internal Notes[cite: 8]
+model Note {
+  id        String   @id @default(uuid())
+  content   String
+  
+  ticketId  Int      // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  
+  authorId  String   // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  createdAt DateTime @default(now())
 }

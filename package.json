@@ -20,6 +20,10 @@
   "homepage": "https://github.com/Tell52/toktickit#readme",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^26.4.1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0"
   }
 }
