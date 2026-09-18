@@ -1,113 +1,179 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 // ---------------------------------------------------------------------------
-// Lab 1 
+// 1. Core Fetch Wrapper (จัดการ Cookie & CSRF อัตโนมัติ)[cite: 7]
 // ---------------------------------------------------------------------------
-export interface Category {
-  id: number;
-  name: string;
+async function apiFetch(endpoint: string, options: RequestInit = {}) {
+  const url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`;
+  const headers = new Headers(options.headers || {});
+
+  // เพิ่ม CSRF Token สำหรับ Request ที่มีการเปลี่ยนแปลงข้อมูล[cite: 7]
+  const method = options.method?.toUpperCase() || 'GET';
+  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+    const csrfToken = localStorage.getItem('csrfToken');
+    if (csrfToken) {
+      headers.append('X-CSRF-Token', csrfToken);
+    }
+  }
+
+  const finalOptions: RequestInit = {
+    ...options,
+    headers,
+    credentials: 'include', // บังคับให้เบราว์เซอร์ส่ง Session Cookie ไปด้วยเสมอ[cite: 7]
+  };
+
+  const res = await fetch(url, finalOptions);
+
+  if (!res.ok) {
+    // ดัก Error ให้คืนค่าเป็น Object ตาม Standard Error Shape ของ Lab 3[cite: 7]
+    const errorData = await res.json().catch(() => ({}));
+    throw errorData;
+  }
+  return res;
 }
 
-export interface SystemStatus {
-  online: boolean;
-  categories: Category[];
+// ---------------------------------------------------------------------------
+// 2. Auth Endpoints (Lab 3)[cite: 7]
+// ---------------------------------------------------------------------------
+export async function login(credentials: any) {
+  const res = await apiFetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials)
+  });
+  return res.json();
 }
+
+export async function logout() {
+  const res = await apiFetch("/api/auth/logout", { method: "POST" });
+  return res.json();
+}
+
+export async function getMe() {
+  const res = await apiFetch("/api/auth/me");
+  return res.json();
+}
+
+export async function changePassword(data: any) {
+  const res = await apiFetch("/api/auth/change-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// 3. Lab 2 -> Lab 3 Updates (Requester & Core)
+// ---------------------------------------------------------------------------
+export interface Category { id: number; name: string; }
+export interface SystemStatus { online: boolean; categories: Category[]; }
+export interface RelatedSystem { id: number; name: string; }
 
 export async function checkSystem(): Promise<SystemStatus> {
-  const healthRes = await fetch(`${API_URL}/api/health`);
-  if (!healthRes.ok) throw new Error("Unable to connect to TokTickIT API");
-
-  const catRes = await fetch(`${API_URL}/api/categories`);
-  if (!catRes.ok) throw new Error("Unable to load categories");
-
+  const healthRes = await apiFetch(`/api/health`);
+  const catRes = await apiFetch(`/api/categories`);
   const categories = await catRes.json();
   return { online: true, categories };
 }
 
-// ---------------------------------------------------------------------------
-// Lab 2 - Issue 2 (Requester)
-// ---------------------------------------------------------------------------
-export interface Requester {
-  id: number;
-  name: string;
-  email: string;
-}
-
-export async function getRequesters(): Promise<Requester[]> {
-  const res = await fetch(`${API_URL}/api/requesters`);
-  if (!res.ok) throw new Error("Failed to fetch requesters");
-  return res.json();
-}
-
-// ---------------------------------------------------------------------------
-// Lab 2 - Issue 3 (Create Ticket & Related Systems)
-// ---------------------------------------------------------------------------
-export interface RelatedSystem {
-  id: number;
-  name: string;
-}
-
 export async function getCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_URL}/api/categories`);
-  if (!res.ok) throw new Error("Failed to fetch categories");
+  const res = await apiFetch(`/api/categories`);
   return res.json();
 }
 
 export async function getRelatedSystems(): Promise<RelatedSystem[]> {
-  const res = await fetch(`${API_URL}/api/related-systems`);
-  if (!res.ok) throw new Error("Failed to fetch related systems");
+  const res = await apiFetch(`/api/related-systems`);
   return res.json();
 }
 
+export interface Requester {
+  id: number;
+  name: string;
+  email: string;
+  isActive?: boolean;
+}
+
+export async function getRequesters(): Promise<Requester[]> {
+  try {
+    const res = await apiFetch(`/api/requesters`);
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 export async function createTicket(ticketData: any) {
-  const res = await fetch(`${API_URL}/api/tickets`, {
+  // ไม่ต้องส่ง requesterId ไปใน body แล้ว
+  const res = await apiFetch(`/api/tickets`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(ticketData),
   });
-
-  if (!res.ok) throw new Error("Failed to create ticket");
   return res.json();
 }
 
-export async function getMyTickets(requesterId: number, queryParams: any = {}) {
+// รองรับทั้ง getMyTickets(queryParams) และ getMyTickets(requesterId, queryParams)
+export async function getMyTickets(arg1?: any, arg2?: any) {
+  const queryParams = (typeof arg1 === "object" && arg1 !== null) ? arg1 : (arg2 || {});
   const url = new URL(`${API_URL}/api/tickets`);
-  url.searchParams.append("requesterId", requesterId.toString());
 
-  if (queryParams.page) url.searchParams.append("page", queryParams.page);
+  if (queryParams.page) url.searchParams.append("page", queryParams.page.toString());
   if (queryParams.search) url.searchParams.append("search", queryParams.search);
   if (queryParams.status) url.searchParams.append("status", queryParams.status);
 
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error("Failed to load tickets");
+  const res = await apiFetch(url.toString());
   return res.json();
 }
 
-export async function getTicketDetail(ticketId: string, requesterId: number) {
-  const res = await fetch(`${API_URL}/api/tickets/${ticketId}?requesterId=${requesterId}`);
-  if (!res.ok) throw new Error("Failed to load ticket details");
+// รองรับทั้ง getTicketDetail(id) และ getTicketDetail(id, requesterId)
+export async function getTicketDetail(ticketId: string, _requesterId?: number) {
+  const res = await apiFetch(`/api/tickets/${ticketId}`);
   return res.json();
 }
 
-export async function softRemoveAttachment(ticketId: string, attachmentId: number, reason: string, requesterId: number) {
-  const res = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}`, {
+// รองรับ softRemoveAttachment(ticketId, attachmentId, reason, _requesterId)
+export async function softRemoveAttachment(
+  ticketId: string,
+  attachmentId: number,
+  reason: string,
+  _requesterId?: number
+) {
+  const res = await apiFetch(`/api/tickets/${ticketId}/attachments/${attachmentId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ requesterId, reason })
+    body: JSON.stringify({ reason }),
   });
-  if (!res.ok) throw new Error("Failed to remove attachment");
   return res.json();
 }
 
-export async function uploadAttachment(ticketId: string, file: File, requesterId: number) {
+// รองรับ uploadAttachment(ticketId, file, _requesterId)
+export async function uploadAttachment(ticketId: string, file: File, _requesterId?: number) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("requesterId", requesterId.toString());
 
-  const res = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
+  const res = await apiFetch(`/api/tickets/${ticketId}/attachments`, {
     method: "POST",
-    body: formData, // Fetch จะจัดการเรื่อง headers Content-Type แบบ multipart ให้เอง
+    body: formData, // fetch จัดการ header multipart ให้อัตโนมัติ
   });
-  if (!res.ok) throw new Error("Failed to upload attachment");
+  return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// 4. Comment Endpoints (Lab 3)[cite: 7]
+// ---------------------------------------------------------------------------
+export async function createComment(ticketId: string, content: string) {
+  const res = await apiFetch(`/api/tickets/${ticketId}/comments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content })
+  });
+  return res.json();
+}
+
+export async function indicateResolved(ticketId: string) {
+  const res = await apiFetch(`/api/tickets/${ticketId}/resolved-indicator`, {
+    method: "POST"
+  });
   return res.json();
 }

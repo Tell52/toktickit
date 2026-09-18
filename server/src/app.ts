@@ -12,7 +12,10 @@ void getPrisma;
 
 export const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.use(session({
@@ -263,9 +266,10 @@ const upload = multer({
 // ---------------------------------------------------------------------------
 app.get("/api/tickets/:id", async (req: Request, res: Response) => {
   const ticketId = Number(req.params.id);
-  const requesterId = req.query.requesterId as string;
+  const sessionUser = req.session?.user;
+  const requesterId = sessionUser ? sessionUser.id : (req.query.requesterId as string);
 
-  if (!requesterId) {
+  if (!sessionUser && !requesterId) {
     return res.status(403).json({ error: "Requester ID is required" });
   }
 
@@ -275,7 +279,15 @@ app.get("/api/tickets/:id", async (req: Request, res: Response) => {
       include: {
         category: true,
         relatedSystem: true,
-        attachments: true // ดึงข้อมูลไฟล์แนบมาด้วย[cite: 8]
+        attachments: true,
+        comments: {
+          include: {
+            author: {
+              select: { id: true, name: true, role: true }
+            }
+          },
+          orderBy: { createdAt: "asc" }
+        }
       },
     });
 
@@ -283,12 +295,32 @@ app.get("/api/tickets/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Ticket not found" });
     }
 
-    // ตรวจสอบสิทธิ์: ป้องกันการเข้าถึงตั๋วของคนอื่น[cite: 8]
-    if (String(ticket.requesterId) !== String(requesterId)) {
-      return res.status(403).json({ error: "Unauthorized access to this ticket" });
+    // Role-based ownership check
+    if (sessionUser) {
+      if (sessionUser.role === "REQUESTER" && String(ticket.requesterId) !== String(sessionUser.id)) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+    } else if (requesterId) {
+      if (String(ticket.requesterId) !== String(requesterId)) {
+        return res.status(403).json({ error: "Unauthorized access to this ticket" });
+      }
     }
 
-    res.status(200).json(ticket);
+    const formattedComments = (ticket.comments || []).map(c => ({
+      id: c.id,
+      ticketId: c.ticketId,
+      authorId: c.authorId,
+      authorName: c.author?.name || "Unknown",
+      authorRole: c.author?.role || "REQUESTER",
+      author: c.author,
+      content: c.content,
+      createdAt: c.createdAt
+    }));
+
+    res.status(200).json({
+      ...ticket,
+      comments: formattedComments
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve ticket details" });
   }
@@ -310,7 +342,7 @@ app.post("/api/tickets/:id/attachments", (req: Request, res: Response, next) => 
   });
 }, async (req: Request, res: Response) => {
   const ticketId = Number(req.params.id);
-  const requesterId = req.body.requesterId as string;
+  const requesterId = req.session?.user?.id || (req.body.requesterId as string);
   const file = req.file;
 
   if (!requesterId || !file) {
@@ -356,11 +388,11 @@ app.post("/api/tickets/:id/attachments", (req: Request, res: Response, next) => 
 app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
   const ticketId = Number(req.params.id);
   const attachmentId = Number(req.params.attachmentId);
-  const requesterId = req.query.requesterId as string;
+  const requesterId = req.session?.user?.id || (req.query.requesterId as string);
 
   try {
     const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId } });
-    if (!ticket || String(ticket.requesterId) !== String(requesterId)) {
+    if (!ticket || (requesterId && String(ticket.requesterId) !== String(requesterId))) {
       return res.status(403).json({ error: "Unauthorized access" });
     }
 
@@ -390,7 +422,8 @@ app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: 
 app.delete("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
   const ticketId = Number(req.params.id);
   const attachmentId = Number(req.params.attachmentId);
-  const { requesterId, reason } = req.body;
+  const requesterId = req.session?.user?.id || (req.body.requesterId as string);
+  const { reason } = req.body;
 
   // บังคับให้ต้องใส่เหตุผลในการลบ[cite: 8]
   if (!requesterId || !reason) {
@@ -415,6 +448,129 @@ app.delete("/api/tickets/:id/attachments/:attachmentId", async (req: Request, re
     res.status(200).json(removedAttachment);
   } catch (error) {
     res.status(500).json({ error: "Failed to remove attachment" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 5. Public Comments (Lab 3)
+// ---------------------------------------------------------------------------
+app.post("/api/tickets/:id/comments", async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const { content } = req.body;
+
+  // Validation: empty or whitespace-only content rejected (BR-16, AC-14)
+  if (!content || typeof content !== "string" || !content.trim()) {
+    return res.status(400).json({
+      error: { code: "VALIDATION_ERROR", message: "Comment content cannot be empty" }
+    });
+  }
+
+  const sessionUser = req.session?.user;
+  const authorId = sessionUser?.id || (req.body.authorId as string);
+
+  if (!authorId) {
+    return res.status(401).json({
+      error: { code: "UNAUTHENTICATED", message: "Authentication required" }
+    });
+  }
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found" }
+      });
+    }
+
+    // If requester, must own ticket
+    if (sessionUser && sessionUser.role === "REQUESTER" && String(ticket.requesterId) !== String(sessionUser.id)) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found" }
+      });
+    }
+
+    const author = await getPrisma().user.findUnique({
+      where: { id: authorId },
+      select: { id: true, name: true, role: true }
+    });
+
+    const newComment = await getPrisma().comment.create({
+      data: {
+        ticketId,
+        authorId,
+        content: content.trim(),
+      },
+      include: {
+        author: {
+          select: { id: true, name: true, role: true }
+        }
+      }
+    });
+
+    res.status(201).json({
+      id: newComment.id,
+      ticketId: newComment.ticketId,
+      authorId: newComment.authorId,
+      authorName: newComment.author?.name || "Unknown",
+      authorRole: newComment.author?.role || "REQUESTER",
+      author: newComment.author,
+      content: newComment.content,
+      createdAt: newComment.createdAt
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create comment" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 6. Problem Appears Resolved Indicator (Lab 3)
+// ---------------------------------------------------------------------------
+app.post("/api/tickets/:id/resolved-indicator", async (req: Request, res: Response) => {
+  const ticketId = Number(req.params.id);
+  const sessionUser = req.session?.user;
+
+  if (!sessionUser) {
+    return res.status(401).json({
+      error: { code: "UNAUTHENTICATED", message: "Authentication required" }
+    });
+  }
+
+  // Owning Requester only
+  if (sessionUser.role !== "REQUESTER") {
+    return res.status(403).json({
+      error: { code: "FORBIDDEN", message: "Only requesters can indicate problem resolved" }
+    });
+  }
+
+  try {
+    const ticket = await getPrisma().ticket.findUnique({
+      where: { id: ticketId },
+    });
+
+    if (!ticket || String(ticket.requesterId) !== String(sessionUser.id)) {
+      return res.status(404).json({
+        error: { code: "NOT_FOUND", message: "Ticket not found" }
+      });
+    }
+
+    const updated = await getPrisma().ticket.update({
+      where: { id: ticketId },
+      data: {
+        problemAppearsResolved: true,
+        indicatedAt: new Date()
+      }
+    });
+
+    res.status(200).json({
+      ticketId: updated.id,
+      problemAppearsResolved: updated.problemAppearsResolved,
+      indicatedAt: updated.indicatedAt
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to set resolved indicator" });
   }
 });
 

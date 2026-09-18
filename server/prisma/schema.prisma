@@ -57,6 +57,8 @@ model Ticket {
   requestedPriority String        // "Low", "Medium", "High"
   itPriority        String?       // ฟิลด์ใหม่คัดลอกค่าจาก requestedPriority ตอนสร้าง[cite: 8]
   currentStatus     String        @default("New")
+  problemAppearsResolved Boolean   @default(false)
+  indicatedAt       DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
