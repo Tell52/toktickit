@@ -4,6 +4,7 @@ import { getPrisma } from "./prisma.js";
 import multer from "multer";
 import session from 'express-session';
 import authRoutes from './routes/auth.routes';
+import staffRoutes from './routes/staff.routes';
 import { requireAuth, requireRole } from "./middleware/auth";
 
 import { Role } from "@prisma/client";
@@ -48,9 +49,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/auth', authRoutes);
 
 // Staff and Admin routes protection (RBAC)
-app.use('/api/staff', requireAuth, requireRole(['IT_STAFF', 'ADMINISTRATOR']), (_req: Request, res: Response) => {
-  res.status(200).json({ ok: true });
-});
+app.use('/api/staff', requireAuth, requireRole(['IT_STAFF', 'ADMINISTRATOR']), staffRoutes);
 
 app.use('/api/admin', requireAuth, requireRole(['ADMINISTRATOR']), (_req: Request, res: Response) => {
   res.status(200).json({ ok: true });
