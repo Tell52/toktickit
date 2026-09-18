@@ -7,6 +7,7 @@ import CreateTicket from "./components/CreateTicket.js";
 import MyTickets from "./MyTickets.js";
 import RequesterTicketDetail from "./RequesterTicketDetail.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import StaffTicketQueue from "./components/StaffTicketQueue.js";
 
 export function RoleBadge({ role }: { role: string }) {
   const norm = (role || "").toUpperCase();
@@ -280,15 +281,7 @@ export default function App() {
         {/* IT Staff & Admin: My Queue */}
         {currentPath === "/queue" && (
           <ProtectedRoute allowedRoles={["IT_STAFF", "ADMINISTRATOR"]} currentPath={currentPath} onNavigate={navigate}>
-            <div className="card shadow-sm border-0 p-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 12 }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h3 className="h5 mb-0" style={{ color: "#006B3C" }}>My Queue</h3>
-                <span className="badge bg-primary-subtle text-primary border border-primary">Shared IT Queue</span>
-              </div>
-              <p className="text-muted small mb-0">
-                Shared Ticket Queue for IT Staff and Administrators.
-              </p>
-            </div>
+            <StaffTicketQueue onViewTicket={handleViewTicket} />
           </ProtectedRoute>
         )}
 

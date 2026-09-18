@@ -177,3 +177,74 @@ export async function indicateResolved(ticketId: string) {
   });
   return res.json();
 }
+
+// ---------------------------------------------------------------------------
+// 5. IT Staff Ticket Queue & Ticket Operations (Lab 3)
+// ---------------------------------------------------------------------------
+export interface StaffTicketOwner {
+  id: string;
+  name: string;
+  email?: string;
+}
+
+export interface StaffTicket {
+  id: number | string;
+  ticketNumber: string;
+  createdAt: string;
+  summary: string;
+  description?: string;
+  category: string;
+  requestedPriority: string;
+  itPriority: string;
+  status: string;
+  currentStatus?: string;
+  owner: StaffTicketOwner | null;
+  requester?: { id: string; name: string } | null;
+  problemAppearsResolved?: boolean;
+}
+
+export interface StaffTicketsPagination {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface StaffTicketsResponse {
+  tickets: StaffTicket[];
+  pagination: StaffTicketsPagination;
+}
+
+export interface StaffTicketQueryParams {
+  search?: string;
+  status?: string;
+  category?: string;
+  priority?: string;
+  owner?: string;
+  sort?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export async function getStaffTickets(params: StaffTicketQueryParams = {}): Promise<StaffTicketsResponse> {
+  const url = new URL(`${API_URL}/api/staff/tickets`);
+  if (params.search) url.searchParams.append("search", params.search);
+  if (params.status) url.searchParams.append("status", params.status);
+  if (params.category) url.searchParams.append("category", params.category);
+  if (params.priority) url.searchParams.append("priority", params.priority);
+  if (params.owner) url.searchParams.append("owner", params.owner);
+  if (params.sort) url.searchParams.append("sort", params.sort);
+  if (params.page !== undefined) url.searchParams.append("page", String(params.page));
+  if (params.pageSize !== undefined) url.searchParams.append("pageSize", String(params.pageSize));
+
+  const res = await apiFetch(url.toString());
+  return res.json();
+}
+
+export async function claimStaffTicket(ticketId: string | number, ownerId: string | null) {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ownerId }),
+  });
+  return res.json();
+}
