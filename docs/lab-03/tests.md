@@ -37,7 +37,7 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 | UNIT-03 | BR-12 | IT Priority default logic | On Ticket creation, `itPriority` is set equal to `requestedPriority` | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
 | UNIT-04 | AC-14, BR-16 | Comment/Note content validator | Empty string and whitespace-only string both rejected; valid string passes | `server/tests/lab-03/comments-notes.api.test.ts` | Pending |
 | UNIT-05 | BR-13 | Status transition matrix validator | Given (fromStatus, toStatus) pairs, returns allowed/rejected matching the matrix in `ui-spec.md` §1.1 for all 8×8 combinations | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
-| UNIT-06 | BR-09 | Email uniqueness normalizer | Emails compared case-insensitively (`User@x.com` conflicts with `user@x.com`) | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
+| UNIT-06 | BR-09 | Email uniqueness normalizer | Emails compared case-insensitively (`User@x.com` conflicts with `user@x.com`) | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
 | UNIT-07 | password rules (spec §11) | Password strength validator | Rejects <8 chars, missing upper/lower, missing number, missing special char; accepts a compliant password | `server/tests/lab-03/auth.api.test.ts` | Pending |
 
 ---
@@ -60,11 +60,11 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 | API-12 | AC-07, FR-20, BR-13, BR-14 | IT Staff attempts an illegal status transition (e.g. New → Closed) | 409 conflict; status unchanged in DB | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
 | API-13 | FR-19, BR-11, BR-12 | Attempt to modify `requestedPriority` via any endpoint | Rejected or silently ignored — field remains immutable post-creation | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
 | API-14 | FR-18 | Assign Ticket owner to an inactive IT Staff user | 400 validation error; assignment rejected | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
-| API-15 | AC-11, FR-26, FR-29, BR-09 | Admin creates user with an email that already exists | 409 `EMAIL_ALREADY_EXISTS`; no new user row created | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
-| API-16 | AC-09, FR-30, BR (self-deactivation) | Admin attempts to set `isActive=false` on their own account | 409 `CANNOT_DEACTIVATE_SELF`; account remains active | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
-| API-17 | AC-10, FR-31, BR (last-admin) | Deactivate the sole remaining active Administrator | 409 `LAST_ACTIVE_ADMIN`; account remains active | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
-| API-18 | FR-28 | Admin sets new initial password for a user | 200; target user's `mustChangePassword=true`; target user's next login forces Change Password | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
-| API-19 | FR-24, FR-25 | Admin user list with `search` and `role` query params combined | Returns only users matching both name/email substring AND role | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
+| API-15 | AC-11, FR-26, FR-29, BR-09 | Admin creates user with an email that already exists | 409 `EMAIL_ALREADY_EXISTS`; no new user row created | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
+| API-16 | AC-09, FR-30, BR (self-deactivation) | Admin attempts to set `isActive=false` on their own account | 409 `CANNOT_DEACTIVATE_SELF`; account remains active | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
+| API-17 | AC-10, FR-31, BR (last-admin) | Deactivate the sole remaining active Administrator | 409 `LAST_ACTIVE_ADMIN`; account remains active | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
+| API-18 | FR-28 | Admin sets new initial password for a user | 200; target user's `mustChangePassword=true`; target user's next login forces Change Password | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
+| API-19 | FR-24, FR-25 | Admin user list with `search` and `role` query params combined | Returns only users matching both name/email substring AND role | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
 | API-20 | FR-21 | IT Staff posts a Public Comment on a Ticket they don't own | 201 — any IT Staff/Admin may comment regardless of ownership | `server/tests/lab-03/comments-notes.api.test.ts` | Pending |
 
 ---
@@ -78,8 +78,8 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 | UI-03 | FR-13–17 | `StaffTicketQueue` component | Renders table columns per spec; search input debounces; clicking column header toggles sort indicator | `client/tests/lab-03/StaffTicketQueue.test.tsx` | Pass |
 | UI-04 | AC-06, FR-18 | `StaffTicketQueue` / owner filter | Selecting "Unassigned" filter shows only tickets with no owner; "Me" shows only caller's tickets | `client/tests/lab-03/StaffTicketQueue.test.tsx` | Pass |
 | UI-05 | AC-13 | `StaffTicketQueue` pagination | "Showing X to Y of Z" label matches returned data; Next/Previous disabled at boundaries | `client/tests/lab-03/StaffTicketQueue.test.tsx` | Pass |
-| UI-06 | AC-11, FR-29 | `UserManagement` create form | Duplicate-email server error renders inline under Email field, not as a generic toast only | `client/.../lab-03 tests/UserManagement.test.tsx` | Pending |
-| UI-07 | AC-09, FR-30 | `UserManagement` edit panel | Deactivate button is disabled with tooltip when editing the logged-in Admin's own row | `client/.../lab-03 tests/UserManagement.test.tsx` | Pending |
+| UI-06 | AC-11, FR-29 | `UserManagement` create form | Duplicate-email server error renders inline under Email field, not as a generic toast only | `client/tests/lab-03/UserManagement.test.tsx` | Pass |
+| UI-07 | AC-09, FR-30 | `UserManagement` edit panel | Deactivate button is disabled with tooltip when editing the logged-in Admin's own row | `client/tests/lab-03/UserManagement.test.tsx` | Pass |
 | UI-08 | FR-20 | `StaffTicketDetail` status dropdown | Only legal transition targets (per matrix) are rendered as selectable options for the ticket's current status | `client/.../lab-03 tests/StaffTicketDetail.test.tsx` | Pending |
 | UI-09 | BR-04 | `StaffTicketDetail` Comments vs. Notes tabs | Internal Notes panel renders with distinct background/icon vs. Public Comments panel | `client/.../lab-03 tests/StaffTicketDetail.test.tsx` | Pending |
 | UI-10 | FR-12 | `RequesterTicketDetail` resolved-indicator button | Button hidden once already indicated or when status is Resolved/Closed/Cancelled | `client/.../lab-03 tests/StaffTicketDetail.test.tsx` (or Requester-specific file) | Pending |
@@ -123,7 +123,7 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 | SEC-06 | FR-08 | IT Staff (non-Admin) direct API call to `/admin/users*` | 403 on list, create, update, and reset-password endpoints | `server/tests/lab-03/authorization.api.test.ts` | Pending |
 | SEC-07 | AC-09 | Direct API call: Admin PATCHes own user record with `isActive=false` | 409, bypassing any UI-side disabled-button protection | `server/tests/lab-03/authorization.api.test.ts` | Pending |
 | SEC-08 | AC-10 | Direct API call: deactivate the last active Administrator via a second Admin account (if seed allows) or via self | 409 in all cases where it would leave zero active Administrators | `server/tests/lab-03/authorization.api.test.ts` | Pending |
-| SEC-09 | BR-06 | Inspect stored user records after seed/creation | No plaintext password present in DB; only hash | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
+| SEC-09 | BR-06 | Inspect stored user records after seed/creation | No plaintext password present in DB; only hash | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
 | SEC-10 | api-spec §1.1 | CSRF token omitted or invalid on a state-changing request | Request rejected (403/401) despite valid session cookie | `server/tests/lab-03/authorization.api.test.ts` | Pending |
 
 ---
@@ -134,7 +134,7 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 |---|---|---|---|---|---|
 | MIG-01 | BR-21, spec §7.4 | Run migration against a Lab 2 database snapshot | Every pre-existing Ticket's `requesterId` resolves to a valid new `User` row; row count before = row count after | `server/tests/lab-03/auth.api.test.ts` (or dedicated `migration.test.ts`) | Pending |
 | MIG-02 | spec §7.4 | Pre-existing Ticket `itPriority` backfill | `itPriority` equals prior `requestedPriority` for every migrated row | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | Pending |
-| MIG-03 | spec §7.5 | Seed script run twice in sequence | Second run does not duplicate users/tickets (idempotent) | `server/tests/lab-03/users-admin.api.test.ts` | Pending |
+| MIG-03 | spec §7.5 | Seed script run twice in sequence | Second run does not duplicate users/tickets (idempotent) | `server/tests/lab-03/users-admin.api.test.ts` | Pass |
 | REG-01 | FR-09, FR-10 | Lab 2 Requester create/view/manage-own-ticket flows, now authenticated | All Lab 2 behaviors function identically under the new auth model | `server/tests/lab-03/authorization.api.test.ts` + `e2e/lab-03/staff-ticket-flow.spec.ts` | Pending |
 | REG-02 | FR-10 | Development Requester selector / Change Requester action | Confirmed entirely absent from UI and routes (no dead code path reachable) | `client/.../lab-03 tests/*` (grep/manual) | Pending |
 | REG-03 | spec §7.1 | Existing Attachment records post-migration | Attachment-to-Ticket relations remain intact; files/download links unaffected | `server/tests/lab-03/authorization.api.test.ts` | Pending |

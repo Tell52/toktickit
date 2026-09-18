@@ -9,6 +9,7 @@ import RequesterTicketDetail from "./RequesterTicketDetail.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import StaffTicketQueue from "./components/StaffTicketQueue.js";
 import StaffTicketDetail from "./components/StaffTicketDetail.js";
+import UserManagement from "./components/UserManagement.js";
 
 
 export function RoleBadge({ role }: { role: string }) {
@@ -251,7 +252,7 @@ export default function App() {
       </header>
 
       {/* Main Content with Route Guards */}
-      <main className="container py-4" style={{ maxWidth: 880 }}>
+      <main className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : 880 }}>
         {/* Requester: My Tickets */}
         {currentPath === "/tickets" && (
           <ProtectedRoute allowedRoles={["REQUESTER"]} currentPath={currentPath} onNavigate={navigate}>
@@ -305,15 +306,7 @@ export default function App() {
         {/* Admin User Management */}
         {currentPath === "/admin" && (
           <ProtectedRoute allowedRoles={["ADMINISTRATOR"]} currentPath={currentPath} onNavigate={navigate}>
-            <div className="card shadow-sm border-0 p-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 12 }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h3 className="h5 mb-0" style={{ color: "#006B3C" }}>Administrator User Management</h3>
-                <span className="badge bg-success-subtle text-success border border-success">Admin Only</span>
-              </div>
-              <p className="text-muted small mb-0">
-                Manage user accounts, assign roles, and administer passwords.
-              </p>
-            </div>
+            <UserManagement currentUser={user} />
           </ProtectedRoute>
         )}
 

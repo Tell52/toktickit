@@ -359,4 +359,67 @@ export async function createStaffTicketNote(ticketId: string | number, content: 
   });
   return res.json();
 }
+
+// ---------------------------------------------------------------------------
+// 5. Administrator User Management Endpoints (Lab 3)
+// ---------------------------------------------------------------------------
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'REQUESTER' | 'IT_STAFF' | 'ADMINISTRATOR' | string;
+  isActive: boolean;
+  mustChangePassword?: boolean;
+}
+
+export interface CreateAdminUserData {
+  name: string;
+  email: string;
+  role: string;
+  isActive?: boolean;
+  initialPassword: string;
+}
+
+export interface UpdateAdminUserData {
+  name?: string;
+  email?: string;
+  role?: string;
+  isActive?: boolean;
+}
+
+export async function getAdminUsers(params?: { search?: string; role?: string }): Promise<{ users: AdminUser[] }> {
+  const url = new URL(`${API_URL}/api/admin/users`);
+  if (params?.search) url.searchParams.append('search', params.search);
+  if (params?.role && params.role !== 'ALL') url.searchParams.append('role', params.role);
+  const res = await apiFetch(url.toString());
+  return res.json();
+}
+
+export async function createAdminUser(data: CreateAdminUserData): Promise<AdminUser> {
+  const res = await apiFetch('/api/admin/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+export async function updateAdminUser(id: string, data: UpdateAdminUserData): Promise<AdminUser> {
+  const res = await apiFetch(`/api/admin/users/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+export async function resetAdminUserPassword(id: string, data: { newPassword: string }): Promise<{ userId: string; mustChangePassword: boolean }> {
+  const res = await apiFetch(`/api/admin/users/${id}/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
 
