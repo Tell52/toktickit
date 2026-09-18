@@ -8,6 +8,8 @@ import MyTickets from "./MyTickets.js";
 import RequesterTicketDetail from "./RequesterTicketDetail.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import StaffTicketQueue from "./components/StaffTicketQueue.js";
+import StaffTicketDetail from "./components/StaffTicketDetail.js";
+
 
 export function RoleBadge({ role }: { role: string }) {
   const norm = (role || "").toUpperCase();
@@ -270,10 +272,18 @@ export default function App() {
               >
                 &larr; Back to {isRequester ? "My Tickets" : "My Queue"}
               </button>
-              <RequesterTicketDetail
-                ticketId={selectedTicketId || currentPath.replace("/tickets/", "")}
-                currentRequesterId={user.id}
-              />
+              {isRequester ? (
+                <RequesterTicketDetail
+                  ticketId={selectedTicketId || currentPath.replace("/tickets/", "")}
+                  currentRequesterId={user.id}
+                />
+              ) : (
+                <StaffTicketDetail
+                  ticketId={selectedTicketId || currentPath.replace("/tickets/", "")}
+                  currentUser={user}
+                  onBack={() => navigate("/queue")}
+                />
+              )}
             </div>
           </ProtectedRoute>
         )}

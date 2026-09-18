@@ -149,32 +149,45 @@ app.post("/api/tickets", async (req: Request, res: Response) => {
       }
     }
 
-    // จำลองการสร้าง Ticket Number เช่น TKT-2026-0001
-    const ticketCount = await getPrisma().ticket.count();
-    let counter = ticketCount + 1;
-    let generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
-    while (await getPrisma().ticket.findUnique({ where: { ticketNumber: generatedTicketNumber } })) {
-      counter++;
-      generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
-    }
+    // จำลองการสร้าง Ticket Number เช่น TKT-2026-0001 (พร้อม retry ป้องกัน race condition เมื่อรัน test ขนานกัน)
+    let newTicket;
+    let attempts = 0;
+    while (!newTicket && attempts < 10) {
+      attempts++;
+      try {
+        const ticketCount = await getPrisma().ticket.count();
+        let counter = ticketCount + attempts;
+        let generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
+        while (await getPrisma().ticket.findUnique({ where: { ticketNumber: generatedTicketNumber } })) {
+          counter++;
+          generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
+        }
 
-    const newTicket = await getPrisma().ticket.create({
-      data: {
-        ticketNumber: generatedTicketNumber,
-        summary,
-        description,
-        requestedPriority,
-        itPriority: requestedPriority,
-        currentStatus: "New",
-        requesterId: finalRequesterId,
-        categoryId: Number(finalCategoryId),
-        relatedSystemId: Number(finalRelatedSystemId),
-      },
-    });
+        newTicket = await getPrisma().ticket.create({
+          data: {
+            ticketNumber: generatedTicketNumber,
+            summary,
+            description,
+            requestedPriority,
+            itPriority: requestedPriority,
+            currentStatus: "New",
+            requesterId: finalRequesterId,
+            categoryId: Number(finalCategoryId),
+            relatedSystemId: Number(finalRelatedSystemId),
+          },
+        });
+      } catch (err: any) {
+        if (err?.code === 'P2002' && attempts < 10) {
+          continue;
+        }
+        throw err;
+      }
+    }
 
     // คืนค่าสถานะ 201 Created
     res.status(201).json(newTicket);
   } catch (error) {
+    console.error("CREATE TICKET ERROR:", error);
     res.status(500).json({ error: "Failed to create ticket" });
   }
 });

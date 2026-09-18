@@ -247,4 +247,116 @@ export async function claimStaffTicket(ticketId: string | number, ownerId: strin
     body: JSON.stringify({ ownerId }),
   });
   return res.json();
-}
+}
+
+export interface StaffTicketComment {
+  id: string;
+  ticketId: string;
+  authorId: string;
+  authorName: string;
+  authorRole: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface StaffTicketInternalNote {
+  id: string;
+  ticketId?: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface StaffTicketAttachment {
+  id: number;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  fileUrl: string;
+  createdAt: string;
+}
+
+export interface StaffTicketDetailData {
+  id: number;
+  ticketNumber: string;
+  summary: string;
+  description: string;
+  category: string;
+  categoryDetails?: { id: number; name: string };
+  relatedSystem: string;
+  relatedSystemDetails?: { id: number; name: string };
+  requestedPriority: string;
+  itPriority: string;
+  status: string;
+  currentStatus: string;
+  owner: StaffTicketOwner | null;
+  requester: { id: string; name: string; email?: string } | null;
+  problemAppearsResolved?: boolean;
+  indicatedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  attachments?: StaffTicketAttachment[];
+  comments?: StaffTicketComment[];
+  notes?: StaffTicketInternalNote[];
+  internalNotesCount?: number;
+}
+
+export interface StaffUserItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export async function getStaffUsers(): Promise<{ users: StaffUserItem[] }> {
+  const res = await apiFetch("/api/staff/users");
+  return res.json();
+}
+
+export async function getStaffTicketDetail(ticketId: string | number): Promise<StaffTicketDetailData> {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}`);
+  return res.json();
+}
+
+export async function updateStaffTicketOwner(ticketId: string | number, ownerId: string | null) {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ownerId }),
+  });
+  return res.json();
+}
+
+export async function updateStaffTicketPriority(ticketId: string | number, itPriority: string) {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/priority`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ itPriority }),
+  });
+  return res.json();
+}
+
+export async function updateStaffTicketStatus(ticketId: string | number, status: string) {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  return res.json();
+}
+
+export async function getStaffTicketNotes(ticketId: string | number): Promise<{ notes: StaffTicketInternalNote[] }> {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/notes`);
+  return res.json();
+}
+
+export async function createStaffTicketNote(ticketId: string | number, content: string): Promise<StaffTicketInternalNote> {
+  const res = await apiFetch(`/api/staff/tickets/${ticketId}/notes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  return res.json();
+}
+
