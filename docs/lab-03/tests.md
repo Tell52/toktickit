@@ -145,14 +145,14 @@ This plan covers Unit, API/Integration, UI Component, UI Style, Responsive, Secu
 
 | Test ID | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|
-| E2E-01 | AC-01 | Full login flow, active user, correct credentials | User lands in the authenticated app shell with correct role-based nav visible | `e2e/lab-03/authentication.spec.ts` | Pending |
-| E2E-02 | AC-02 | Initial-password login → forced Change Password → successful continuation | Normal app screens are unreachable until password change completes; then app opens normally | `e2e/lab-03/authentication.spec.ts` | Pending |
-| E2E-03 | AC-08 | Requester logs in, opens own Ticket, posts Public Comment, marks "Problem Appears Resolved" | Comment appears in thread; status badge unchanged; resolved-indicator note shown | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pending |
-| E2E-04 | AC-06 | IT Staff logs in, searches Queue, claims a Ticket, sets IT Priority, changes status, adds Internal Note | All changes persist and are reflected in Queue and Ticket Detail on reload | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pending |
-| E2E-05 | AC-09, AC-10, AC-11 | Administrator creates a user, attempts duplicate email (fails), edits a user, resets a password, attempts self-deactivation (blocked) | Each step produces the expected UI feedback; final DB state matches expectations | `e2e/lab-03/user-administration.spec.ts` | Pending |
-| E2E-06 | FR-03, AC-12 | Logout flow, then attempt to navigate back to a protected route via browser back button / direct URL | Redirected to Login; no protected data flashes on screen | `e2e/lab-03/authentication.spec.ts` | Pending |
-| E2E-07 | FR-22, AC-04 | Requester account attempts to navigate directly (via URL) to a Staff Ticket Detail or Internal Notes view | Redirected/forbidden; no note content ever rendered in the DOM | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pending |
-| E2E-08 | ui-spec §7 | Full user journey (login → queue → ticket detail → admin) captured at desktop, tablet, and mobile viewport | No broken layout at any step across all three breakpoints | `e2e/lab-03/staff-ticket-flow.spec.ts` + `e2e/lab-03/user-administration.spec.ts` | Pending |
+| E2E-01 | AC-01 | Full login flow, active user, correct credentials | User lands in the authenticated app shell with correct role-based nav visible | `e2e/lab-03/authentication.spec.ts` | Pass |
+| E2E-02 | AC-02 | Initial-password login → forced Change Password → successful continuation | Normal app screens are unreachable until password change completes; then app opens normally | `e2e/lab-03/authentication.spec.ts` | Pass |
+| E2E-03 | AC-08 | Requester logs in, opens own Ticket, posts Public Comment, marks "Problem Appears Resolved" | Comment appears in thread; status badge unchanged; resolved-indicator note shown | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pass |
+| E2E-04 | AC-06 | IT Staff logs in, searches Queue, claims a Ticket, sets IT Priority, changes status, adds Internal Note | All changes persist and are reflected in Queue and Ticket Detail on reload | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pass |
+| E2E-05 | AC-09, AC-10, AC-11 | Administrator creates a user, attempts duplicate email (fails), edits a user, resets a password, attempts self-deactivation (blocked) | Each step produces the expected UI feedback; final DB state matches expectations | `e2e/lab-03/user-administration.spec.ts` | Pass |
+| E2E-06 | FR-03, AC-12 | Logout flow, then attempt to navigate back to a protected route via browser back button / direct URL | Redirected to Login; no protected data flashes on screen | `e2e/lab-03/authentication.spec.ts` | Pass |
+| E2E-07 | FR-22, AC-04 | Requester account attempts to navigate directly (via URL) to a Staff Ticket Detail or Internal Notes view | Redirected/forbidden; no note content ever rendered in the DOM | `e2e/lab-03/staff-ticket-flow.spec.ts` | Pass |
+| E2E-08 | ui-spec §7 | Full user journey (login → queue → ticket detail → admin) captured at desktop, tablet, and mobile viewport | No broken layout at any step across all three breakpoints | `e2e/lab-03/staff-ticket-flow.spec.ts` + `e2e/lab-03/user-administration.spec.ts` | Pass |
 
 ---
 

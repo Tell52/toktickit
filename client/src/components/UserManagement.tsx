@@ -47,11 +47,11 @@ export function StatusBadge({ isActive }: { isActive: boolean }) {
 
 interface UserManagementProps {
   currentUser?: {
-    id: string;
+    id: string | number;
     name: string;
     email: string;
     role: string;
-  };
+  } | null;
 }
 
 export default function UserManagement({ currentUser: propCurrentUser }: UserManagementProps) {
@@ -311,7 +311,7 @@ export default function UserManagement({ currentUser: propCurrentUser }: UserMan
   };
 
   // Determine if deactivate button should be disabled
-  const isEditingSelf = Boolean(loggedInUser && selectedUser && loggedInUser.id === selectedUser.id);
+  const isEditingSelf = Boolean(loggedInUser && selectedUser && String(loggedInUser.id) === String(selectedUser.id));
   const isLastActiveAdmin = Boolean(
     selectedUser &&
       selectedUser.role === "ADMINISTRATOR" &&

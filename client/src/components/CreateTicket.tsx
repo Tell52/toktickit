@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createTicket, getCategories, getRelatedSystems, Category, RelatedSystem } from "../api";
 
 interface CreateTicketProps {
-    requesterId: number;
+    requesterId: number | string;
 }
 
 export default function CreateTicket({ requesterId }: CreateTicketProps) {

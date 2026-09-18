@@ -1,36 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { createOrUpdateUser, cleanupTestUsers, prisma } from './db-helper';
 
-const TEST_EMAILS = {
-  activeRequester: 'e2e.active.req@toktickit.com',
-  forcedChangeUser: 'e2e.forced.change@toktickit.com',
-};
-
 test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
-  test.beforeEach(async () => {
-    // 1. User with mustChangePassword = false for standard login & logout tests
-    await createOrUpdateUser({
-      email: TEST_EMAILS.activeRequester,
-      name: 'E2E Active Requester',
-      password: 'ActivePass123!',
-      role: 'REQUESTER',
-      mustChangePassword: false,
-      isActive: true,
-    });
-
-    // 2. User with mustChangePassword = true for forced change password flow
-    await createOrUpdateUser({
-      email: TEST_EMAILS.forcedChangeUser,
-      name: 'E2E Forced Change User',
-      password: 'TempPassword123!',
-      role: 'REQUESTER',
-      mustChangePassword: true,
-      isActive: true,
-    });
-  });
+  const cleanupEmails: string[] = [];
 
   test.afterAll(async () => {
-    await cleanupTestUsers(Object.values(TEST_EMAILS));
+    if (cleanupEmails.length > 0) {
+      await cleanupTestUsers(cleanupEmails);
+    }
     await prisma.$disconnect();
   });
 
@@ -38,13 +15,25 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
   // E2E-01: Full login flow, active user, correct credentials (AC-01)
   // ---------------------------------------------------------------------------
   test('E2E-01: Valid login lands in authenticated app shell with role-based navigation (AC-01)', async ({ page }) => {
+    const userEmail = `e2e.active.req.${Date.now()}@toktickit.com`;
+    cleanupEmails.push(userEmail);
+
+    await createOrUpdateUser({
+      email: userEmail,
+      name: 'E2E Active Requester',
+      password: 'ActivePass123!',
+      role: 'REQUESTER',
+      mustChangePassword: false,
+      isActive: true,
+    });
+
     await page.goto('/login');
 
     // Verify login form is visible
     await expect(page.getByRole('heading', { name: /sign in to your account/i })).toBeVisible();
 
     // Fill credentials
-    await page.getByPlaceholder(/name@example.com/i).fill(TEST_EMAILS.activeRequester);
+    await page.getByPlaceholder(/name@example.com/i).fill(userEmail);
     await page.getByPlaceholder(/enter password/i).fill('ActivePass123!');
 
     // Submit
@@ -77,10 +66,22 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
   // E2E-02: Initial-password login -> forced Change Password -> continuation (AC-02)
   // ---------------------------------------------------------------------------
   test('E2E-02: Initial login forces Change Password screen before normal app access (AC-02)', async ({ page }) => {
+    const userEmail = `e2e.forced.change.${Date.now()}@toktickit.com`;
+    cleanupEmails.push(userEmail);
+
+    await createOrUpdateUser({
+      email: userEmail,
+      name: 'E2E Forced Change User',
+      password: 'TempPassword123!',
+      role: 'REQUESTER',
+      mustChangePassword: true,
+      isActive: true,
+    });
+
     await page.goto('/login');
 
     // 1. Log in with initial/temporary credentials
-    await page.getByPlaceholder(/name@example.com/i).fill(TEST_EMAILS.forcedChangeUser);
+    await page.getByPlaceholder(/name@example.com/i).fill(userEmail);
     await page.getByPlaceholder(/enter password/i).fill('TempPassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
@@ -125,9 +126,21 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
   // E2E-06: Logout flow and back navigation protection (FR-03, AC-12)
   // ---------------------------------------------------------------------------
   test('E2E-06: Logout destroys session and blocks browser back navigation (AC-12)', async ({ page }) => {
+    const userEmail = `e2e.logout.req.${Date.now()}@toktickit.com`;
+    cleanupEmails.push(userEmail);
+
+    await createOrUpdateUser({
+      email: userEmail,
+      name: 'E2E Logout Requester',
+      password: 'ActivePass123!',
+      role: 'REQUESTER',
+      mustChangePassword: false,
+      isActive: true,
+    });
+
     // 1. Log in
     await page.goto('/login');
-    await page.getByPlaceholder(/name@example.com/i).fill(TEST_EMAILS.activeRequester);
+    await page.getByPlaceholder(/name@example.com/i).fill(userEmail);
     await page.getByPlaceholder(/enter password/i).fill('ActivePass123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
