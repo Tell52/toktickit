@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { getMe, logout as apiLogout } from '../api';
 
 export interface User {
-    id: number;
+    id: number | string;
     name: string;
     email: string;
     role: string;

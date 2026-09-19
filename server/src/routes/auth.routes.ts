@@ -81,7 +81,10 @@ router.post('/change-password', requireAuth, requireCsrf, async (req, res) => {
 
     const prisma = getPrisma();
     const user = await prisma.user.findUnique({ where: { id: req.session.user!.id } });
-    const isMatch = await bcrypt.compare(currentPassword, user!.passwordHash);
+    if (!user) {
+        return res.status(401).json({ error: { code: 'UNAUTHENTICATED', message: 'User not found' } });
+    }
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
 
     if (!isMatch) {
         return res.status(401).json({ error: { code: 'INVALID_CREDENTIALS', message: 'Current password is incorrect' } });
