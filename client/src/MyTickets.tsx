@@ -11,7 +11,7 @@ interface Ticket {
 }
 
 interface MyTicketsProps {
-    requesterId: number;
+    requesterId: number | string;
     onViewTicket?: (ticketId: string) => void;
 }
 
