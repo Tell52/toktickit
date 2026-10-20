@@ -1,6 +1,6 @@
 # API Specification - Sprint 4
 
-**Status:** Proposed contract for issue #41; endpoints and fields described as additions are not implemented yet.  
+**Status:** Contract established in issue #41. Section 3 Actions endpoints are implemented by issue #45; other additions remain planned until their implementation issue records completion.
 **Base URL:** `/api`  
 **Related:** [Engineering specification](specification.md), [UI specification](ui-spec.md).
 

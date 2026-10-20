@@ -6,6 +6,7 @@ import session from 'express-session';
 import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
 import adminRoutes from './routes/admin.routes';
+import actionsRoutes, { actionsParseError } from './routes/actions.routes';
 import { requireAuth, requireRole } from "./middleware/auth";
 
 import { Role } from "@prisma/client";
@@ -31,6 +32,10 @@ app.use(session({
     maxAge: 8 * 60 * 60 * 1000
   }
 }));
+
+// Actions revalidate current identity before role/CSRF checks and handle only
+// their own paths. Legacy route hardening is tracked separately in Lab 4.
+app.use('/api', actionsRoutes);
 
 // CSRF check for state-changing requests when authenticated via session
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -584,5 +589,7 @@ app.post("/api/tickets/:id/resolved-indicator", async (req: Request, res: Respon
     res.status(500).json({ error: "Failed to set resolved indicator" });
   }
 });
+
+app.use(actionsParseError);
 
 export default app;
