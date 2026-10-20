@@ -1,12 +1,13 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { getPrisma } from "./prisma.js";
-import multer from "multer";
+
 import session from 'express-session';
 import authRoutes from './routes/auth.routes';
 import staffRoutes from './routes/staff.routes';
 import adminRoutes from './routes/admin.routes';
 import actionsRoutes, { actionsParseError } from './routes/actions.routes';
+import workflowRoutes, { workflowParseError } from './routes/workflow.routes';
 import { requireAuth, requireRole } from "./middleware/auth";
 
 import { Role } from "@prisma/client";
@@ -36,6 +37,7 @@ app.use(session({
 // Actions revalidate current identity before role/CSRF checks and handle only
 // their own paths. Legacy route hardening is tracked separately in Lab 4.
 app.use('/api', actionsRoutes);
+app.use('/api', workflowRoutes);
 
 // CSRF check for state-changing requests when authenticated via session
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -55,7 +57,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/auth', authRoutes);
 
 // Staff and Admin routes protection (RBAC)
-app.use('/api/staff', requireAuth, requireRole(['IT_STAFF', 'ADMINISTRATOR']), staffRoutes);
+// Staff router revalidates the current database role before its role guard.
+app.use('/api/staff', requireAuth, staffRoutes);
 
 app.use('/api/admin', requireAuth, adminRoutes);
 
@@ -264,19 +267,6 @@ app.get("/api/tickets", async (req: Request, res: Response) => {
   }
 });
 
-// ตั้งค่า Multer สำหรับจัดการไฟล์อัปโหลดในหน่วยความจำ (เพื่อตรวจสอบขนาดและประเภทก่อนบันทึก)
-const upload = multer({
-  limits: { fileSize: 5 * 1024 * 1024 }, // บังคับขนาดสูงสุด 5 MB ต่อไฟล์[cite: 8]
-  fileFilter: (_req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"]; // อนุญาตเฉพาะประเภทที่กำหนด[cite: 8]
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Invalid file type"));
-    }
-  },
-});
-
 // ---------------------------------------------------------------------------
 // 1. API ดึงรายละเอียดตั๋ว 1 ใบ (Ticket Detail)
 // ---------------------------------------------------------------------------
@@ -345,62 +335,6 @@ app.get("/api/tickets/:id", async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // 2. API อัปโหลดไฟล์แนบ (Upload Attachment)
 // ---------------------------------------------------------------------------
-app.post("/api/tickets/:id/attachments", (req: Request, res: Response, next) => {
-  // ดักจับ Error จาก Multer โดยตรง
-  upload.single("file")(req, res, (err: any) => {
-    if (err) {
-      if (err.message === "Invalid file type") {
-        return res.status(400).json({ error: "Unsupported file type" });
-      }
-      return res.status(400).json({ error: "File upload error" });
-    }
-    next();
-  });
-}, async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const requesterId = req.session?.user?.id || (req.body.requesterId as string);
-  const file = req.file;
-
-  if (!requesterId || !file) {
-    return res.status(400).json({ error: "Requester ID and file are required" });
-  }
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({
-      where: { id: ticketId },
-      include: { attachments: { where: { isRemoved: false } } },
-    });
-
-    if (!ticket || String(ticket.requesterId) !== String(requesterId)) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    // ตรวจสอบโควต้าไฟล์แนบ: ต้องไม่เกิน 5 ไฟล์ต่อตั๋ว
-    if (ticket.attachments.length >= 5) {
-      return res.status(400).json({ error: "Maximum of 5 active attachments allowed" });
-    }
-
-    const mockFileUrl = `/uploads/${Date.now()}-${file.originalname}`;
-
-    const newAttachment = await getPrisma().attachment.create({
-      data: {
-        fileName: file.originalname,
-        fileType: file.mimetype,
-        fileSize: file.size,
-        fileUrl: mockFileUrl,
-        ticketId: ticketId,
-      },
-    });
-
-    res.status(201).json(newAttachment);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to upload attachment" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// 3. API ดาวน์โหลด/ดูข้อมูลไฟล์แนบ (Retrieve/Download Attachment)
-// ---------------------------------------------------------------------------
 app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
   const ticketId = Number(req.params.id);
   const attachmentId = Number(req.params.attachmentId);
@@ -432,164 +366,7 @@ app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: 
   }
 });
 
-// ---------------------------------------------------------------------------
-// 4. API ลบไฟล์แนบแบบ Soft Removal
-// ---------------------------------------------------------------------------
-app.delete("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const attachmentId = Number(req.params.attachmentId);
-  const requesterId = req.session?.user?.id || (req.body.requesterId as string);
-  const { reason } = req.body;
-
-  // บังคับให้ต้องใส่เหตุผลในการลบ[cite: 8]
-  if (!requesterId || !reason) {
-    return res.status(400).json({ error: "Requester ID and removal reason are required" });
-  }
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId } });
-    if (!ticket || String(ticket.requesterId) !== String(requesterId)) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    // เปลี่ยนสถานะเป็นลบ พร้อมบันทึกเหตุผล[cite: 8]
-    const removedAttachment = await getPrisma().attachment.update({
-      where: { id: attachmentId },
-      data: {
-        isRemoved: true,
-        removalReason: reason,
-      },
-    });
-
-    res.status(200).json(removedAttachment);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to remove attachment" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// 5. Public Comments (Lab 3)
-// ---------------------------------------------------------------------------
-app.post("/api/tickets/:id/comments", async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const { content } = req.body;
-
-  // Validation: empty or whitespace-only content rejected (BR-16, AC-14)
-  if (!content || typeof content !== "string" || !content.trim()) {
-    return res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "Comment content cannot be empty" }
-    });
-  }
-
-  const sessionUser = req.session?.user;
-  const authorId = sessionUser?.id || (req.body.authorId as string);
-
-  if (!authorId) {
-    return res.status(401).json({
-      error: { code: "UNAUTHENTICATED", message: "Authentication required" }
-    });
-  }
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({
-      where: { id: ticketId },
-    });
-
-    if (!ticket) {
-      return res.status(404).json({
-        error: { code: "NOT_FOUND", message: "Ticket not found" }
-      });
-    }
-
-    // If requester, must own ticket
-    if (sessionUser && sessionUser.role === "REQUESTER" && String(ticket.requesterId) !== String(sessionUser.id)) {
-      return res.status(404).json({
-        error: { code: "NOT_FOUND", message: "Ticket not found" }
-      });
-    }
-
-    const author = await getPrisma().user.findUnique({
-      where: { id: authorId },
-      select: { id: true, name: true, role: true }
-    });
-
-    const newComment = await getPrisma().comment.create({
-      data: {
-        ticketId,
-        authorId,
-        content: content.trim(),
-      },
-      include: {
-        author: {
-          select: { id: true, name: true, role: true }
-        }
-      }
-    });
-
-    res.status(201).json({
-      id: newComment.id,
-      ticketId: newComment.ticketId,
-      authorId: newComment.authorId,
-      authorName: newComment.author?.name || "Unknown",
-      authorRole: newComment.author?.role || "REQUESTER",
-      author: newComment.author,
-      content: newComment.content,
-      createdAt: newComment.createdAt
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create comment" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// 6. Problem Appears Resolved Indicator (Lab 3)
-// ---------------------------------------------------------------------------
-app.post("/api/tickets/:id/resolved-indicator", async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const sessionUser = req.session?.user;
-
-  if (!sessionUser) {
-    return res.status(401).json({
-      error: { code: "UNAUTHENTICATED", message: "Authentication required" }
-    });
-  }
-
-  // Owning Requester only
-  if (sessionUser.role !== "REQUESTER") {
-    return res.status(403).json({
-      error: { code: "FORBIDDEN", message: "Only requesters can indicate problem resolved" }
-    });
-  }
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({
-      where: { id: ticketId },
-    });
-
-    if (!ticket || String(ticket.requesterId) !== String(sessionUser.id)) {
-      return res.status(404).json({
-        error: { code: "NOT_FOUND", message: "Ticket not found" }
-      });
-    }
-
-    const updated = await getPrisma().ticket.update({
-      where: { id: ticketId },
-      data: {
-        problemAppearsResolved: true,
-        indicatedAt: new Date()
-      }
-    });
-
-    res.status(200).json({
-      ticketId: updated.id,
-      problemAppearsResolved: updated.problemAppearsResolved,
-      indicatedAt: updated.indicatedAt
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to set resolved indicator" });
-  }
-});
-
 app.use(actionsParseError);
+app.use(workflowParseError);
 
 export default app;

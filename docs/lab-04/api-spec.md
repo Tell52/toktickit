@@ -1,6 +1,6 @@
 # API Specification - Sprint 4
 
-**Status:** Contract established in issue #41. Section 3 Actions endpoints are implemented by issue #45; other additions remain planned until their implementation issue records completion.
+**Status:** Section 3 Actions endpoints are implemented by #45. Section 4 workflow and related activity/version changes are implemented by #47 ([implementation/evidence](ticket-workflow-api.md)). Dashboard additions and broader legacy hardening remain planned.
 **Base URL:** `/api`  
 **Related:** [Engineering specification](specification.md), [UI specification](ui-spec.md).
 

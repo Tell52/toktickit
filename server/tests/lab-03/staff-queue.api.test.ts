@@ -47,11 +47,11 @@ describe('Staff Ticket Queue API (GET /api/staff/tickets)', () => {
     const passwordHash = await bcrypt.hash('TestPass123!', 10);
     await prisma.user.createMany({
       data: [
-        { id: 'test-req-queue', name: 'Queue Requester', email: 'req-queue@test.com', role: 'REQUESTER', passwordHash },
-        { id: 'test-staff-queue-01', name: 'Queue Staff 1', email: 'staff1-queue@test.com', role: 'IT_STAFF', passwordHash },
-        { id: 'test-staff-queue-02', name: 'Queue Staff 2', email: 'staff2-queue@test.com', role: 'IT_STAFF', passwordHash },
-        { id: 'test-admin-queue', name: 'Queue Admin', email: 'admin-queue@test.com', role: 'ADMINISTRATOR', passwordHash },
-        { id: 'test-staff-inactive', name: 'Queue Inactive Staff', email: 'staff-inactive-queue@test.com', role: 'IT_STAFF', isActive: false, passwordHash },
+        { id: 'test-req-queue', name: 'Queue Requester', email: 'req-queue@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+        { id: 'test-staff-queue-01', name: 'Queue Staff 1', email: 'staff1-queue@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
+        { id: 'test-staff-queue-02', name: 'Queue Staff 2', email: 'staff2-queue@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
+        { id: 'test-admin-queue', name: 'Queue Admin', email: 'admin-queue@test.com', role: 'ADMINISTRATOR', passwordHash, mustChangePassword: false },
+        { id: 'test-staff-inactive', name: 'Queue Inactive Staff', email: 'staff-inactive-queue@test.com', role: 'IT_STAFF', isActive: false, passwordHash, mustChangePassword: false },
       ],
     });
 
@@ -371,7 +371,7 @@ describe('Staff Ticket Queue API (GET /api/staff/tickets)', () => {
         .patch('/api/staff/tickets/TKT-Q-001/owner')
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ ownerId: staffUserId });
+        .send({ ownerId: staffUserId, expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { ticketNumber: 'TKT-Q-001' } })).version });
 
       expect(claimRes.status).toBe(200);
       expect(claimRes.body.owner).not.toBeNull();

@@ -7,7 +7,7 @@ vi.mock("../../src/api.js");
 
 describe("StaffTicketDetail Component (Lab 3)", () => {
   const baseStaffTicket: api.StaffTicketDetailData = {
-    id: 101,
+    id: 101, version: 1,
     ticketNumber: "TKT-2026-0101",
     summary: "Slow network connection in branch office",
     description: "Users reported slow speeds after router upgrade.",
@@ -141,7 +141,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
       fireEvent.change(select, { target: { value: "In Progress" } });
 
       await waitFor(() => {
-        expect(api.updateStaffTicketStatus).toHaveBeenCalledWith("101", "In Progress");
+        expect(api.updateStaffTicketStatus).toHaveBeenCalledWith("101", "In Progress", 1);
       });
     });
   });
@@ -238,7 +238,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
       fireEvent.change(screen.getByTestId("editable-owner-select"), { target: { value: "staff-2" } });
 
       await waitFor(() => {
-        expect(api.updateStaffTicketOwner).toHaveBeenCalledWith("101", "staff-2");
+        expect(api.updateStaffTicketOwner).toHaveBeenCalledWith("101", "staff-2", 1);
       });
     });
 
@@ -257,7 +257,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
       fireEvent.change(screen.getByTestId("editable-priority-select"), { target: { value: "LOW" } });
 
       await waitFor(() => {
-        expect(api.updateStaffTicketPriority).toHaveBeenCalledWith("101", "LOW");
+        expect(api.updateStaffTicketPriority).toHaveBeenCalledWith("101", "LOW", 1);
       });
     });
   });
@@ -420,7 +420,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
       });
 
       await waitFor(() => {
-        expect(api.updateStaffTicketOwner).toHaveBeenCalledWith("101", null);
+        expect(api.updateStaffTicketOwner).toHaveBeenCalledWith("101", null, 1);
       });
     });
   });

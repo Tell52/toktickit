@@ -188,6 +188,9 @@ export interface StaffTicketOwner {
 }
 
 export interface StaffTicket {
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number | string;
   ticketNumber: string;
   createdAt: string;
@@ -240,11 +243,11 @@ export async function getStaffTickets(params: StaffTicketQueryParams = {}): Prom
   return res.json();
 }
 
-export async function claimStaffTicket(ticketId: string | number, ownerId: string | null) {
+export async function claimStaffTicket(ticketId: string | number, ownerId: string | null, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ownerId }),
+    body: JSON.stringify({ ownerId, expectedTicketVersion }),
   });
   return res.json();
 }
@@ -278,6 +281,9 @@ export interface StaffTicketAttachment {
 }
 
 export interface StaffTicketDetailData {
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number;
   ticketNumber: string;
   summary: string;
@@ -319,29 +325,29 @@ export async function getStaffTicketDetail(ticketId: string | number): Promise<S
   return res.json();
 }
 
-export async function updateStaffTicketOwner(ticketId: string | number, ownerId: string | null) {
+export async function updateStaffTicketOwner(ticketId: string | number, ownerId: string | null, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ownerId }),
+    body: JSON.stringify({ ownerId, expectedTicketVersion }),
   });
   return res.json();
 }
 
-export async function updateStaffTicketPriority(ticketId: string | number, itPriority: string) {
+export async function updateStaffTicketPriority(ticketId: string | number, itPriority: string, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/priority`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ itPriority }),
+    body: JSON.stringify({ itPriority, expectedTicketVersion }),
   });
   return res.json();
 }
 
-export async function updateStaffTicketStatus(ticketId: string | number, status: string) {
+export async function updateStaffTicketStatus(ticketId: string | number, status: string, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, expectedTicketVersion }),
   });
   return res.json();
 }
