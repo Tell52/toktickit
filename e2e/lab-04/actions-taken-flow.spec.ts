@@ -167,7 +167,13 @@ test('responsive long-text cards, keyboard focus and visual evidence', async ({ 
     const overflow = await page.evaluate(() => [...document.querySelectorAll('body *')].filter(el => { const rect = el.getBoundingClientRect(); return rect.width > 0 && rect.right > window.innerWidth + 1; }).map(el => `${el.tagName}.${el.className}: ${Math.round(el.getBoundingClientRect().right)}`).slice(0, 15));
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${width}px: ${overflow.join(', ')}`).toBe(true);
     const cells = section.locator('tbody td').first(); expect(await cells.evaluate(el => getComputedStyle(el).display)).toBe(width >= 1024 ? 'table-cell' : 'grid');
-    for (const button of await section.getByRole('button').all()) { const box = await button.boundingBox(); if (box) expect(box.height).toBeGreaterThanOrEqual(44); }
+    // Firefox can report 44px as 43.99998474121094 after coordinate conversion.
+    // Allow only floating-point noise, not a visually undersized touch target.
+    for (const button of await section.getByRole('button').all()) {
+      const box = await button.boundingBox();
+      expect(box, `${width}px: button must have a visible bounding box`).not.toBeNull();
+      expect(box!.height).toBeGreaterThanOrEqual(44 - 0.001);
+    }
     if (info.project.name === 'chromium') await section.screenshot({ path: `${directory}/staff-list-${width}x${height}-chromium.png` });
   }
   // 200% browser enlargement has half the CSS viewport width; verify reflow at

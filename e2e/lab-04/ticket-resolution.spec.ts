@@ -182,7 +182,12 @@ test('workflow confirmation supports responsive layout, large text, keyboard foc
     await expect(reason).toHaveValue('Retain this draft');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     const controls = page.getByRole('dialog').locator('button,textarea');
-    for (const control of await controls.all()) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    // Match the Actions check: tolerate subpixel rounding, not smaller controls.
+    for (const control of await controls.all()) {
+      const box = await control.boundingBox();
+      expect(box, `${width}px: dialog control must have a visible bounding box`).not.toBeNull();
+      expect(box!.height).toBeGreaterThanOrEqual(44 - 0.001);
+    }
     if (info.project.name === 'chromium') {
       mkdirSync('artifacts/lab-04/screenshots/ticket-workflow', { recursive: true });
       await page.getByTestId('operational-controls').screenshot({ path: `artifacts/lab-04/screenshots/ticket-workflow/cancellation-${width}x${height}-chromium.png` });
