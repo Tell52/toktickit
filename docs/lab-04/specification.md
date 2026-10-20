@@ -29,6 +29,14 @@ The source is the supplied **SE Lab 4: Actions Taken, Dashboards, and Final Regr
 
 Issue #41 produces these three contract documents. Detailed test planning belongs to [#42](https://github.com/Tell52/toktickit/issues/42); schema, APIs, UI and execution evidence belong to subsequent Lab 4 issues. Section 9 supplies the initial AC-to-test handoff.
 
+### Branch and integration workflow
+
+- Create `lab4-staging` from `main` after Lab 3 integration is complete.
+- Start Lab 4 feature branches from the latest `lab4-staging`, after their dependencies have been integrated. Feature PRs target `lab4-staging`.
+- For issue #41, select **base: lab4-staging** and **compare: feature/lab4-1-specification** in GitHub.
+- After final verification, the release PR targets **base: main**, **compare: lab4-staging**.
+- The user performs commits and merges after review and verification.
+
 ### Excluded
 
 SLA clocks, escalation/on-call engines, external notifications, inventory/purchasing, labor billing/payroll, multi-level approvals/e-signatures, advanced BI/report builders/exports, multi-tenancy and production-scale cloud operations. No new upload subsystem is introduced for actions: Attachment Notes refer to the existing Ticket attachment workflow. Administrator account-count cards are optional in the handout and omitted from this contract.
