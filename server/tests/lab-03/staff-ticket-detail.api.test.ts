@@ -22,6 +22,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
     // 1. Cleanup old records
     await prisma.comment.deleteMany({ where: { authorId: { in: ['req-ops-user', 'staff-ops-user-01', 'staff-ops-inactive'] } } });
     await prisma.note.deleteMany({ where: { authorId: { in: ['req-ops-user', 'staff-ops-user-01', 'staff-ops-inactive'] } } });
+    await prisma.ticketStatusEvent.deleteMany({ where: { ticket: { requesterId: 'req-ops-user' } } });
     await prisma.ticket.deleteMany({ where: { requesterId: { in: ['req-ops-user'] } } });
     await prisma.ticket.deleteMany({ where: { ownerId: { in: ['staff-ops-user-01', 'staff-ops-inactive'] } } });
     await prisma.ticket.deleteMany({ where: { ticketNumber: { in: ['TKT-OPS-001', 'TKT-OPS-002', 'TKT-OPS-003'] } } });
@@ -40,9 +41,9 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
     const passwordHash = await bcrypt.hash('TestPass123!', 10);
     await prisma.user.createMany({
       data: [
-        { id: 'req-ops-user', name: 'Ops Requester', email: 'req-ops@test.com', role: 'REQUESTER', passwordHash },
-        { id: 'staff-ops-user-01', name: 'Ops Staff', email: 'staff-ops@test.com', role: 'IT_STAFF', passwordHash },
-        { id: 'staff-ops-inactive', name: 'Inactive Staff', email: 'staff-inactive-ops@test.com', role: 'IT_STAFF', isActive: false, passwordHash },
+        { id: 'req-ops-user', name: 'Ops Requester', email: 'req-ops@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+        { id: 'staff-ops-user-01', name: 'Ops Staff', email: 'staff-ops@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
+        { id: 'staff-ops-inactive', name: 'Inactive Staff', email: 'staff-inactive-ops@test.com', role: 'IT_STAFF', isActive: false, passwordHash, mustChangePassword: false },
       ],
     });
 
@@ -75,6 +76,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
   afterAll(async () => {
     await prisma.comment.deleteMany({ where: { authorId: { in: ['req-ops-user', 'staff-ops-user-01', 'staff-ops-inactive'] } } });
     await prisma.note.deleteMany({ where: { authorId: { in: ['req-ops-user', 'staff-ops-user-01', 'staff-ops-inactive'] } } });
+    await prisma.ticketStatusEvent.deleteMany({ where: { ticket: { requesterId: 'req-ops-user' } } });
     await prisma.ticket.deleteMany({ where: { requesterId: { in: ['req-ops-user'] } } });
     await prisma.ticket.deleteMany({ where: { ownerId: { in: ['staff-ops-user-01', 'staff-ops-inactive'] } } });
     await prisma.ticket.deleteMany({ where: { ticketNumber: { in: ['TKT-OPS-001', 'TKT-OPS-002', 'TKT-OPS-003'] } } });
@@ -200,7 +202,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/priority`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ itPriority: 'HIGH' });
+        .send({ itPriority: 'HIGH', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(200);
       expect(res.body.itPriority).toBe('HIGH');
@@ -209,7 +211,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
       expect(check?.itPriority).toBe('HIGH');
     });
 
-    it('API-13: requestedPriority remains immutable even if sent in payload', async () => {
+    it('API-13: changing IT priority preserves requestedPriority', async () => {
       const original = await prisma.ticket.findUnique({ where: { id: testTicketId } });
       const origRequestedPriority = original?.requestedPriority;
 
@@ -217,7 +219,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/priority`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ itPriority: 'LOW', requestedPriority: 'High' });
+        .send({ itPriority: 'LOW', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(200);
 
@@ -250,7 +252,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ status: 'In Progress' });
+        .send({ status: 'In Progress', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('In Progress');
@@ -265,10 +267,10 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ status: 'Closed' });
+        .send({ status: 'Closed', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(409);
-      expect(res.body.error.code).toBe('CONFLICT');
+      expect(res.body.error.code).toBe('INVALID_TRANSITION');
 
       // Verify DB status is unchanged
       const check = await prisma.ticket.findUnique({ where: { id: testTicketId } });
@@ -296,7 +298,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/owner`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ ownerId: 'staff-ops-inactive' });
+        .send({ ownerId: 'staff-ops-inactive', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -307,7 +309,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/owner`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ ownerId: staffUserId });
+        .send({ ownerId: staffUserId, expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(200);
       expect(res.body.owner.id).toBe(staffUserId);
@@ -318,7 +320,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/owner`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ ownerId: null });
+        .send({ ownerId: null, expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(200);
       expect(res.body.owner).toBeNull();
@@ -336,7 +338,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
       // First ensure ticket status is New and problemAppearsResolved is false
       await prisma.ticket.update({
         where: { id: testTicketId },
-        data: { currentStatus: 'New', problemAppearsResolved: false, indicatedAt: null },
+        data: { currentStatus: 'Open', problemAppearsResolved: false, indicatedAt: null },
       });
 
       const res = await request(app)
@@ -351,7 +353,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
       // Verify status is unchanged in DB
       const check = await prisma.ticket.findUnique({ where: { id: testTicketId } });
       expect(check?.problemAppearsResolved).toBe(true);
-      expect(check?.currentStatus).toBe('New');
+      expect(check?.currentStatus).toBe('Open');
     });
 
     it('rejects resolved-indicator call from IT Staff with 403 (only requester can indicate)', async () => {
@@ -390,7 +392,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/priority`)
         .set('Cookie', requesterCookie)
         .set('x-csrf-token', requesterCsrf)
-        .send({ itPriority: 'HIGH' });
+        .send({ itPriority: 'HIGH', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(403);
     });
@@ -400,7 +402,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
         .set('Cookie', requesterCookie)
         .set('x-csrf-token', requesterCsrf)
-        .send({ status: 'In Progress' });
+        .send({ status: 'In Progress', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(403);
     });
@@ -410,7 +412,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/owner`)
         .set('Cookie', requesterCookie)
         .set('x-csrf-token', requesterCsrf)
-        .send({ ownerId: staffUserId });
+        .send({ ownerId: staffUserId, expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(403);
     });
@@ -418,7 +420,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
     it('rejects unauthenticated requests with 401', async () => {
       const res = await request(app)
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
-        .send({ status: 'In Progress' });
+        .send({ status: 'In Progress', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(401);
     });
@@ -427,7 +429,7 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
       const res = await request(app)
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
         .set('Cookie', staffCookie)
-        .send({ status: 'In Progress' });
+        .send({ status: 'In Progress', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(403);
     });
@@ -440,10 +442,10 @@ describe('Staff Ticket Detail & Operations API (Lab 3)', () => {
         .patch(`/api/staff/tickets/${testTicketNumber}/status`)
         .set('Cookie', staffCookie)
         .set('x-csrf-token', staffCsrf)
-        .send({ status: 'Reopened' });
+        .send({ status: 'Reopened', expectedTicketVersion: (await prisma.ticket.findUniqueOrThrow({ where: { id: testTicketId } })).version });
 
       expect(res.status).toBe(409);
-      expect(res.body.error.code).toBe('CONFLICT');
+      expect(res.body.error.code).toBe('INVALID_TRANSITION');
 
       // Verify DB remains Cancelled
       const check = await prisma.ticket.findUnique({ where: { id: testTicketId } });

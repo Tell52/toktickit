@@ -123,7 +123,7 @@ export default function StaffTicketDetail({
     const targetOwnerId = val === "unassigned" ? null : val;
     setOwnerSaving(true);
     try {
-      await updateStaffTicketOwner(ticketId, targetOwnerId);
+      await updateStaffTicketOwner(ticketId, targetOwnerId, ticket?.version);
       showFeedback("Owner updated successfully");
       await fetchTicket();
     } catch (err: any) {
@@ -138,7 +138,7 @@ export default function StaffTicketDetail({
     const newPriority = e.target.value;
     setPrioritySaving(true);
     try {
-      await updateStaffTicketPriority(ticketId, newPriority);
+      await updateStaffTicketPriority(ticketId, newPriority, ticket?.version);
       showFeedback("IT Priority updated successfully");
       await fetchTicket();
     } catch (err: any) {
@@ -156,7 +156,7 @@ export default function StaffTicketDetail({
     setStatusSaving(true);
     setStatusError(null);
     try {
-      await updateStaffTicketStatus(ticketId, newStatus);
+      await updateStaffTicketStatus(ticketId, newStatus, ticket?.version);
       showFeedback(`Status changed to ${newStatus}`);
       await fetchTicket();
     } catch (err: any) {

@@ -39,9 +39,9 @@ describe('Public Comments & Internal Notes API (Lab 3)', () => {
     const passwordHash = await bcrypt.hash('TestPass123!', 10);
     await prisma.user.createMany({
       data: [
-        { id: 'req-cn-01', name: 'Alice Requester', email: 'alice-cn@test.com', role: 'REQUESTER', passwordHash },
-        { id: 'req-cn-02', name: 'Bob Requester', email: 'bob-cn@test.com', role: 'REQUESTER', passwordHash },
-        { id: 'staff-cn-01', name: 'Sam Staff', email: 'sam-cn@test.com', role: 'IT_STAFF', passwordHash },
+        { id: 'req-cn-01', name: 'Alice Requester', email: 'alice-cn@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+        { id: 'req-cn-02', name: 'Bob Requester', email: 'bob-cn@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+        { id: 'staff-cn-01', name: 'Sam Staff', email: 'sam-cn@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
       ],
     });
 

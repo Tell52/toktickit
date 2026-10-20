@@ -125,6 +125,7 @@ export async function cleanupTestUsers(emails: string[]) {
   const userIds = users.map((u) => u.id);
 
   if (userIds.length > 0) {
+    await prisma.ticketStatusEvent.deleteMany({ where: { OR: [{ actorId: { in: userIds } }, { ticket: { requesterId: { in: userIds } } }] } });
     // 1. Delete notes authored by users or attached to their tickets
     await prisma.note.deleteMany({
       where: {

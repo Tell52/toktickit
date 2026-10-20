@@ -25,9 +25,9 @@ describe('Requester Ticket Detail API Tests (Lab 3)', () => {
 
         await prisma.user.createMany({
             data: [
-                { id: 'req-test-01', name: 'Alice Requester', email: 'alice.req@test.com', role: 'REQUESTER', passwordHash },
-                { id: 'req-test-02', name: 'Bob Requester', email: 'bob.req@test.com', role: 'REQUESTER', passwordHash },
-                { id: 'staff-test-01', name: 'Sam Staff', email: 'sam.staff@test.com', role: 'IT_STAFF', passwordHash },
+                { id: 'req-test-01', name: 'Alice Requester', email: 'alice.req@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+                { id: 'req-test-02', name: 'Bob Requester', email: 'bob.req@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+                { id: 'staff-test-01', name: 'Sam Staff', email: 'sam.staff@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
             ]
         });
 
@@ -165,7 +165,8 @@ describe('Requester Ticket Detail API Tests (Lab 3)', () => {
     });
 
     describe('POST /api/tickets/:id/resolved-indicator (AC-08, FR-12, BR-05)', () => {
-        it('sets problemAppearsResolved=true without changing ticket status', async () => {
+        it('sets problemAppearsResolved=true in Open without changing formal status', async () => {
+            await prisma.ticket.update({ where: { id: ticketId }, data: { currentStatus: 'Open' } });
             const res = await request(app)
                 .post(`/api/tickets/${ticketId}/resolved-indicator`)
                 .set('Cookie', requesterCookie)
@@ -182,7 +183,7 @@ describe('Requester Ticket Detail API Tests (Lab 3)', () => {
 
             expect(checkRes.status).toBe(200);
             expect(checkRes.body.problemAppearsResolved).toBe(true);
-            expect(checkRes.body.currentStatus).toBe('New');
+            expect(checkRes.body.currentStatus).toBe('Open');
         });
 
         it('rejects resolution indicator from IT staff (only requester can indicate)', async () => {
