@@ -10,6 +10,8 @@ The additive Actions Taken migration, legacy-data checks and backup/restore rehe
 
 The normal `npm run prisma:seed --prefix server` now adds Lab 4 demonstration Tickets/actions while preserving existing data and changed passwords. [The seed and fixture guide](docs/lab-04/seed-fixtures.md) lists accounts, expected dashboard counts and separate fixed-clock dashboard/boundary/empty datasets. Run `npm run test:fixtures --prefix server` for seed-specific checks. Exact global metric totals require a separate empty migrated database; the fixed-clock CLI requires `LAB4_FIXTURE_DATABASE_URL` explicitly.
 
+Lab 4 Actions Taken list/create/update/revision APIs are implemented; [the implementation guide](docs/lab-04/actions-api.md) covers permissions, validation, versions and idempotent retries. Run `npm run test:actions --prefix server` with `LAB4_ACTIONS_DATABASE_URL` targeting a disposable PostgreSQL server. Ticket resolution gates and the action UI follow in their respective Lab 4 issues.
+
 ## Evolution & Sprint Changelog (Lab 1 – Lab 3)
 
 The project has evolved iteratively through three major development sprints:

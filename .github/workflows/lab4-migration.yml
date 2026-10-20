@@ -48,9 +48,16 @@ jobs:
           LAB4_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
         run: npm run test:migration -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-migration.xml
       - run: npm run build --prefix server
+      - name: Verify Actions API and validation on an isolated database
+        working-directory: server
+        env:
+          LAB4_ACTIONS_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+        run: npm run test:actions -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-actions.xml
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: lab4-migration-results
-          path: test-results/lab4-migration.xml
+          path: |
+            test-results/lab4-migration.xml
+            test-results/lab4-actions.xml
           retention-days: 30
