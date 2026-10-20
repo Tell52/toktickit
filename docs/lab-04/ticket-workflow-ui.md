@@ -50,6 +50,8 @@ npm run build --prefix server
 
 For browser tests, use only an explicitly designated disposable database with normal seed categories/systems; the configuration refuses to use the working `DATABASE_URL` as a fallback. Keep backend port 3106 and frontend port 5173 available. The [Actions UI guide](actions-ui.md#reproduce-verification) includes isolated Docker provisioning. With that separate server running:
 
+On Windows, use `127.0.0.1` when Docker publishes the database only on IPv4. In the PR #62 rehearsal, `localhost` delayed opening pooled connections and produced transaction-start timeouts: six concurrent read transactions failed 5/6 with `localhost` (4.06s total), while all six succeeded with `127.0.0.1` (34ms). Keep this local connection issue separate from the Linux CI layout/click failures.
+
 ```powershell
 $env:LAB4_UI_DATABASE_URL = 'postgresql://lab4:lab4-test-only@127.0.0.1:<disposable-port>/lab4_ui_test'
 $env:DATABASE_URL = $env:LAB4_UI_DATABASE_URL
@@ -60,4 +62,14 @@ Pop-Location
 node node_modules/@playwright/test/cli.js test --config=playwright.actions.config.ts
 ```
 
-Local verification: **187 client tests passed** across 16 files; **24 browser cases passed** across all three browsers; client/server builds passed. Results and scope are recorded in [tests.md](tests.md#11-results-and-evidence-recording). Local logs/JUnit and failure traces remain under ignored `test-results/`; CI uploads them. Remote CI results and a reviewed PR link follow the maintainer's commit/push. This implementation does not create a commit or merge.
+Initial local verification: **187 client tests passed** across 16 files; **24 browser cases passed** across all three browsers; client/server builds passed. Results and scope are recorded in [tests.md](tests.md#11-results-and-evidence-recording). Local logs/JUnit and failure traces remain under ignored `test-results/`; CI uploads them. The maintainer performs commits, pushes and merges.
+
+### PR #62 CI correction
+
+[CI run 39495660746](https://github.com/Tell52/toktickit/actions/runs/39495660746) at `8e661d0` passed 20/24 browser cases. All three browsers exposed an oversized Attachments tab at 320px and 200% text on Linux. WebKit also missed the Add action interaction while the page was scrolling; its trace shows the scroll position changing between the click action and completion.
+
+Staff detail tabs now constrain their width and wrap long labels. Staff detail uses immediate scrolling so focus/anchor navigation settles before the next interaction. Clearing Actions form state only restores focus when a form was actually open; viewing a record no longer focuses a stale form trigger or the section container. The browser regression now positively verifies that previous-cycle details opened, and uses a wide monospace tab font for the 200% text check across platforms. A new component regression reproduces the focus bug before the fix.
+
+The Node.js action-runtime deprecation warning was not the failing step. Remote verification of these corrections requires the maintainer to push to the existing PR branch.
+
+Final correction verification: **188 client tests passed**, **24 browser cases passed** across Chromium/Firefox/WebKit, and the client production build passed. Reports: `test-results/pr62-client.xml` and `test-results/pr62-browser-final.xml`.

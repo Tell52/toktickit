@@ -60,7 +60,12 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
   const dirty = !!draft && JSON.stringify(draft) !== initialDraft;
   useEffect(() => () => { alive.current = false; }, []);
   const editable = (action: ActionTaken) => staff && parentActive && action.resolutionCycle === data?.resolutionCycle && action.status !== 'CANCELLED';
-  function closeForm() { setMode(null); setDraft(null); setUncertain(null); setFields({}); setNeedsLatest(false); setLatest(null); if (returnFocus.current?.isConnected) returnFocus.current.focus(); else sectionRef.current?.focus(); }
+  function closeForm() {
+    setMode(null); setDraft(null); setUncertain(null); setFields({}); setNeedsLatest(false); setLatest(null);
+    // Viewing a record also clears form state, but must not move focus to an old trigger.
+    if (!mode) return;
+    if (returnFocus.current?.isConnected) returnFocus.current.focus(); else sectionRef.current?.focus();
+  }
   function canLeave() {
     if (inFlight.current || uncertain) return false;
     return !dirty || window.confirm('Discard unsaved action changes?');

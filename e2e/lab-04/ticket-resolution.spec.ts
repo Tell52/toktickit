@@ -107,6 +107,7 @@ test('E2E-02: create, advisory, gated resolve, close, reopen and resolve with ne
   expect(reopened.resolvedAt).toBeNull(); expect(reopened.problemAppearsResolved).toBe(false);
   await transition(page, 'In Progress'); await expect(resolveOption(page)).toBeDisabled();
   await page.getByRole('button', { name: 'View action: Repair router', exact: true }).click();
+  await expect(page.locator('.action-detail').getByText('Previous resolution cycle — read-only')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Edit action', exact: true })).toHaveCount(0);
   await complete(page, 'Repair replacement router'); await transition(page, 'Resolved');
   const final = await db!.ticket.findUniqueOrThrow({ where: { id: ticketId } });
@@ -188,6 +189,8 @@ test('workflow confirmation supports responsive layout, large text, keyboard foc
     }
   }
   await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
+  // A wider font reproduces the Linux runner's tab overflow on other platforms too.
+  await page.addStyleTag({ content: '.staff-ticket-detail .nav-tabs { font-family: monospace; }' });
   const overflow = await page.evaluate(() => Array.from(document.querySelectorAll('*')).filter(el => el.getBoundingClientRect().right > innerWidth + 1).map(el => ({ tag: el.tagName, cls: el.className, text: el.textContent?.slice(0, 55) })).slice(-12));
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), JSON.stringify(overflow)).toBe(true);
   await reason.focus(); page.once('dialog', dialog => dialog.dismiss()); await page.keyboard.press('Escape'); await expect(reason).toHaveValue('Retain this draft');

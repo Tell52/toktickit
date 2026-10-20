@@ -1,3 +1,7 @@
+/* Focus changes and anchor navigation must settle before the next interaction. */
+html:has(.staff-ticket-detail) { scroll-behavior: auto; }
+.staff-ticket-detail .nav-tabs .nav-item { min-width: 0; max-width: 100%; }
+.staff-ticket-detail .nav-tabs .nav-link { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .ticket-workflow,.ticket-status-history { padding: 1rem; margin: 1rem 0; border: 1px solid #b8cfc0; border-radius: .5rem; background: #fafcf9; overflow-wrap: anywhere; min-width: 0; }
 .ticket-workflow h3,.ticket-status-history h3,.workflow-dialog h3 { font-size: 1.1rem; color: #006b3c; }
 .workflow-controls { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
