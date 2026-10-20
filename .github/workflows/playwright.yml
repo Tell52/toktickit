@@ -50,7 +50,8 @@ jobs:
     - name: Run frontend tests
       run: npm test --prefix client
     - name: Run backend tests
-      run: npm test --prefix server
+      working-directory: server
+      run: npm test -- --reporter=default --reporter=junit --outputFile=../test-results/backend.xml
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
