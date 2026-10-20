@@ -1,0 +1,60 @@
+name: Lab 4 Actions UI
+on:
+  push:
+    branches: [main, master, lab4-staging]
+  pull_request:
+    branches: [main, master, lab4-staging]
+permissions:
+  contents: read
+jobs:
+  actions-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: lab4
+          POSTGRES_PASSWORD: lab4-test-only
+          POSTGRES_DB: lab4_ui_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lab4 -d lab4_ui_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/lab4_ui_test
+      LAB4_UI_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/lab4_ui_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix server
+          npm ci --prefix client
+      - name: Prepare disposable UI database
+        working-directory: server
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run prisma:seed
+      - run: npm run build --prefix client
+      - name: Component regression including Actions UI
+        working-directory: client
+        run: npm test -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-client-regression.xml
+      - run: npx playwright install --with-deps
+      - name: Verify real Actions flow and responsive layouts on all browsers
+        run: npx playwright test --config=playwright.actions.config.ts
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: lab4-actions-ui-results
+          path: |
+            test-results/
+            artifacts/lab-04/screenshots/actions-taken/
+          retention-days: 30

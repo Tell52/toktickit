@@ -1,6 +1,7 @@
 # UI Specification - Sprint 4
 
-**Status:** Proposed contract for issue #41.  
+**Status:** Actions Taken section and its draft/error recovery are implemented in issue #46; [implementation and evidence](actions-ui.md). Dashboard/navigation landing, Ticket status workflow/history and combined release checks remain planned for their respective issues.
+
 **Authority:** [specification.md](specification.md) defines roles, rules and metrics; [api-spec.md](api-spec.md) defines wire behavior.
 
 ## 1. Shared Design and Navigation
