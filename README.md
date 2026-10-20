@@ -148,7 +148,14 @@ npm run test
 ```
 
 ### End-to-End (E2E) Tests (Playwright)
-Ensure both the server (`localhost:3000`) and client (`localhost:5173`) are running, then in the project root:
+Install dependencies in the root, `server`, and `client` directories. Set
+`DATABASE_URL` in your shell to a dedicated PostgreSQL test database, then run
+`npx prisma migrate deploy` and `npm run prisma:seed` from `server`.
+Playwright automatically starts the API (`localhost:3000`) and client
+(`localhost:5173`); both processes inherit `DATABASE_URL`. Locally it can reuse
+existing servers, so ensure they use the same test database.
+
+From the project root:
 ```bash
 # Run all E2E tests across Chromium, Firefox, and WebKit
 npx playwright test
@@ -156,6 +163,12 @@ npx playwright test
 # View interactive HTML test report
 npx playwright show-report
 ```
+
+GitHub Actions provisions a fresh PostgreSQL 16 database, installs all three
+dependency sets, generates Prisma, applies migrations and seeds, builds both
+applications, runs frontend and backend tests, and runs the E2E suite on all three browsers.
+The Lab 2 requester flow now signs in through Lab 3 authentication while retaining
+its ticket creation and attachment regression checks.
 
 ---
 

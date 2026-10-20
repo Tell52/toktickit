@@ -1,16 +1,32 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { createOrUpdateUser, cleanupTestUsers, prisma } from '../lab-03/db-helper';
 
 test.describe('Requester Ticket Flow (Lab 2 E2E)', () => {
+    const cleanupEmails: string[] = [];
+
+    test.afterAll(async () => {
+        await cleanupTestUsers(cleanupEmails);
+        await prisma.$disconnect();
+    });
 
     test('Complete submission flow, view in My Tickets, and soft-remove attachment (AC-01, AC-05)', async ({ page }) => {
         // ---------------------------------------------------------
-        // 1. Development Requester Selection
+        // 1. Authenticate with the Lab 3 session flow
         // ---------------------------------------------------------
-        await page.goto('/');
-        await page.getByLabel(/Development Requester/i).selectOption({ label: 'Jennifer Anderson (jennifer@example.com)' });
-        await page.getByRole('button', { name: /Continue/i }).click();
-        await expect(page.getByText('Jennifer Anderson')).toBeVisible();
+        const email = `e2e.requester.${Date.now()}@toktickit.com`;
+        cleanupEmails.push(email);
+        await createOrUpdateUser({
+            email,
+            name: 'E2E Ticket Requester',
+            password: 'RequesterPass123!',
+        });
+        await page.goto('/login');
+        await page.getByPlaceholder(/name@example.com/i).fill(email);
+        await page.getByPlaceholder(/enter password/i).fill('RequesterPass123!');
+        await page.getByRole('button', { name: /sign in/i }).click();
+        await expect(page).toHaveURL(/\/tickets$/);
+        await expect(page.getByText('E2E Ticket Requester')).toBeVisible();
 
         // ---------------------------------------------------------
         // 2. Create Ticket (สร้างตั๋วเพียวๆ ไม่มีการอัปโหลดไฟล์ที่นี่)
