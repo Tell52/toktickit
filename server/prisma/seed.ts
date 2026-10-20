@@ -1,6 +1,7 @@
 import { getPrisma } from "../src/prisma.js";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { seedLab4Fixtures } from './lab4-fixtures.js';
 
 async function main() {
   const prisma = getPrisma();
@@ -183,6 +184,8 @@ async function main() {
   });
 
   console.log("Tickets, Comments, and Notes seeded successfully!");
+  const lab4 = await seedLab4Fixtures(prisma, { passwordHash: defaultPassword });
+  console.log(`Lab 4 demo fixtures: ${lab4.created} new Tickets, ${lab4.skipped} existing Tickets preserved.`);
 }
 
 main()

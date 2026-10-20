@@ -1,4 +1,4 @@
-name: Lab 4 Migration and Recovery
+name: Lab 4 Migration, Seeds and Recovery
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
         run: |
           npx prisma validate
           npx prisma generate
-      - name: Exercise real migrations, constraints, backups and recovery
+      - name: Exercise migrations, repeatable seeds, metric fixtures and recovery
         working-directory: server
         env:
           LAB4_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
