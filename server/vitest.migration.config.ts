@@ -7,6 +7,6 @@ if (!process.env.LAB4_MIGRATION_DATABASE_URL) {
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['tests/lab-04/migration-regression.test.ts'],
+    include: ['tests/lab-04/migration-regression.test.ts', 'tests/lab-04/seed-fixtures.test.ts'],
   },
 });

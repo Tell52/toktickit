@@ -1,14 +1,14 @@
 # Test Plan and Acceptance-Criteria Traceability - Sprint 4
 
 **Issue:** [#42 - Test Plan & Acceptance-Criteria Traceability](https://github.com/Tell52/toktickit/issues/42)  
-**Status:** Test plan created in issue #42; database/migration execution added in issue #43. API/UI/workflow and final-release cases remain Planned unless a result below explicitly records execution.
+**Status:** Test plan created in issue #42; database/migration execution added in issue #43 and seed/fixture execution in issue #44. API/UI/workflow and final-release cases remain Planned unless a result below explicitly records execution.
 **Contracts:** [Specification](specification.md), [API](api-spec.md), [UI](ui-spec.md).
 
 ## 1. Scope and Test Strategy
 
 Verify Actions Taken, both lifecycles, role dashboards and final hardening while preserving supported Labs 1-3 behavior. Use Vitest for unit/component tests, Supertest with PostgreSQL for API/integration tests, and Playwright for browser workflows. Manual visual/accessibility and recovery evidence supplements automated checks.
 
-This document supplies the plan, traceability and execution ledger. New paths remain **planned locations** until their implementation issue creates them. The migration suite now exists; its helper/configuration and recovery procedures are described in [migration-recovery.md](migration-recovery.md). Existing regression paths are identified separately in section 8.
+This document supplies the plan, traceability and execution ledger. New paths remain **planned locations** until their implementation issue creates them. The database suites now exist; see [migration/recovery](migration-recovery.md) and [seed/metric fixtures](seed-fixtures.md) for setup and execution. Existing regression paths are identified separately in section 8.
 
 For each feature:
 
@@ -133,10 +133,10 @@ Every AC from specification section 9 maps to at least one concrete case below. 
 | AC-10 | WF-05, CON-03, E2E-03 |
 | AC-11 | CON-01, CON-02, CON-03, CON-04, WF-07 |
 | AC-12 | API-10, API-11, CON-05, UI-04 |
-| AC-13 | UNIT-06, DASH-01, DASH-02, DASH-06 |
-| AC-14 | UNIT-06, DASH-03, DASH-04, DASH-06 |
+| AC-13 | UNIT-06, DASH-01, DASH-02, DASH-06, SEED-04, SEED-06 |
+| AC-14 | UNIT-06, DASH-03, DASH-04, DASH-06, SEED-04, SEED-06 |
 | AC-15 | DASH-05, E2E-04, E2E-05 |
-| AC-16 | MIG-01, MIG-02, MIG-03, MIG-04, MIG-05, DB-01, DB-02, DB-03, DB-04 |
+| AC-16 | MIG-01, MIG-02, MIG-03, MIG-04, MIG-05, DB-01, DB-02, DB-03, DB-04, SEED-01, SEED-02, SEED-03, SEED-04, SEED-05, SEED-06, SEED-07, SEED-08, SEED-09, SEED-10 |
 | AC-17 | SEC-04, SEC-05, SEC-06, SEC-07 |
 | AC-18 | UI-01, UI-03, UI-04, UI-05, UI-06, SEC-08 |
 | AC-19 | UI-07, UI-08, SEC-08 |
@@ -273,7 +273,7 @@ Run on the configured Chromium, Firefox and WebKit projects. Use fresh browser c
 | MIG-01 | Migration/integration | FR-12; AC-16 | Upgrade disposable Lab 3 snapshot with all earlier models and attachment metadata | IDs/counts/relationships/legacy values preserved; version/cycle=1; resolvedAt null; no fabricated actions/events; documented aliases normalized | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
 | MIG-02 | Migration/workflow | BR-16; AC-16 | Legacy unresolved zero-action Ticket, Resolved Ticket, Closed Ticket and unknown historical enum | Unresolved must record work before resolving; legacy Resolved can close; reopen activates new gate; unknown values stop migration without silent rewrite | server/tests/lab-04/migration-regression.test.ts | Planned |
 | MIG-03 | Recovery/integration | FR-12; AC-16 | Fail migration, then rehearse database and synthetic attachment backup/restore | Transactional failure rolls back; restored rows/sequences and synthetic file hashes match; post-upgrade data is restored separately before returning to Lab 3 | server/tests/lab-04/migration-regression.test.ts; docs/lab-04/migration-recovery.md | Pass: DB-RUN-02 |
-| MIG-04 | Seed/integration | FR-12; AC-16 | Seed twice, then edit fixture/user data and seed again | No duplicate actions/revisions/events; existing passwords and user edits retained; required fixture categories remain available | server/tests/lab-04/migration-regression.test.ts | Planned |
+| MIG-04 | Seed/integration | FR-12; AC-16 | Seed twice, then edit fixture/user data and seed again | No duplicate actions/revisions/events; existing passwords and user edits retained; required fixture categories remain available | server/tests/lab-04/seed-fixtures.test.ts (SEED-01 and SEED-02) | Pass: SEED-RUN-03 |
 | MIG-05 | Manual recovery smoke | FR-12; AC-16 | Restore a deployment backup and actual attachment storage with its matching Lab 3 application | Real legacy routes/downloads function; storage hashes/metadata match; writes remain stopped until post-upgrade data reconciliation | docs/lab-04/migration-recovery.md and deployment recovery evidence | Planned |
 | DB-01 | Database/integration | FR-02, FR-03, FR-12; AC-16 | Prisma creates actions with independent performer/assignee, revisions, events and receipts | Required defaults/UUIDs/timestamps round-trip; Ticket Owner unchanged; historical inactive/demoted accounts retained | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
 | DB-02 | Database/constraints | FR-02, FR-12; AC-16 | Invalid lengths/blank required values, conditional notes/results/reasons and nonpositive counters | PostgreSQL rejects invalid rows; exact upper bounds accepted; no rejected row persists | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
@@ -281,6 +281,23 @@ Run on the configured Chromium, Firefox and WebKit projects. Use fresh browser c
 | DB-04 | Database/concurrency | FR-08, FR-12; AC-16 | Concurrent version-conditional updates, injected transaction failure and index inventory | One write per expected version; failure rolls back action/revision/Ticket increment; required indexes exist | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
 
 MIG-02's three unknown-value/preflight cases pass in DB-RUN-02, including failed-ledger reconciliation and retry. Its unresolved/resolved/reopened API gate scenarios remain Planned until workflow implementation. DB-04 verifies database support; CON-01..05 remain Planned for service-level locking and concurrency. MIG-05 is a deployment check; the baseline upload route currently does not persist file bytes, so synthetic file recovery cannot establish real download recovery.
+
+### Seed and metric fixture verification
+
+| ID | Type | Requirement / AC | Scenario | Expected result | Automated test file | Final |
+|---|---|---|---|---|---|---|
+| SEED-01 | Seed/integration | FR-12; AC-16 | Run normal seed twice and repeat the demo profile with a different clock | Original seed retained; one complete Lab 4 graph; all stored values and first-creation timestamps unchanged on rerun | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-02 | Seed/preservation | FR-12; AC-16 | Change existing and fixture accounts/passwords, Ticket/action values and add public/private/attachment work, then reseed | Every edited value, new row and prior history preserved; no passwords or account flags reset | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-03 | Fixture/integration | FR-12; AC-16 | Load dashboard CLI into a fresh database, inspect coverage, then repeat | Exactly 8 Users, 11 Tickets, 8 actions, 15 revisions and 1 event; statuses, priorities, assignment, legacy timestamps and zero/one/multiple action cases present | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-04 | Fixture/SQL oracle | FR-09, FR-10, FR-12; AC-13, AC-14, AC-16 | Query committed fixed-clock fixture independently with SQL | Requester/staff counts and ordered previews match section 2.3, including ownership, null priority, cycle and assignee predicates | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-05 | Fixture/history | FR-05, FR-12; AC-16 | Inspect current actions and all revision snapshots | Contiguous revisions; current snapshot matches; no private account fields; cleared follow-up evidence and old-cycle actions retained; owner/performer/assignee independence | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-06 | Fixture/boundaries | FR-09, FR-10, FR-12; AC-13, AC-14, AC-16 | Load separate boundary and empty profiles | Exact millisecond cases before/at/after both bounds; boundary recent counts 3; empty database has accounts but zero Tickets/actions | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-07 | Seed/concurrency | FR-12; AC-16 | Two seed calls race for the same profile | One creates all 11 Tickets, the other skips all; no duplicate child/history rows or timestamp changes | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-08 | Seed/collision | FR-12; AC-16 | A reserved email has another ID, including case variant | Explicit failure, no takeover and complete transaction rollback | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-09 | Seed/rollback | FR-12; AC-16 | Reserved action UUID collides on a later Ticket's nested creation | All new seed rows roll back; existing work remains byte-for-byte equivalent in row inventory | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+| SEED-10 | Seed/safe skip | FR-12; AC-16 | Existing Ticket uses a fixture key; invalid demo clock supplied separately | Existing aggregate gets no changes/children; other new Tickets load; invalid clock fails before writes; fixed profile ignores wall-clock changes | server/tests/lab-04/seed-fixtures.test.ts | Pass: SEED-RUN-03 |
+
+SEED-04/06 validate fixture data and the expected SQL oracle; DASH-01..06 remain Planned for actual dashboard endpoints. MIG-04 groups the first two seed tests rather than adding a separate eleventh test. No full AC or final-main release result is inferred from fixture verification.
 
 ### Existing regression suites
 
@@ -358,6 +375,11 @@ The current Vitest include patterns discover the planned server `.test.ts` and c
 | DB-RUN-02 | feature/lab4-3-db-migration; base a3b3df2 + working changes | npm run test:migration (equivalent direct Vitest command recorded in migration-recovery.md) | Same isolated PostgreSQL 16; synthetic legacy rows and file | MIG-01, MIG-03, DB-01..04; MIG-02 preflight portion | 9 passed / 0 failed; broader MIG-02 and MIG-04/05 remain Planned | test-results/lab4-migration.xml (local ignored report); docs/lab-04/migration-recovery.md |
 | DB-REG-01 | feature/lab4-3-db-migration; base a3b3df2 + working changes | prisma migrate deploy; prisma migrate diff --from-url <disposable URL> --to-schema-datamodel prisma/schema.prisma --exit-code; npm run prisma:seed; npm test | Separate fresh lab4_regression database on the disposable PostgreSQL 16 server | All 13 server Lab 1-3 files | 113 passed / 0 failed; isolated migration suite's 9 tests intentionally skipped here and executed separately above; schema diff empty | Backend portion of REG-01..05 only; UI/E2E/final-main regression remains Planned |
 | DB-STATIC-01 | Same working tree | npx prisma validate; npx prisma generate; npm run build | Windows, Node 22.17.1 | Schema/client/server TypeScript including migration tests | Pass | Local command output; CI workflow added, remote CI not yet executed |
+| SEED-RUN-01 | feature/lab4-4-seed-fixtures; base a1dd4df + working changes | Combined database/fixture Vitest command in seed-fixtures.md | Windows, Node 22.17.1, Prisma 5.22.0, disposable PostgreSQL 16 | migration-regression.test.ts + seed-fixtures.test.ts | 9 passed / 10 failed; Prisma bound lock key as bigint, but the two-key advisory-lock overload requires integers | Added explicit integer cast; local report test-results/lab4-seed-initial-failure.xml |
+| SEED-RUN-02 | Same feature working tree | Focused seed suite | Same disposable PostgreSQL server | seed-fixtures.test.ts | 9 passed / 1 failed; test selected X1 to assert performer differs from Owner, while planned X1 deliberately shares performer/Owner | Asserted X2, the existing independent-performer fixture; local report test-results/lab4-seed-second-failure.xml |
+| SEED-RUN-03 | feature/lab4-4-seed-fixtures; base a1dd4df + working changes | Combined database/fixture Vitest command in seed-fixtures.md | Same isolated PostgreSQL 16; each fixture profile in its own generated database | All 9 migration tests + 10 seed tests; MIG-04, SEED-01..10 | 19 passed / 0 failed / 0 skipped; 17.00s | test-results/lab4-database-fixtures.xml; docs/lab-04/seed-fixtures.md |
+| SEED-REG-01 | Same feature working tree | prisma migrate deploy; normal seed; complete backend Vitest run | Separate fresh lab4_seed_regression database on disposable PostgreSQL 16 | All 13 server Lab 1-3 files with the extended normal seed | 113 passed / 0 failed; isolated database suites' 19 tests intentionally skipped here and run separately above | test-results/lab4-seed-backend-regression.xml; backend portion of REG-01..05 only |
+| SEED-STATIC-01 | Same feature working tree | npm run build | Windows, Node 22.17.1 | Server TypeScript, seed scripts and database tests | Pass | Local command output; CI updated to discover both database suites; remote CI not yet executed |
 
 For each failure record expected/actual behavior, reproducible steps or trace, linked fixing issue/PR and rerun result. Preserve failed-run evidence when it explains a correction. A retry passing does not erase a reproducible flake; investigate it before final completion.
 

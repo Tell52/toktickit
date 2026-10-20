@@ -6,7 +6,9 @@ TokTickIT is a full-stack IT service desk and support ticketing web application 
 
 ## Lab 4 Database Preparation
 
-The additive Actions Taken migration, legacy-data checks and backup/restore rehearsal are documented in [the Lab 4 migration and recovery guide](docs/lab-04/migration-recovery.md). Follow its preflight/backup steps before deploying to an existing database. Run the isolated PostgreSQL suite with `npm run test:migration --prefix server`; it requires `LAB4_MIGRATION_DATABASE_URL` and matching PostgreSQL tools or the disposable server container. [Test coverage and execution evidence](docs/lab-04/tests.md) distinguish database work from upcoming API/UI/seed work.
+The additive Actions Taken migration, legacy-data checks and backup/restore rehearsal are documented in [the Lab 4 migration and recovery guide](docs/lab-04/migration-recovery.md). Follow its preflight/backup steps before deploying to an existing database. Run the isolated PostgreSQL suites with `npm run test:migration --prefix server`; they require `LAB4_MIGRATION_DATABASE_URL` and matching PostgreSQL tools or the disposable server container. [Test coverage and execution evidence](docs/lab-04/tests.md) distinguish database/seed work from upcoming API/UI work.
+
+The normal `npm run prisma:seed --prefix server` now adds Lab 4 demonstration Tickets/actions while preserving existing data and changed passwords. [The seed and fixture guide](docs/lab-04/seed-fixtures.md) lists accounts, expected dashboard counts and separate fixed-clock dashboard/boundary/empty datasets. Run `npm run test:fixtures --prefix server` for seed-specific checks. Exact global metric totals require a separate empty migrated database; the fixed-clock CLI requires `LAB4_FIXTURE_DATABASE_URL` explicitly.
 
 ## Evolution & Sprint Changelog (Lab 1 – Lab 3)
 

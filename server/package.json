@@ -9,8 +9,10 @@
     "start": "node dist/index.js",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:fixtures": "tsx prisma/seed-lab4-fixtures.ts",
     "test": "vitest run",
-    "test:migration": "vitest run --config vitest.migration.config.ts"
+    "test:migration": "vitest run --config vitest.migration.config.ts",
+    "test:fixtures": "vitest run --config vitest.migration.config.ts seed-fixtures"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
