@@ -1,14 +1,14 @@
 # Test Plan and Acceptance-Criteria Traceability - Sprint 4
 
 **Issue:** [#42 - Test Plan & Acceptance-Criteria Traceability](https://github.com/Tell52/toktickit/issues/42)  
-**Status:** Planned before implementation. No Lab 4 product tests have been executed or marked passed by this issue.  
+**Status:** Test plan created in issue #42; database/migration execution added in issue #43. API/UI/workflow and final-release cases remain Planned unless a result below explicitly records execution.
 **Contracts:** [Specification](specification.md), [API](api-spec.md), [UI](ui-spec.md).
 
 ## 1. Scope and Test Strategy
 
 Verify Actions Taken, both lifecycles, role dashboards and final hardening while preserving supported Labs 1-3 behavior. Use Vitest for unit/component tests, Supertest with PostgreSQL for API/integration tests, and Playwright for browser workflows. Manual visual/accessibility and recovery evidence supplements automated checks.
 
-This issue supplies the plan and traceability, not placeholder passing tests. All new paths below are **planned locations**; implementation issues create them and update this document if paths change. Existing regression paths are identified separately in section 8.
+This document supplies the plan, traceability and execution ledger. New paths remain **planned locations** until their implementation issue creates them. The migration suite now exists; its helper/configuration and recovery procedures are described in [migration-recovery.md](migration-recovery.md). Existing regression paths are identified separately in section 8.
 
 For each feature:
 
@@ -136,7 +136,7 @@ Every AC from specification section 9 maps to at least one concrete case below. 
 | AC-13 | UNIT-06, DASH-01, DASH-02, DASH-06 |
 | AC-14 | UNIT-06, DASH-03, DASH-04, DASH-06 |
 | AC-15 | DASH-05, E2E-04, E2E-05 |
-| AC-16 | MIG-01, MIG-02, MIG-03, MIG-04 |
+| AC-16 | MIG-01, MIG-02, MIG-03, MIG-04, MIG-05, DB-01, DB-02, DB-03, DB-04 |
 | AC-17 | SEC-04, SEC-05, SEC-06, SEC-07 |
 | AC-18 | UI-01, UI-03, UI-04, UI-05, UI-06, SEC-08 |
 | AC-19 | UI-07, UI-08, SEC-08 |
@@ -270,10 +270,17 @@ Run on the configured Chromium, Firefox and WebKit projects. Use fresh browser c
 
 | ID | Type | Requirement / AC | Scenario | Expected result | Automated test file / evidence | Final |
 |---|---|---|---|---|---|---|
-| MIG-01 | Migration/integration | FR-12; AC-16 | Upgrade disposable Lab 3 snapshot with all earlier models and attachments | IDs/counts/relationships/files preserved; version/cycle=1; resolvedAt null; no fabricated actions/events; documented aliases normalized | server/tests/lab-04/migration-regression.test.ts | Planned |
+| MIG-01 | Migration/integration | FR-12; AC-16 | Upgrade disposable Lab 3 snapshot with all earlier models and attachment metadata | IDs/counts/relationships/legacy values preserved; version/cycle=1; resolvedAt null; no fabricated actions/events; documented aliases normalized | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
 | MIG-02 | Migration/workflow | BR-16; AC-16 | Legacy unresolved zero-action Ticket, Resolved Ticket, Closed Ticket and unknown historical enum | Unresolved must record work before resolving; legacy Resolved can close; reopen activates new gate; unknown values stop migration without silent rewrite | server/tests/lab-04/migration-regression.test.ts | Planned |
-| MIG-03 | Recovery/integration | FR-12; AC-16 | Fail migration, then rehearse backup restore with matching app and attachment storage | Transactional failure rolls back; restored data/files match inventory; post-upgrade data is preserved before restore; commands/results recorded | server/tests/lab-04/migration-regression.test.ts plus artifacts/lab-04/recovery/ | Planned |
+| MIG-03 | Recovery/integration | FR-12; AC-16 | Fail migration, then rehearse database and synthetic attachment backup/restore | Transactional failure rolls back; restored rows/sequences and synthetic file hashes match; post-upgrade data is restored separately before returning to Lab 3 | server/tests/lab-04/migration-regression.test.ts; docs/lab-04/migration-recovery.md | Pass: DB-RUN-02 |
 | MIG-04 | Seed/integration | FR-12; AC-16 | Seed twice, then edit fixture/user data and seed again | No duplicate actions/revisions/events; existing passwords and user edits retained; required fixture categories remain available | server/tests/lab-04/migration-regression.test.ts | Planned |
+| MIG-05 | Manual recovery smoke | FR-12; AC-16 | Restore a deployment backup and actual attachment storage with its matching Lab 3 application | Real legacy routes/downloads function; storage hashes/metadata match; writes remain stopped until post-upgrade data reconciliation | docs/lab-04/migration-recovery.md and deployment recovery evidence | Planned |
+| DB-01 | Database/integration | FR-02, FR-03, FR-12; AC-16 | Prisma creates actions with independent performer/assignee, revisions, events and receipts | Required defaults/UUIDs/timestamps round-trip; Ticket Owner unchanged; historical inactive/demoted accounts retained | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
+| DB-02 | Database/constraints | FR-02, FR-12; AC-16 | Invalid lengths/blank required values, conditional notes/results/reasons and nonpositive counters | PostgreSQL rejects invalid rows; exact upper bounds accepted; no rejected row persists | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
+| DB-03 | Database/integrity | FR-05, FR-08, FR-12; AC-16 | Missing parents, deletion of referenced rows, audit payloads and duplicate keys | Restrictive FKs and unique action/revision and actor/key scopes hold; audit JSON/hash/counters validated | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
+| DB-04 | Database/concurrency | FR-08, FR-12; AC-16 | Concurrent version-conditional updates, injected transaction failure and index inventory | One write per expected version; failure rolls back action/revision/Ticket increment; required indexes exist | server/tests/lab-04/migration-regression.test.ts | Pass: DB-RUN-02 |
+
+MIG-02's three unknown-value/preflight cases pass in DB-RUN-02, including failed-ledger reconciliation and retry. Its unresolved/resolved/reopened API gate scenarios remain Planned until workflow implementation. DB-04 verifies database support; CON-01..05 remain Planned for service-level locking and concurrency. MIG-05 is a deployment check; the baseline upload route currently does not persist file bytes, so synthetic file recovery cannot establish real download recovery.
 
 ### Existing regression suites
 
@@ -347,7 +354,10 @@ The current Vitest include patterns discover the planned server `.test.ts` and c
 
 | Run ID | Branch / commit SHA | Command or manual procedure | Environment / fixture | Test IDs / executed files | Result / counts | Evidence / failure issue |
 |---|---|---|---|---|---|---|
-| Not yet executed | — | — | — | — | All cases Planned | — |
+| DB-RUN-01 | feature/lab4-3-db-migration; base a3b3df2 + working changes | npm run test:migration | Windows, Node 22.17.1, Prisma 5.22.0, PostgreSQL 16 disposable Docker | migration-regression.test.ts, 9 tests | 4 passed / 5 failed: CHECK error assertion expected P2004; actual SQLSTATE 23514; Prisma masked first transactional preflight diagnostic | Corrected assertions to CHECK failures and verified actionable diagnostics with psql before deploy; rerun DB-RUN-02 |
+| DB-RUN-02 | feature/lab4-3-db-migration; base a3b3df2 + working changes | npm run test:migration (equivalent direct Vitest command recorded in migration-recovery.md) | Same isolated PostgreSQL 16; synthetic legacy rows and file | MIG-01, MIG-03, DB-01..04; MIG-02 preflight portion | 9 passed / 0 failed; broader MIG-02 and MIG-04/05 remain Planned | test-results/lab4-migration.xml (local ignored report); docs/lab-04/migration-recovery.md |
+| DB-REG-01 | feature/lab4-3-db-migration; base a3b3df2 + working changes | prisma migrate deploy; prisma migrate diff --from-url <disposable URL> --to-schema-datamodel prisma/schema.prisma --exit-code; npm run prisma:seed; npm test | Separate fresh lab4_regression database on the disposable PostgreSQL 16 server | All 13 server Lab 1-3 files | 113 passed / 0 failed; isolated migration suite's 9 tests intentionally skipped here and executed separately above; schema diff empty | Backend portion of REG-01..05 only; UI/E2E/final-main regression remains Planned |
+| DB-STATIC-01 | Same working tree | npx prisma validate; npx prisma generate; npm run build | Windows, Node 22.17.1 | Schema/client/server TypeScript including migration tests | Pass | Local command output; CI workflow added, remote CI not yet executed |
 
 For each failure record expected/actual behavior, reproducible steps or trace, linked fixing issue/PR and rerun result. Preserve failed-run evidence when it explains a correction. A retry passing does not erase a reproducible flake; investigate it before final completion.
 
@@ -359,7 +369,7 @@ Issue #42 is ready for review when:
 - Every planned case identifies type, requirement/AC, scenario, expected result, file/evidence destination and status.
 - Required action/workflow/dashboard API files, four client component files and three E2E files are represented.
 - Fixtures cover roles, dates, zeros, boundaries, legacy data, concurrent writes and safe failures.
-- All results remain truthful; no application test is labelled passed before execution.
+- All results remain truthful; no application test is labelled passed before execution. Issue #43 results above cover database preparation only.
 
 Implementation ownership: database/seed cases go to issues #43-44; Actions Taken cases to #45-46; workflow cases to #47-48; dashboards to #49-50; security/concurrency/performance to #51; visual/accessibility to #52; E2E/regression to #53; final-main results and submission evidence to #54.
 

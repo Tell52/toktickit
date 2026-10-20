@@ -4,6 +4,10 @@ TokTickIT is a full-stack IT service desk and support ticketing web application 
 
 ---
 
+## Lab 4 Database Preparation
+
+The additive Actions Taken migration, legacy-data checks and backup/restore rehearsal are documented in [the Lab 4 migration and recovery guide](docs/lab-04/migration-recovery.md). Follow its preflight/backup steps before deploying to an existing database. Run the isolated PostgreSQL suite with `npm run test:migration --prefix server`; it requires `LAB4_MIGRATION_DATABASE_URL` and matching PostgreSQL tools or the disposable server container. [Test coverage and execution evidence](docs/lab-04/tests.md) distinguish database work from upcoming API/UI/seed work.
+
 ## Evolution & Sprint Changelog (Lab 1 – Lab 3)
 
 The project has evolved iteratively through three major development sprints:
