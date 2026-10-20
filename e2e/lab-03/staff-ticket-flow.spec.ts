@@ -297,14 +297,14 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
 
   // ---------------------------------------------------------------------------
   // E2E-08: Full user journey across desktop, tablet, and mobile viewports (ui-spec §7)
-  //         and automated screenshot capture into artifacts/lab-03/screenshots/
+  //         and automated screenshot capture into each test's output directory
   // ---------------------------------------------------------------------------
-  test('E2E-08: Responsive user journey renders cleanly across desktop, tablet, and mobile viewports (ui-spec §7)', async ({ page }) => {
+  test('E2E-08: Responsive user journey renders cleanly across desktop, tablet, and mobile viewports (ui-spec §7)', async ({ page }, testInfo) => {
     const adminEmail = `e2e.responsive.admin.${Date.now()}-${Math.floor(Math.random() * 1000)}@toktickit.com`;
     const forcedEmail = `e2e.responsive.forced.${Date.now()}-${Math.floor(Math.random() * 1000)}@toktickit.com`;
     cleanupEmails.push(adminEmail, forcedEmail);
 
-    const screenshotBaseDir = path.resolve(__dirname, '../../artifacts/lab-03/screenshots');
+    const screenshotBaseDir = testInfo.outputPath('screenshots');
     const screenshotDirs = ['authentication', 'staff-queue', 'staff-ticket-detail', 'user-management'];
     for (const dir of screenshotDirs) {
       fs.mkdirSync(path.join(screenshotBaseDir, dir), { recursive: true });
