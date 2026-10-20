@@ -1,0 +1,7 @@
+.app-shell-header > div, .app-shell-header nav { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.app-shell-header a, .app-shell-header button { min-height: 44px; display: inline-flex; align-items: center; }
+.app-shell-header :focus-visible { outline: 3px solid white; outline-offset: 3px; }
+.staff-ticket-detail .read-only-field > div { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 400px) {
+  .staff-ticket-detail > .card > .card-body { padding: 16px !important; }
+}

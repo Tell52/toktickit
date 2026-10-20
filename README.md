@@ -10,7 +10,9 @@ The additive Actions Taken migration, legacy-data checks and backup/restore rehe
 
 The normal `npm run prisma:seed --prefix server` now adds Lab 4 demonstration Tickets/actions while preserving existing data and changed passwords. [The seed and fixture guide](docs/lab-04/seed-fixtures.md) lists accounts, expected dashboard counts and separate fixed-clock dashboard/boundary/empty datasets. Run `npm run test:fixtures --prefix server` for seed-specific checks. Exact global metric totals require a separate empty migrated database; the fixed-clock CLI requires `LAB4_FIXTURE_DATABASE_URL` explicitly.
 
-Lab 4 Actions Taken list/create/update/revision APIs are implemented; [the implementation guide](docs/lab-04/actions-api.md) covers permissions, validation, versions and idempotent retries. Run `npm run test:actions --prefix server` with `LAB4_ACTIONS_DATABASE_URL` targeting a disposable PostgreSQL server. Ticket resolution gates and the action UI follow in their respective Lab 4 issues.
+Lab 4 Actions Taken list/create/update/revision APIs are implemented; [the implementation guide](docs/lab-04/actions-api.md) covers permissions, validation, versions and idempotent retries. Run `npm run test:actions --prefix server` with `LAB4_ACTIONS_DATABASE_URL` targeting a disposable PostgreSQL server.
+
+Staff/Admin and Requester Ticket Detail now include the responsive Actions Taken section. [The UI guide](docs/lab-04/actions-ui.md) documents create/edit/lifecycle controls, read-only privacy, draft/conflict recovery, screenshots and isolated browser verification. Run `npx playwright test --config=playwright.actions.config.ts` with `LAB4_UI_DATABASE_URL` pointing to a separate migrated/seeded test database. Dedicated CI runs this flow on Chromium, Firefox and WebKit. Ticket resolution gates, status history and dashboards follow in later Lab 4 issues.
 
 ## Evolution & Sprint Changelog (Lab 1 – Lab 3)
 

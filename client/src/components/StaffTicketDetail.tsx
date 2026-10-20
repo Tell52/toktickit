@@ -12,6 +12,7 @@ import {
 } from "../api.js";
 import { StatusBadge, PriorityBadge } from "./StaffTicketQueue.js";
 import { RoleBadge } from "../App.js";
+import ActionsTaken from './ActionsTaken';
 
 // Canonical status mappings
 const STATUS_CANONICAL: Record<string, string> = {
@@ -74,14 +75,15 @@ export default function StaffTicketDetail({
 
   const fetchTicket = useCallback(async () => {
     try {
-      setLoading(true);
       setError(null);
       const data = await getStaffTicketDetail(ticketId);
       setTicket(data);
     } catch (err: any) {
       if (err?.error?.code === "FORBIDDEN" || err?.status === 403) {
+        setTicket(null);
         setError("You do not have permission to view this staff ticket.");
       } else if (err?.error?.code === "NOT_FOUND" || err?.status === 404) {
+        setTicket(null);
         setError("Ticket not found.");
       } else {
         setError(err?.error?.message || "Failed to load ticket details.");
@@ -103,6 +105,8 @@ export default function StaffTicketDetail({
   }, []);
 
   useEffect(() => {
+    setLoading(true);
+    setTicket(null);
     fetchTicket();
     fetchStaffUsers();
   }, [fetchTicket, fetchStaffUsers]);
@@ -213,7 +217,7 @@ export default function StaffTicketDetail({
     );
   }
 
-  if (error || !ticket) {
+  if (!ticket) {
     return (
       <div className="card shadow-sm border-0 p-4 my-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 12 }}>
         <div className="alert alert-danger mb-3" role="alert">
@@ -234,6 +238,7 @@ export default function StaffTicketDetail({
 
   return (
     <div className="staff-ticket-detail my-3" data-testid="staff-ticket-detail">
+      {error && <div className="alert alert-danger" role="alert">{error}</div>}
       {/* Toast / Alert Feedback */}
       {saveSuccessMsg && (
         <div className="alert alert-success py-2 px-3 mb-3 d-flex align-items-center gap-2" role="alert">
@@ -247,9 +252,9 @@ export default function StaffTicketDetail({
           {/* Top Title & ID Bar */}
           <div className="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4 gap-2">
             <div>
-              <div className="d-flex align-items-center gap-2 mb-1">
+              <div className="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <h2 className="h4 mb-0 fw-bold" style={{ color: "#006B3C" }}>
-                  {ticket.ticketNumber}
+                  <span style={{ overflowWrap: 'anywhere' }}>{ticket.ticketNumber}</span>
                 </h2>
                 <span className="badge bg-light text-muted border">Staff Detail</span>
               </div>
@@ -482,6 +487,10 @@ export default function StaffTicketDetail({
               </div>
             </div>
           </div>
+
+          <ActionsTaken key={String(ticketId)} ticketId={ticketId} ticketStatus={ticket.status || ticket.currentStatus}
+            ticketCreatedAt={ticket.createdAt} currentUser={currentUser}
+            refreshTicket={async () => { setTicket(await getStaffTicketDetail(ticketId)); }} />
 
           {/* Section 5: Tabbed Section (Public Comments · Internal Notes · Attachments) */}
           <div className="mt-4">

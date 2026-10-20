@@ -15,6 +15,7 @@ interface AuthContextType {
     login: (userData: User, csrfToken: string) => void;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
+    invalidateSession?: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -55,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, checkAuth }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, checkAuth, invalidateSession: () => { setUser(null); localStorage.removeItem('csrfToken'); } }}>
             {children}
         </AuthContext.Provider>
     );

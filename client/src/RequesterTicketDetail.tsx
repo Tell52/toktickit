@@ -7,6 +7,7 @@ import {
   indicateResolved,
 } from "./api.js";
 import { RoleBadge } from "./App.js";
+import ActionsTaken from './components/ActionsTaken';
 
 interface Attachment {
   id: number;
@@ -635,6 +636,7 @@ export default function RequesterTicketDetail({
         </div>
       </div>
 
+      <ActionsTaken key={ticketId} ticketId={ticketId} ticketStatus={ticket.currentStatus} readOnly />
       {/* NOTE: Internal Notes are NEVER rendered in Requester's DOM (BR-04, AC-04) */}
     </div>
   );

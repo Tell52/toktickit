@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute.js";
 import StaffTicketQueue from "./components/StaffTicketQueue.js";
 import StaffTicketDetail from "./components/StaffTicketDetail.js";
 import UserManagement from "./components/UserManagement.js";
+import { allowNavigation } from './navigation-guard';
+import './App.css';
 
 
 export function RoleBadge({ role }: { role: string }) {
@@ -80,6 +82,7 @@ export default function App() {
   }
 
   const navigate = (path: string) => {
+    if (path !== currentPath && !allowNavigation()) return;
     if (typeof window !== "undefined" && window.location.pathname !== path) {
       window.history.pushState({}, "", path);
     }
@@ -88,11 +91,12 @@ export default function App() {
 
   useEffect(() => {
     const handlePopState = () => {
+      if (!allowNavigation()) { window.history.pushState({}, "", currentPath); return; }
       setCurrentPath(window.location.pathname || "/");
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [currentPath]);
 
   // Sync root path '/' with role-based default destination
   useEffect(() => {
@@ -149,6 +153,7 @@ export default function App() {
   }
 
   const handleLogout = async () => {
+    if (!allowNavigation()) return;
     await logout();
     navigate("/login");
   };
@@ -166,18 +171,16 @@ export default function App() {
   return (
     <div style={{ backgroundColor: "#F5F7F6", minHeight: "100vh" }}>
       {/* Navbar Header */}
-      <header className="p-3 text-white d-flex justify-content-between align-items-center shadow-sm" style={{ backgroundColor: "#006B3C" }}>
-        <div className="d-flex align-items-center gap-4">
+      <header className="app-shell-header p-3 text-white d-flex flex-wrap gap-3 justify-content-between align-items-center shadow-sm" style={{ backgroundColor: "#006B3C" }}>
+        <div className="d-flex flex-wrap align-items-center gap-4">
           <h1
             className="h5 mb-0 fw-bold"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate(isRequester ? "/tickets" : "/queue")}
           >
-            TokTickIT
+            <a href={isRequester ? '/tickets' : '/queue'} className="text-white text-decoration-none" onClick={event => { event.preventDefault(); navigate(isRequester ? '/tickets' : '/queue'); }}>TokTickIT</a>
           </h1>
 
           {/* Navigation Items filtered strictly by role (FR-07) */}
-          <nav className="d-flex gap-3 align-items-center">
+          <nav className="d-flex flex-wrap gap-3 align-items-center">
             {/* Requester Navigation Links */}
             {isRequester && (
               <a
@@ -237,7 +240,7 @@ export default function App() {
         </div>
 
         {/* User identity & Role badge & Logout on top-right */}
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex flex-wrap align-items-center gap-3">
           <span className="small text-white d-flex align-items-center gap-1">
             👤 <span>{user.name}</span>
           </span>
@@ -252,7 +255,7 @@ export default function App() {
       </header>
 
       {/* Main Content with Route Guards */}
-      <main className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : 880 }}>
+      <main className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : currentPath.startsWith('/tickets/') ? 1280 : 880 }}>
         {/* Requester: My Tickets */}
         {currentPath === "/tickets" && (
           <ProtectedRoute allowedRoles={["REQUESTER"]} currentPath={currentPath} onNavigate={navigate}>
