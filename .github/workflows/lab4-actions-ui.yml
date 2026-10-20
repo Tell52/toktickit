@@ -1,4 +1,4 @@
-name: Lab 4 Actions UI
+name: Lab 4 Actions and Ticket Workflow UI
 on:
   push:
     branches: [main, master, lab4-staging]
@@ -44,11 +44,11 @@ jobs:
           npx prisma migrate deploy
           npm run prisma:seed
       - run: npm run build --prefix client
-      - name: Component regression including Actions UI
+      - name: Component regression including Actions and Ticket workflow UI
         working-directory: client
         run: npm test -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-client-regression.xml
       - run: npx playwright install --with-deps
-      - name: Verify real Actions flow and responsive layouts on all browsers
+      - name: Verify real Actions and Ticket workflow flows on all browsers
         run: npx playwright test --config=playwright.actions.config.ts
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
@@ -57,4 +57,5 @@ jobs:
           path: |
             test-results/
             artifacts/lab-04/screenshots/actions-taken/
+            artifacts/lab-04/screenshots/ticket-workflow/
           retention-days: 30

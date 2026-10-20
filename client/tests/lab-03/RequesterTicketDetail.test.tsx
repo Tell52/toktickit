@@ -93,10 +93,10 @@ describe("RequesterTicketDetail Component (Lab 3)", () => {
     });
 
     it("displays micro-dialog on click and calls indicateResolved on confirm", async () => {
-      vi.mocked(api.getTicketDetail).mockResolvedValue({
+      vi.mocked(api.getTicketDetail).mockResolvedValueOnce({
         ...baseTicket,
         currentStatus: "Open",
-      });
+      }).mockResolvedValue({ ...baseTicket, problemAppearsResolved: true, indicatedAt: "2026-09-18T04:00:00.000Z" });
       vi.mocked(api.indicateResolved).mockResolvedValue({
         ticketId: 1,
         problemAppearsResolved: true,

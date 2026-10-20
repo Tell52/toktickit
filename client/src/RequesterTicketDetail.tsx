@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   getTicketDetail,
   uploadAttachment,
@@ -8,6 +8,10 @@ import {
 } from "./api.js";
 import { RoleBadge } from "./App.js";
 import ActionsTaken from './components/ActionsTaken';
+import TicketStatusHistory from './components/TicketStatusHistory';
+import WorkflowDialog from './components/WorkflowDialog';
+import { accessFailure } from './workflow-feedback';
+import { useAuth } from './context/AuthContext';
 
 interface Attachment {
   id: number;
@@ -31,6 +35,9 @@ interface Comment {
 }
 
 interface Ticket {
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number;
   ticketNumber: string;
   summary: string;
@@ -145,6 +152,18 @@ export default function RequesterTicketDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const auth = useAuth();
+  const revoked = useRef(false), indicatorInFlight = useRef(false);
+  const [indicatorError, setIndicatorError] = useState('');
+  const [indicatorNeedsLatest, setIndicatorNeedsLatest] = useState(false);
+  const onAccessError = (err: any) => {
+    revoked.current = true;
+    setTicket(null); setNewComment(''); setSelectedFile(null); setRemovalReason(''); setShowResolvedDialog(false);
+    setError(accessFailure(err) || 'Ticket access is unavailable.');
+    if (err?.status === 401 || err?.error?.code === 'UNAUTHENTICATED') { localStorage.removeItem('csrfToken'); auth.invalidateSession?.(); }
+    else if (err?.status === 403) void auth.checkAuth();
+  };
+
   // Attachments state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -159,22 +178,21 @@ export default function RequesterTicketDetail({
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  // 1. Fetch ticket details using session auth (no requesterId param)
+  // Background refresh leaves comments, actions, and recoverable drafts mounted.
   const fetchTicket = async () => {
     try {
-      setLoading(true);
-      setError("");
       const data = await getTicketDetail(ticketId);
-      setTicket(data);
-    } catch (err: any) {
-      setError(err?.error?.message || err?.message || "Failed to load ticket details");
-    } finally {
-      setLoading(false);
-    }
+      if (!revoked.current) { setTicket(data); setError(''); }
+      return data;
+    } catch (err) {
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to load ticket details. Please retry.');
+      throw err;
+    } finally { setLoading(false); }
   };
-
   useEffect(() => {
-    fetchTicket();
+    revoked.current = false; setLoading(true); setTicket(null);
+    void fetchTicket().catch(() => {});
   }, [ticketId]);
 
   // 2. Upload attachment
@@ -186,7 +204,8 @@ export default function RequesterTicketDetail({
       setSelectedFile(null);
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to upload attachment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to upload attachment. Please retry.');
     } finally {
       setUploading(false);
     }
@@ -204,30 +223,36 @@ export default function RequesterTicketDetail({
       setRemovalReason("");
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to remove attachment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to remove attachment. Please retry.');
     }
   };
 
-  // 4. Confirm Problem Appears Resolved
+  // The Requester's indication never changes the formal Ticket status.
   const handleConfirmResolved = async () => {
+    if (indicatorInFlight.current || indicatorNeedsLatest) return;
+    indicatorInFlight.current = true; setResolvingIndicator(true); setIndicatorError('');
+    let written = false;
     try {
-      setResolvingIndicator(true);
       const res = await indicateResolved(ticketId);
+      written = true;
       setShowResolvedDialog(false);
-      setTicket((prev) =>
-        prev
-          ? {
-              ...prev,
-              problemAppearsResolved: true,
-              indicatedAt: res.indicatedAt || new Date().toISOString(),
-            }
-          : null
-      );
-    } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to indicate problem resolved");
-    } finally {
-      setResolvingIndicator(false);
-    }
+      setTicket(prev => prev ? { ...prev, problemAppearsResolved: true, indicatedAt: res.indicatedAt, version: res.version ?? prev.version } : null);
+      await fetchTicket();
+    } catch (err) {
+      if (accessFailure(err)) onAccessError(err);
+      else {
+        setIndicatorNeedsLatest(true);
+        setIndicatorError(written ? 'Your indication was saved. Load the latest ticket to refresh this view.' : 'Your indication could not be confirmed. Load the latest ticket before retrying.');
+      }
+    } finally { indicatorInFlight.current = false; setResolvingIndicator(false); }
+  };
+  const refreshIndicator = async () => {
+    if (indicatorInFlight.current) return;
+    indicatorInFlight.current = true; setResolvingIndicator(true);
+    try { await fetchTicket(); setIndicatorNeedsLatest(false); setIndicatorError(''); }
+    catch { /* fetchTicket displays a safe message and clears denied data. */ }
+    finally { indicatorInFlight.current = false; setResolvingIndicator(false); }
   };
 
   // 5. Post Public Comment
@@ -241,7 +266,8 @@ export default function RequesterTicketDetail({
       setNewComment("");
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to post comment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to post comment. Please retry.');
     } finally {
       setSubmittingComment(false);
     }
@@ -257,12 +283,13 @@ export default function RequesterTicketDetail({
     );
   }
 
-  if (error) {
+  if (error && !ticket) {
     return (
       <div className="container py-4">
         <div className="alert alert-danger" role="alert">
           Error: {error}
         </div>
+        <button type="button" className="btn btn-outline-success" onClick={() => { revoked.current = false; void fetchTicket().catch(() => {}); }}>Retry loading ticket</button>
       </div>
     );
   }
@@ -298,6 +325,8 @@ export default function RequesterTicketDetail({
 
   return (
     <div className="container py-4">
+      {error && <div role="alert">{error}<button type="button" onClick={() => void fetchTicket().catch(() => {})}>Retry loading ticket</button></div>}
+      {indicatorError && !showResolvedDialog && <div role="alert">{indicatorError}<button type="button" disabled={resolvingIndicator} onClick={() => void refreshIndicator()}>Load latest ticket</button></div>}
       {/* Header with Title and Status/Priority Badges */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
@@ -338,23 +367,17 @@ export default function RequesterTicketDetail({
                   className="btn btn-outline-success d-flex align-items-center gap-2 shadow-sm"
                   style={{ borderColor: "#006B3C", color: "#006B3C", fontWeight: 600 }}
                   onClick={() => setShowResolvedDialog(true)}
+                  id="requester-resolved-indicator"
                 >
                   <span>✓</span> Problem Appears Resolved
                 </button>
               ) : (
-                <div
-                  role="dialog"
-                  aria-label="Confirm Problem Resolved"
-                  className="card p-3 shadow-sm border"
-                  style={{
-                    backgroundColor: "#FFFBEB",
-                    borderColor: "#FDE68A",
-                    maxWidth: 420,
-                  }}
-                >
+                <WorkflowDialog title="Confirm Problem Resolved" returnFocusId="requester-resolved-indicator" busy={resolvingIndicator} onDismiss={() => setShowResolvedDialog(false)}>
                   <p className="small mb-2 fw-medium text-dark">
                     This lets IT Staff know the issue seems fixed. It won't close the ticket.
                   </p>
+                  {indicatorError && <div role="alert">{indicatorError}</div>}
+                  {indicatorNeedsLatest && <button type="button" disabled={resolvingIndicator} onClick={() => void refreshIndicator()}>Load latest ticket</button>}
                   <div className="d-flex justify-content-end gap-2">
                     <button
                       type="button"
@@ -369,12 +392,12 @@ export default function RequesterTicketDetail({
                       className="btn btn-sm text-white fw-semibold"
                       style={{ backgroundColor: "#006B3C", borderColor: "#006B3C" }}
                       onClick={handleConfirmResolved}
-                      disabled={resolvingIndicator}
+                      disabled={resolvingIndicator || indicatorNeedsLatest}
                     >
                       {resolvingIndicator ? "Submitting..." : "Confirm"}
                     </button>
                   </div>
-                </div>
+                </WorkflowDialog>
               )}
             </div>
           ) : null}
@@ -636,7 +659,8 @@ export default function RequesterTicketDetail({
         </div>
       </div>
 
-      <ActionsTaken key={ticketId} ticketId={ticketId} ticketStatus={ticket.currentStatus} readOnly />
+      <ActionsTaken key={ticketId} ticketId={ticketId} ticketStatus={ticket.currentStatus} refreshKey={ticket.version} onAccessError={onAccessError} readOnly />
+      <TicketStatusHistory ticketId={ticketId} refreshKey={ticket.version} onAccessError={onAccessError} />
       {/* NOTE: Internal Notes are NEVER rendered in Requester's DOM (BR-04, AC-04) */}
     </div>
   );

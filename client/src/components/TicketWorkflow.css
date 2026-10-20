@@ -1,0 +1,15 @@
+.ticket-workflow,.ticket-status-history { padding: 1rem; margin: 1rem 0; border: 1px solid #b8cfc0; border-radius: .5rem; background: #fafcf9; overflow-wrap: anywhere; min-width: 0; }
+.ticket-workflow h3,.ticket-status-history h3,.workflow-dialog h3 { font-size: 1.1rem; color: #006b3c; }
+.workflow-controls { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.ticket-workflow label,.workflow-dialog label { display: block; font-weight: 600; margin-bottom: .3rem; }
+.ticket-workflow select,.workflow-dialog textarea { width: 100%; min-width: 0; min-height: 44px; background: #fff; border: 1.5px solid #006b3c; border-radius: .3rem; padding: .5rem; }
+.ticket-workflow button,.ticket-status-history button,.workflow-dialog button { min-height: 44px; padding: .5rem .85rem; white-space: normal; }
+.workflow-buttons { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.workflow-dialog { border: 2px solid #006b3c; border-radius: .5rem; background: #fff; padding: 1rem; margin-top: 1rem; max-width: 38rem; }
+.workflow-message { border-left: 4px solid #a63a24; background: #fff2eb; padding: .75rem; margin-top: .75rem; }
+.resolution-gate { padding: .75rem; border: 1px solid #b8cfc0; border-radius: .3rem; margin-top: 1rem; }
+.ticket-status-history li { margin-bottom: .75rem; }
+.workflow-dialog textarea { min-height: 6rem; }
+.ticket-workflow .btn-success,.workflow-dialog .btn-success { background-color: #006b3c; border-color: #006b3c; }
+.ticket-workflow :focus-visible,.ticket-status-history :focus-visible,.workflow-dialog :focus-visible { outline: 3px solid #006b3c; outline-offset: 3px; }
+@media(max-width:767px) { .workflow-controls { grid-template-columns: minmax(0,1fr); } }

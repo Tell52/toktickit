@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   getStaffTicketDetail,
-  updateStaffTicketOwner,
-  updateStaffTicketPriority,
-  updateStaffTicketStatus,
   createComment,
   createStaffTicketNote,
   getStaffUsers,
@@ -14,31 +11,11 @@ import { StatusBadge, PriorityBadge } from "./StaffTicketQueue.js";
 import { RoleBadge } from "../App.js";
 import ActionsTaken from './ActionsTaken';
 
-// Canonical status mappings
-const STATUS_CANONICAL: Record<string, string> = {
-  new: "New",
-  open: "Open",
-  in_progress: "In Progress",
-  "in progress": "In Progress",
-  waiting_for_requester: "Waiting for Requester",
-  "waiting for requester": "Waiting for Requester",
-  resolved: "Resolved",
-  closed: "Closed",
-  reopened: "Reopened",
-  cancelled: "Cancelled",
-};
-
-// Allowed status transitions per ui-spec.md §1.1
-export const ALLOWED_STATUS_TRANSITIONS: Record<string, string[]> = {
-  New: ["Open", "In Progress", "Cancelled"],
-  Open: ["In Progress", "Waiting for Requester", "Cancelled"],
-  "In Progress": ["Waiting for Requester", "Resolved", "Cancelled"],
-  "Waiting for Requester": ["In Progress", "Resolved", "Cancelled"],
-  Resolved: ["Closed", "Reopened"],
-  Closed: ["Reopened"],
-  Reopened: ["In Progress", "Waiting for Requester", "Cancelled"],
-  Cancelled: [],
-};
+import TicketWorkflow from './TicketWorkflow';
+import TicketStatusHistory from './TicketStatusHistory';
+import { accessFailure } from '../workflow-feedback';
+import { useAuth } from '../context/AuthContext';
+export { ALLOWED_STATUS_TRANSITIONS } from './TicketWorkflow';
 
 interface StaffTicketDetailProps {
   ticketId: string | number;
@@ -57,12 +34,19 @@ export default function StaffTicketDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Operational controls feedback
-  const [ownerSaving, setOwnerSaving] = useState(false);
-  const [prioritySaving, setPrioritySaving] = useState(false);
-  const [statusSaving, setStatusSaving] = useState(false);
-  const [statusError, setStatusError] = useState<string | null>(null);
-  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
+  const [actionsBusy, setActionsBusy] = useState(false);
+  const auth = useAuth();
+  const revoked = useRef(false);
+  const onAccessError = useCallback((err: any) => {
+    revoked.current = true;
+    setTicket(null); setStaffUsers([]); setNewComment(''); setNewNote('');
+    setError(accessFailure(err) || 'Ticket access is unavailable.');
+    if (err?.status === 401 || err?.error?.code === 'UNAUTHENTICATED') {
+      localStorage.removeItem('csrfToken'); auth.invalidateSession?.();
+    } else if (err?.status === 403) void auth.checkAuth();
+  }, [auth.invalidateSession, auth.checkAuth]);
+  const accessHandler = useRef(onAccessError);
+  accessHandler.current = onAccessError;
 
   // Composers
   const [newComment, setNewComment] = useState("");
@@ -75,22 +59,14 @@ export default function StaffTicketDetail({
 
   const fetchTicket = useCallback(async () => {
     try {
-      setError(null);
       const data = await getStaffTicketDetail(ticketId);
-      setTicket(data);
-    } catch (err: any) {
-      if (err?.error?.code === "FORBIDDEN" || err?.status === 403) {
-        setTicket(null);
-        setError("You do not have permission to view this staff ticket.");
-      } else if (err?.error?.code === "NOT_FOUND" || err?.status === 404) {
-        setTicket(null);
-        setError("Ticket not found.");
-      } else {
-        setError(err?.error?.message || "Failed to load ticket details.");
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (!revoked.current) { setError(null); setTicket(data); }
+      return data;
+    } catch (err) {
+      if (accessFailure(err)) accessHandler.current(err);
+      else setError('Failed to load ticket details. Please retry.');
+      throw err;
+    } finally { setLoading(false); }
   }, [ticketId]);
 
   const fetchStaffUsers = useCallback(async () => {
@@ -105,66 +81,12 @@ export default function StaffTicketDetail({
   }, []);
 
   useEffect(() => {
+    revoked.current = false;
     setLoading(true);
     setTicket(null);
-    fetchTicket();
+    void fetchTicket().catch(() => {});
     fetchStaffUsers();
   }, [fetchTicket, fetchStaffUsers]);
-
-  // Show temporary success feedback
-  const showFeedback = (msg: string) => {
-    setSaveSuccessMsg(msg);
-    setTimeout(() => setSaveSuccessMsg(null), 3000);
-  };
-
-  // 1. Handle Owner change
-  const handleOwnerChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    const targetOwnerId = val === "unassigned" ? null : val;
-    setOwnerSaving(true);
-    try {
-      await updateStaffTicketOwner(ticketId, targetOwnerId, ticket?.version);
-      showFeedback("Owner updated successfully");
-      await fetchTicket();
-    } catch (err: any) {
-      alert(err?.error?.message || "Failed to update owner");
-    } finally {
-      setOwnerSaving(false);
-    }
-  };
-
-  // 2. Handle Priority change
-  const handlePriorityChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newPriority = e.target.value;
-    setPrioritySaving(true);
-    try {
-      await updateStaffTicketPriority(ticketId, newPriority, ticket?.version);
-      showFeedback("IT Priority updated successfully");
-      await fetchTicket();
-    } catch (err: any) {
-      alert(err?.error?.message || "Failed to update priority");
-    } finally {
-      setPrioritySaving(false);
-    }
-  };
-
-  // 3. Handle Status change
-  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newStatus = e.target.value;
-    if (newStatus === currentCanonicalStatus) return;
-
-    setStatusSaving(true);
-    setStatusError(null);
-    try {
-      await updateStaffTicketStatus(ticketId, newStatus, ticket?.version);
-      showFeedback(`Status changed to ${newStatus}`);
-      await fetchTicket();
-    } catch (err: any) {
-      setStatusError(err?.error?.message || "Failed to change status. Illegal transition.");
-    } finally {
-      setStatusSaving(false);
-    }
-  };
 
   // 4. Handle Public Comment submit
   const handleCommentSubmit = async (e: React.FormEvent) => {
@@ -180,7 +102,8 @@ export default function StaffTicketDetail({
       setNewComment("");
       await fetchTicket();
     } catch (err: any) {
-      setCommentError(err?.error?.message || "Failed to post comment");
+      if (accessFailure(err)) onAccessError(err);
+      else setCommentError('Failed to post comment. Please retry.');
     } finally {
       setCommentSubmitting(false);
     }
@@ -200,7 +123,8 @@ export default function StaffTicketDetail({
       setNewNote("");
       await fetchTicket();
     } catch (err: any) {
-      setNoteError(err?.error?.message || "Failed to post internal note");
+      if (accessFailure(err)) onAccessError(err);
+      else setNoteError('Failed to post internal note. Please retry.');
     } finally {
       setNoteSubmitting(false);
     }
@@ -223,6 +147,7 @@ export default function StaffTicketDetail({
         <div className="alert alert-danger mb-3" role="alert">
           <strong>Error:</strong> {error || "Unable to display ticket"}
         </div>
+        {!revoked.current && <button type="button" className="btn btn-outline-success" onClick={() => void fetchTicket().catch(() => {})}>Retry loading ticket</button>}
         {onBack && (
           <button className="btn btn-outline-secondary" onClick={onBack}>
             &larr; Back to Queue
@@ -232,20 +157,9 @@ export default function StaffTicketDetail({
     );
   }
 
-  // Canonicalize current status
-  const currentCanonicalStatus = STATUS_CANONICAL[(ticket.status || ticket.currentStatus || "").toLowerCase()] || ticket.status || ticket.currentStatus;
-  const legalTransitionTargets = ALLOWED_STATUS_TRANSITIONS[currentCanonicalStatus] || [];
-
   return (
     <div className="staff-ticket-detail my-3" data-testid="staff-ticket-detail">
       {error && <div className="alert alert-danger" role="alert">{error}</div>}
-      {/* Toast / Alert Feedback */}
-      {saveSuccessMsg && (
-        <div className="alert alert-success py-2 px-3 mb-3 d-flex align-items-center gap-2" role="alert">
-          <span>✓</span> <span>{saveSuccessMsg}</span>
-        </div>
-      )}
-
       {/* Main Ticket Container */}
       <div className="card shadow-sm border-0 mb-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 12 }}>
         <div className="card-body p-4">
@@ -262,7 +176,7 @@ export default function StaffTicketDetail({
                 Created on {new Date(ticket.createdAt).toLocaleString()}
               </p>
             </div>
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex flex-wrap align-items-center gap-2">
               <StatusBadge status={ticket.status || ticket.currentStatus} />
               <PriorityBadge priority={ticket.itPriority} />
             </div>
@@ -339,141 +253,8 @@ export default function StaffTicketDetail({
             </div>
           </div>
 
-          {/* Section 3: Operational Controls (Editable, IT Staff / Admin Only) */}
-          <div
-            className="p-3 mb-4 rounded border"
-            style={{ backgroundColor: "#FAFCF9", borderColor: "#C3E6CB" }}
-            data-testid="operational-controls"
-          >
-            <div className="d-flex align-items-center justify-content-between mb-2">
-              <h5
-                className="fw-bold mb-0 d-flex align-items-center gap-1"
-                style={{ color: "#006B3C", fontSize: "0.9rem" }}
-              >
-                ⚙️ Operational Controls (Editable)
-              </h5>
-              <span className="badge bg-success-subtle text-success border border-success-subtle small">
-                Immediate Auto-Save
-              </span>
-            </div>
-
-            <div className="row g-3">
-              {/* Ticket Owner Dropdown */}
-              <div className="col-md-4">
-                <label
-                  htmlFor="staff-owner-select"
-                  className="form-label small fw-semibold text-dark mb-1 d-flex justify-content-between"
-                >
-                  <span>Ticket Owner</span>
-                  {ownerSaving && <span className="spinner-border spinner-border-sm text-success" />}
-                </label>
-                <select
-                  id="staff-owner-select"
-                  data-testid="editable-owner-select"
-                  className="form-select editable-control"
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1.5px solid #006B3C",
-                    fontWeight: 500,
-                  }}
-                  value={ticket.owner ? ticket.owner.id : "unassigned"}
-                  onChange={handleOwnerChange}
-                  disabled={ownerSaving}
-                >
-                  <option value="unassigned">-- Unassigned --</option>
-                  {staffUsers.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} ({u.role === "ADMINISTRATOR" ? "Admin" : "Staff"})
-                    </option>
-                  ))}
-                  {/* Fallback option if current owner isn't in staffUsers */}
-                  {ticket.owner && !staffUsers.some((u) => u.id === ticket.owner?.id) && (
-                    <option value={ticket.owner.id}>{ticket.owner.name}</option>
-                  )}
-                </select>
-                <div className="form-text small text-muted">
-                  Assign to active IT Staff or Administrator
-                </div>
-              </div>
-
-              {/* IT Priority Dropdown */}
-              <div className="col-md-4">
-                <label
-                  htmlFor="staff-priority-select"
-                  className="form-label small fw-semibold text-dark mb-1 d-flex justify-content-between"
-                >
-                  <span>IT Priority</span>
-                  {prioritySaving && <span className="spinner-border spinner-border-sm text-success" />}
-                </label>
-                <select
-                  id="staff-priority-select"
-                  data-testid="editable-priority-select"
-                  className="form-select editable-control"
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1.5px solid #006B3C",
-                    fontWeight: 500,
-                  }}
-                  value={(ticket.itPriority || "MEDIUM").toUpperCase()}
-                  onChange={handlePriorityChange}
-                  disabled={prioritySaving}
-                >
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                </select>
-                <div className="form-text small text-muted">
-                  Operational priority managed by IT
-                </div>
-              </div>
-
-              {/* Status Dropdown (Strictly permitted transitions per matrix UI-08) */}
-              <div className="col-md-4">
-                <label
-                  htmlFor="staff-status-select"
-                  className="form-label small fw-semibold text-dark mb-1 d-flex justify-content-between"
-                >
-                  <span>Current Status</span>
-                  {statusSaving && <span className="spinner-border spinner-border-sm text-success" />}
-                </label>
-                <select
-                  id="staff-status-select"
-                  data-testid="editable-status-select"
-                  className="form-select editable-control"
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: statusError ? "1.5px solid #C92A2A" : "1.5px solid #006B3C",
-                    fontWeight: 500,
-                  }}
-                  value={currentCanonicalStatus}
-                  onChange={handleStatusChange}
-                  disabled={statusSaving || legalTransitionTargets.length === 0}
-                >
-                  {/* Current status option */}
-                  <option value={currentCanonicalStatus}>
-                    {currentCanonicalStatus} (Current)
-                  </option>
-                  {/* Render ONLY legal transition targets */}
-                  {legalTransitionTargets.map((target) => (
-                    <option key={target} value={target}>
-                      &rarr; Move to {target}
-                    </option>
-                  ))}
-                </select>
-                {statusError ? (
-                  <div className="form-text text-danger small" data-testid="status-error-message">
-                    {statusError}
-                  </div>
-                ) : (
-                  <div className="form-text small text-muted">
-                    {legalTransitionTargets.length > 0
-                      ? `${legalTransitionTargets.length} valid next state(s)`
-                      : "Terminal status — no further transitions"}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <TicketWorkflow key={`workflow-${ticketId}`} ticketId={ticketId} ticket={ticket} staffUsers={staffUsers}
+            currentUser={currentUser} refreshTicket={fetchTicket} onAccessError={onAccessError} blocked={actionsBusy || commentSubmitting || noteSubmitting} />
 
           {/* Section 4: Summary & Description (Read-Only) */}
           <div className="mb-4">
@@ -490,7 +271,8 @@ export default function StaffTicketDetail({
 
           <ActionsTaken key={String(ticketId)} ticketId={ticketId} ticketStatus={ticket.status || ticket.currentStatus}
             ticketCreatedAt={ticket.createdAt} currentUser={currentUser}
-            refreshTicket={async () => { setTicket(await getStaffTicketDetail(ticketId)); }} />
+            refreshKey={ticket.version} refreshTicket={fetchTicket} onAccessError={onAccessError} onBusyChange={setActionsBusy} />
+          <TicketStatusHistory ticketId={ticketId} refreshKey={ticket.version} onAccessError={onAccessError} />
 
           {/* Section 5: Tabbed Section (Public Comments · Internal Notes · Attachments) */}
           <div className="mt-4">
@@ -550,7 +332,7 @@ export default function StaffTicketDetail({
             {/* Tab 1: Public Comments Panel */}
             {activeTab === "comments" && (
               <div data-testid="public-comments-panel" className="p-3 border rounded" style={{ backgroundColor: "#FFFFFF" }}>
-                <div className="mb-3 d-flex justify-content-between align-items-center">
+                <div className="mb-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
                   <h6 className="fw-bold mb-0 text-dark">Public Conversation Thread</h6>
                   <span className="small text-muted">Visible to Requester and Staff</span>
                 </div>
@@ -569,7 +351,7 @@ export default function StaffTicketDetail({
                         style={{ backgroundColor: "#F8F9FA", borderColor: "#E9ECEF" }}
                         data-testid="comment-item"
                       >
-                        <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
                           <div className="d-flex align-items-center gap-2">
                             <span className="fw-bold small text-dark">{comment.authorName}</span>
                             <RoleBadge role={comment.authorRole} />
@@ -668,7 +450,7 @@ export default function StaffTicketDetail({
                         style={{ backgroundColor: "#FFFFFF", borderColor: "#FDE68A" }}
                         data-testid="note-item"
                       >
-                        <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
                           <div className="d-flex align-items-center gap-2">
                             <span className="fw-bold small text-dark">🔒 {note.authorName}</span>
                             <span

@@ -49,12 +49,12 @@ describe("RequesterTicketDetail Component", () => {
     });
 
     it("shows error message if API fails", async () => {
-        vi.mocked(api.getTicketDetail).mockRejectedValue(new Error("Unauthorized access"));
+        vi.mocked(api.getTicketDetail).mockRejectedValue({ status: 403, error: { code: "FORBIDDEN", message: "Unauthorized access" } });
 
         render(<RequesterTicketDetail ticketId="1" currentRequesterId={2} />);
 
         await waitFor(() => {
-            expect(screen.getByText(/Error: Unauthorized access/i)).toBeInTheDocument();
+            expect(screen.getByText(/You do not have permission to access this ticket/i)).toBeInTheDocument();
         });
     });
 });
