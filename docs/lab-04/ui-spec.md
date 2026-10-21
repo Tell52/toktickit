@@ -167,3 +167,7 @@ Record the following during implementation; these items have not been executed b
 - [ ] Store readable screenshots under artifacts/lab-04/screenshots/staff-dashboard/, requester-dashboard/ and actions-taken/, naming viewport and state; include workflow feedback.
 
 Visual evidence demonstrates appearance, while API/component/E2E results demonstrate behavior. Both are required for final product completion.
+
+## 8. Ticket Workflow Implementation Evidence
+
+Issue [#48](https://github.com/Tell52/toktickit/issues/48) implements section 4's transition/gate controls, cancellation/reopen confirmations, shared status history and section 5's recoverable conflict flow. See [ticket-workflow-ui.md](ticket-workflow-ui.md) for behavior, screenshots, reproduction and scoped test evidence. Dashboard and final product verification remain tracked separately.

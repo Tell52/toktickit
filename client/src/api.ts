@@ -27,7 +27,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   if (!res.ok) {
     // ดัก Error ให้คืนค่าเป็น Object ตาม Standard Error Shape ของ Lab 3[cite: 7]
     const errorData = await res.json().catch(() => ({}));
-    throw errorData;
+    throw { ...errorData, status: res.status };
   }
   return res;
 }
@@ -281,6 +281,8 @@ export interface StaffTicketAttachment {
 }
 
 export interface StaffTicketDetailData {
+  allowedTransitions?: string[];
+  resolutionGate?: { eligible: boolean; completedCount: number; unfinishedCount: number; followUpCount: number; blockers: string[] };
   version?: number;
   resolutionCycle?: number;
   resolvedAt?: string | null;
@@ -343,12 +345,21 @@ export async function updateStaffTicketPriority(ticketId: string | number, itPri
   return res.json();
 }
 
-export async function updateStaffTicketStatus(ticketId: string | number, status: string, expectedTicketVersion?: number) {
+export async function updateStaffTicketStatus(ticketId: string | number, status: string, expectedTicketVersion?: number, reason?: string) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status, expectedTicketVersion }),
+    body: JSON.stringify({ status, expectedTicketVersion, ...(reason !== undefined ? { reason } : {}) }),
   });
+  return res.json();
+}
+
+export interface TicketStatusEvent {
+  id: string; fromStatus: string; toStatus: string; reason: string | null;
+  resolutionCycle: number; createdAt: string; actor: { id: string; name: string };
+}
+export async function getTicketStatusHistory(ticketId: string | number, page = 1): Promise<{ events: TicketStatusEvent[]; pagination: { page: number; pageSize: number; totalCount: number } }> {
+  const res = await apiFetch(`/api/tickets/${encodeURIComponent(String(ticketId))}/status-history?page=${page}&pageSize=20`, { cache: 'no-store' });
   return res.json();
 }
 

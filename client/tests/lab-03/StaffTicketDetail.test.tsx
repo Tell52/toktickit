@@ -77,7 +77,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         status: "New",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-status-select")).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         status: "In Progress",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-status-select")).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         updatedAt: "2026-09-18T09:00:00.000Z",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-status-select")).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
   // ---------------------------------------------------------------------------
   describe("UI-09: Public Comments vs. Internal Notes Tabs Distinction (BR-04, STYLE-04)", () => {
     it("renders Public Comments tab with comments and composer", async () => {
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("public-comments-panel")).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
     });
 
     it("renders Internal Notes panel with distinct background, lock icon, and confidential banner", async () => {
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("tab-internal-notes")).toBeInTheDocument();
@@ -194,7 +194,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
   // ---------------------------------------------------------------------------
   describe("STYLE-03: Editable vs. Read-Only Visual Distinction", () => {
     it("renders editable controls with white background and read-only fields with muted background", async () => {
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("readonly-category")).toBeInTheDocument();
@@ -229,7 +229,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         owner: { id: "staff-2", name: "Alex Admin" },
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-owner-select")).toBeInTheDocument();
@@ -248,7 +248,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         itPriority: "LOW",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-priority-select")).toBeInTheDocument();
@@ -276,7 +276,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         createdAt: "2026-09-18T08:30:00.000Z",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("public-comment-input")).toBeInTheDocument();
@@ -301,7 +301,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         createdAt: "2026-09-18T08:35:00.000Z",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       // Switch to notes tab
       await waitFor(() => {
@@ -324,7 +324,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
     });
 
     it("disables post buttons when inputs are empty or whitespace-only", async () => {
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("post-comment-button")).toBeInTheDocument();
@@ -365,7 +365,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         status: "Cancelled",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-status-select")).toBeInTheDocument();
@@ -385,7 +385,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         error: { code: "CONFLICT", message: "Transition from 'New' to 'Closed' is not permitted" },
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-status-select")).toBeInTheDocument();
@@ -398,7 +398,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
       await waitFor(() => {
         expect(screen.getByTestId("status-error-message")).toBeInTheDocument();
         expect(screen.getByTestId("status-error-message")).toHaveTextContent(
-          "Transition from 'New' to 'Closed' is not permitted"
+          "This ticket changed while you were working."
         );
       });
     });
@@ -409,7 +409,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         owner: null,
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("editable-owner-select")).toBeInTheDocument();
@@ -436,7 +436,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         indicatedAt: "2026-09-18T10:00:00.000Z",
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("problem-resolved-indicator")).toBeInTheDocument();
@@ -453,7 +453,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         indicatedAt: null,
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("staff-ticket-detail")).toBeInTheDocument();
@@ -468,7 +468,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
   // ---------------------------------------------------------------------------
   describe("Attachments Tab", () => {
     it("renders attachment list with file details and download links", async () => {
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("tab-attachments")).toBeInTheDocument();
@@ -493,7 +493,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         attachments: [],
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(screen.getByTestId("tab-attachments")).toBeInTheDocument();
@@ -517,11 +517,11 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         error: { code: "FORBIDDEN", message: "Forbidden" },
       });
 
-      render(<StaffTicketDetail ticketId="101" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
         expect(
-          screen.getByText(/You do not have permission to view this staff ticket/i)
+          screen.getByText(/You do not have permission to access this ticket/i)
         ).toBeInTheDocument();
       });
     });
@@ -532,7 +532,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         error: { code: "NOT_FOUND", message: "Not found" },
       });
 
-      render(<StaffTicketDetail ticketId="999" />);
+      render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="999" />);
 
       await waitFor(() => {
         expect(screen.getByText(/Ticket not found/i)).toBeInTheDocument();

@@ -26,6 +26,13 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('Actions Taken role and lifecycle permissions (UI-02)', () => {
+  it('keeps focus on View action when no form is being dismissed', async () => {
+    show();
+    const trigger = await screen.findByRole('button', { name: /View action:/ });
+    trigger.focus(); fireEvent.click(trigger);
+    expect(screen.getByRole('heading', { name: 'Action details' })).toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
   it('shows every Requester action read-only, including cancelled and earlier cycles', async () => {
     vi.mocked(api.getActions).mockResolvedValue(response([{ ...action, status: 'CANCELLED', resolutionCycle: 0, cancellationReason: 'Duplicate task' }]));
     show({ readOnly: true }); await view();

@@ -6,7 +6,7 @@ import './ActionsTaken.css';
 
 type Mode = 'create' | 'edit' | 'complete' | 'cancel';
 type Draft = { actionAt: string; description: string; result: string; assigneeId: string; followUpRequired: boolean; followUpNote: string; attachmentNotes: string; cancellationReason: string };
-type Props = { ticketId: string | number; ticketStatus: string; ticketCreatedAt?: string; currentUser?: { id: string | number; name: string; role: string }; readOnly?: boolean; refreshTicket?: () => Promise<unknown> };
+type Props = { ticketId: string | number; ticketStatus: string; ticketCreatedAt?: string; currentUser?: { id: string | number; name: string; role: string }; readOnly?: boolean; refreshTicket?: () => Promise<unknown>; refreshKey?: number; onAccessError?: (error: unknown) => void; onBusyChange?: (busy: boolean) => void };
 const labels: Record<ActionStatus, string> = { PLANNED: 'Planned', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed', CANCELLED: 'Cancelled' };
 const bangkokInput = (value: string) => new Date(new Date(value).getTime() + 7 * 3600000).toISOString().slice(0, 19);
 const dateLabel = (value: string) => new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Bangkok', hour12: false }) + ' (Asia/Bangkok)';
@@ -25,7 +25,7 @@ function ActionValues({ action }: { action: ActionTaken }) {
   </dl>;
 }
 
-export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, currentUser, readOnly = false, refreshTicket }: Props) {
+export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, currentUser, readOnly = false, refreshTicket, refreshKey, onAccessError, onBusyChange }: Props) {
   const auth = useAuth();
   const user = currentUser ?? auth.user;
   const staff = !readOnly && !!user && ['IT_STAFF', 'ADMINISTRATOR'].includes(user.role.toUpperCase());
@@ -34,11 +34,13 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  useEffect(() => { onBusyChange?.(busy); }, [busy, onBusyChange]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [denied, setDenied] = useState(false);
   const [users, setUsers] = useState<StaffUserItem[]>([]);
   const [usersError, setUsersError] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(true);
   const [selected, setSelected] = useState<ActionTaken | null>(null);
   const [mode, setMode] = useState<Mode | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -58,7 +60,12 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
   const dirty = !!draft && JSON.stringify(draft) !== initialDraft;
   useEffect(() => () => { alive.current = false; }, []);
   const editable = (action: ActionTaken) => staff && parentActive && action.resolutionCycle === data?.resolutionCycle && action.status !== 'CANCELLED';
-  function closeForm() { setMode(null); setDraft(null); setUncertain(null); setFields({}); setNeedsLatest(false); setLatest(null); if (returnFocus.current?.isConnected) returnFocus.current.focus(); else sectionRef.current?.focus(); }
+  function closeForm() {
+    setMode(null); setDraft(null); setUncertain(null); setFields({}); setNeedsLatest(false); setLatest(null);
+    // Viewing a record also clears form state, but must not move focus to an old trigger.
+    if (!mode) return;
+    if (returnFocus.current?.isConnected) returnFocus.current.focus(); else sectionRef.current?.focus();
+  }
   function canLeave() {
     if (inFlight.current || uncertain) return false;
     return !dirty || window.confirm('Discard unsaved action changes?');
@@ -72,7 +79,7 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
   }, [dirty, uncertain, busy]);
   function handleFailure(err: unknown): boolean {
     if (err instanceof ActionsError && [401, 403, 404].includes(err.status)) {
-      setData(null); setSelected(null); setHistory(null); closeForm(); setDenied(true);
+      setData(null); setSelected(null); setHistory(null); closeForm(); setDenied(true); onAccessError?.(err);
       setError(err.status === 401 ? 'Your session has ended. Please sign in again.' : err.code === 'PASSWORD_CHANGE_REQUIRED' ? 'Change your password before continuing.' : err.status === 404 ? 'Ticket could not be found.' : 'You do not have permission to access these actions.');
       if (err.status === 401) { localStorage.removeItem('csrfToken'); if (auth.invalidateSession) auth.invalidateSession(); else void auth.checkAuth(); }
       else if (err.status === 403) void auth.checkAuth();
@@ -80,35 +87,48 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
     }
     return false;
   }
-  async function load(targetPage = page, retainDraft = false) {
+  async function load(targetPage = page, retainDraft = false, refreshParent = true) {
     setLoading(true); setError('');
     try {
-      if (retainDraft) { setNeedsLatest(true); await refreshTicket?.(); }
+      if (retainDraft) { setNeedsLatest(true); if (refreshParent) await refreshTicket?.(); }
       const fresh = await getActions(ticketId, targetPage);
       if (!alive.current) return;
       setData(fresh); setDenied(false);
-      if (retainDraft && selected) {
+      if (selected) {
         let found = fresh.actions.find(a => a.id === selected.id);
         // An effective-time edit can move the selected action to another page.
         for (let p = 1; !found && p <= Math.ceil(fresh.pagination.totalCount / fresh.pagination.pageSize); p++) {
           if (p !== targetPage) found = (await getActions(ticketId, p)).actions.find(a => a.id === selected.id);
         }
         if (!alive.current) return;
-        if (!found) { setNeedsLatest(true); setError('The action is no longer available. Keep a copy of your draft before leaving.'); return; }
-        setSelected(found); setLatest(found);
-        if (!parentActive || found.resolutionCycle !== fresh.resolutionCycle || found.status === 'CANCELLED' || (mode !== 'edit' && found.status === 'COMPLETED')) {
+        if (!found) {
+          if (!retainDraft) { setSelected(null); setHistory(null); }
+          else { setNeedsLatest(true); setError('The action is no longer available. Keep a copy of your draft before leaving.'); }
+          return;
+        }
+        setSelected(found); if (retainDraft) setLatest(found);
+        if (retainDraft && (!parentActive || found.resolutionCycle !== fresh.resolutionCycle || found.status === 'CANCELLED' || (mode !== 'edit' && found.status === 'COMPLETED'))) {
           setNeedsLatest(true); setError('This action is now read-only. Your draft is retained for reference.'); return;
         }
       }
-      setNeedsLatest(false);
+      if (retainDraft && !parentActive) { setNeedsLatest(true); setError('This ticket is now read-only. Your draft is retained for reference.'); }
+      else setNeedsLatest(false);
     } catch (err) { if (alive.current && !handleFailure(err)) setError('Actions could not be loaded. Please retry.'); }
     finally { if (alive.current) setLoading(false); }
   }
   async function loadUsers() {
+    setUsersLoading(true);
     try { const result = await getStaffUsers(); if (alive.current) { setUsers(result.users); setUsersError(false); } }
     catch { if (alive.current) setUsersError(true); }
+    finally { if (alive.current) setUsersLoading(false); }
   }
   useEffect(() => { alive.current = true; void load(); if (staff) void loadUsers(); }, [ticketId, staff]);
+  const previousRefresh = useRef(refreshKey);
+  useEffect(() => {
+    if (previousRefresh.current === refreshKey) return;
+    previousRefresh.current = refreshKey;
+    void load(page, !!draft, false);
+  }, [refreshKey]);
   useEffect(() => { if (mode) formRef.current?.querySelector<HTMLElement>('input:not([readonly]),textarea')?.focus(); }, [mode]);
   const begin = (nextMode: Mode, action: ActionTaken | null = null, trigger = document.activeElement as HTMLElement) => {
     if (!canLeave()) return;
@@ -196,8 +216,10 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
   return <section id="actions-taken" ref={sectionRef} tabIndex={-1} className="actions-taken" aria-labelledby="actions-heading" aria-busy={loading || busy}>
     <div className="action-toolbar"><div><h3 id="actions-heading">Actions Taken</h3><p>Work recorded for this Ticket · Asia/Bangkok</p></div><div className="action-buttons">
       <button type="button" disabled={busy || loading || !!uncertain} onClick={() => void load(page, !!draft)}>Refresh actions</button>
-      {staff && parentActive && !denied && data && <button className="primary" disabled={busy || loading || !!uncertain} onClick={event => begin('create', null, event.currentTarget)}>Add action</button>}
+      {staff && parentActive && !denied && data && <button className="primary" disabled={busy || loading || usersLoading || !!uncertain} onClick={event => begin('create', null, event.currentTarget)}>Add action</button>}
     </div></div>
+    {staff && usersLoading && <p role="status">Loading active staff…</p>}
+    {staff && usersError && !draft && <p role="alert">Active staff could not be loaded. <button onClick={() => void loadUsers()}>Retry assignees</button></p>}
     {!parentActive && staff && <p>Actions are read-only. Reopen the Ticket before recording new work.</p>}
     <div role="status" aria-live="polite">{loading ? 'Loading actions…' : notice}</div>
     {error && <div className="action-alert" role="alert">{error}
@@ -254,7 +276,7 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
             <p>Status: {mode === 'create' ? 'Planned (read-only)' : mode === 'complete' ? 'Completed after confirmation' : labels[selected!.status]}. Attachment Notes refer to existing Ticket attachments.</p>
           </>}
         </div></fieldset>
-        <div className="action-buttons"><button className="primary" type="submit" disabled={busy || loading || needsLatest || (!uncertain && mode === 'edit' && !dirty) || (!uncertain && !parentActive)}>{busy ? 'Saving…' : uncertain ? 'Retry identical submission' : mode === 'complete' ? 'Confirm completion' : mode === 'cancel' ? 'Confirm cancellation' : 'Save action'}</button>
+        <div className="action-buttons"><button className="primary" type="submit" disabled={busy || loading || usersLoading || (usersError && mode !== 'cancel' && selected?.status !== 'COMPLETED') || needsLatest || (!uncertain && mode === 'edit' && !dirty) || (!uncertain && !parentActive)}>{busy ? 'Saving…' : uncertain ? 'Retry identical submission' : mode === 'complete' ? 'Confirm completion' : mode === 'cancel' ? 'Confirm cancellation' : 'Save action'}</button>
           <button type="button" disabled={busy || !!uncertain} onClick={() => { if (canLeave()) closeForm(); }}>Discard / Cancel</button></div>
       </form>}
       {busy && <p role="status">Saving…</p>}
