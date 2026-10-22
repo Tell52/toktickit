@@ -53,11 +53,12 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     await page.getByPlaceholder(/enter password/i).fill('FlowPassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Verify redirected to /tickets
-    await expect(page).toHaveURL(/.*\/tickets/);
+    // Verify the Requester dashboard landing
+    await expect(page).toHaveURL(/.*\/dashboard/);
     await expect(page.getByText('E2E Flow Requester')).toBeVisible();
 
     // 2. Locate and open own Ticket from My Tickets list
+    await page.getByRole('link', { name: 'My Tickets', exact: true }).click();
     const ticketLink = page.getByText(ticketSummary).first();
     await expect(ticketLink).toBeVisible();
     await ticketLink.click();
@@ -273,7 +274,7 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     await page.getByPlaceholder(/name@example.com/i).fill(requesterEmail);
     await page.getByPlaceholder(/enter password/i).fill('FlowPassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/.*\/tickets/);
+    await expect(page).toHaveURL(/.*\/dashboard/);
 
     // 3. Attempt direct URL navigation to /queue
     await page.goto('/queue');

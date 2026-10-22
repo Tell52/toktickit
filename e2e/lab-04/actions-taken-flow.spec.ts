@@ -41,7 +41,7 @@ async function login(page: Page, index = 0) {
   await page.getByPlaceholder(/name@example.com/i).fill(accounts[index].email);
   await page.getByPlaceholder(/enter password/i).fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(index === 1 || index === 3 ? /\/tickets$/ : /\/queue$/);
+  await expect(page).toHaveURL(index === 1 || index === 3 ? /\/dashboard$/ : /\/queue$/);
   await page.goto(`/tickets/${ticketId}`);
   if (index !== 3) await expect(page.getByRole('heading', { name: 'Actions Taken', exact: true })).toBeVisible();
 }

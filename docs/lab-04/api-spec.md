@@ -1,6 +1,6 @@
 # API Specification - Sprint 4
 
-**Status:** Section 3 Actions endpoints are implemented by #45. Section 4 workflow and related activity/version changes are implemented by #47 ([implementation/evidence](ticket-workflow-api.md)). Dashboard additions and broader legacy hardening remain planned.
+**Status:** Section 3 Actions endpoints are implemented by #45. Section 4 workflow and related activity/version changes are implemented by #47 ([implementation/evidence](ticket-workflow-api.md)). Section 6.1 Requester dashboard and section 7 Requester list extensions are implemented by #49 ([implementation/evidence](requester-dashboard.md)); staff dashboard/list extensions and broader legacy hardening remain planned.
 **Base URL:** `/api`  
 **Related:** [Engineering specification](specification.md), [UI specification](ui-spec.md).
 

@@ -14,7 +14,8 @@
     "test:migration": "vitest run --config vitest.migration.config.ts",
     "test:fixtures": "vitest run --config vitest.migration.config.ts seed-fixtures",
     "test:actions": "vitest run --config vitest.actions.config.ts",
-    "test:workflow": "vitest run --config vitest.workflow.config.ts"
+    "test:workflow": "vitest run --config vitest.workflow.config.ts",
+    "test:dashboard": "vitest run --config vitest.dashboard.config.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

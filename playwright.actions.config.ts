@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 if (!process.env.LAB4_UI_DATABASE_URL) throw new Error('Set LAB4_UI_DATABASE_URL to a migrated disposable database; never use the working database.');
 export default defineConfig({
-  testDir: './e2e/lab-04', testMatch: ['actions-taken-flow.spec.ts', 'ticket-resolution.spec.ts'], workers: 1,
+  testDir: './e2e/lab-04', testMatch: ['actions-taken-flow.spec.ts', 'ticket-resolution.spec.ts', 'requester-dashboard.spec.ts'], workers: 1,
   timeout: 60000, forbidOnly: !!process.env.CI,
   reporter: [['list'], ['junit', { outputFile: 'test-results/lab4-actions-browser.xml' }]],
   outputDir: 'test-results/lab4-actions-browser',

@@ -1,6 +1,6 @@
 # UI Specification - Sprint 4
 
-**Status:** Actions Taken section and its draft/error recovery are implemented in issue #46; [implementation and evidence](actions-ui.md). Dashboard/navigation landing, Ticket status workflow/history and combined release checks remain planned for their respective issues.
+**Status:** Actions Taken is implemented in #46 ([guide](actions-ui.md)), Ticket workflow/history in #48 ([guide](ticket-workflow-ui.md)), and Requester dashboard/navigation/filter drill-down in #49 ([guide](requester-dashboard.md)). Staff dashboard/landing and combined release checks remain planned.
 
 **Authority:** [specification.md](specification.md) defines roles, rules and metrics; [api-spec.md](api-spec.md) defines wire behavior.
 
