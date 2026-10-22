@@ -30,6 +30,14 @@ The API suite uses an independent 12-Ticket/48-Action fixture with all eight sta
 
 Screenshots: [desktop](../../artifacts/lab-04/screenshots/staff-dashboard/dashboard-1440x900.png), [tablet](../../artifacts/lab-04/screenshots/staff-dashboard/dashboard-768x1024.png), [mobile](../../artifacts/lab-04/screenshots/staff-dashboard/dashboard-390x844.png), [320px](../../artifacts/lab-04/screenshots/staff-dashboard/dashboard-320x844.png). Desktop/320px captures were visually inspected; all viewports also have overflow assertions. Synthetic seed/test records only.
 
+## PR #64 Actions UI timeout follow-up
+
+The failed [CI run](https://github.com/Tell52/toktickit/actions/runs/39793809822) passed 41/42 cases. Its WebKit trace shows first-page creation taking 22.48 seconds, followed by successful lifecycle steps. The final Save click was interrupted after only 54 milliseconds by the shared 60-second test deadline; this was not a Save request failing or a button waiting for a full minute.
+
+Only the multi-role lifecycle case now has a 120-second overall budget. Its four pages retain a 10-second interaction limit and a separate 30-second navigation limit, so a stuck button still fails promptly. Assertions, retries, other test budgets and application behavior are unchanged.
+
+After the adjustment, the complete dedicated Lab 4 browser suite passed **42/42** locally across Chromium, Firefox and WebKit (2.9 minutes), against a newly migrated disposable PostgreSQL database. Evidence: `test-results/pr64-actions-browser.xml`. The first trial exposed a too-short navigation limit; the final run above includes the separate navigation budget. GitHub verification still requires pushing the fix to PR #64.
+
 ## Reproduce
 
 Use disposable PostgreSQL databases; do not reset or seed a working database for these tests.
