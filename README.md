@@ -213,3 +213,5 @@ toktickit/
 │   └── lab-03/
 └── playwright.config.ts        # Playwright configuration
 ```
+
+Staff/Administrator dashboard: [implementation and verification](docs/lab-04/staff-dashboard.md). All roles now land on `/dashboard`; My Queue and Admin remain available through navigation.

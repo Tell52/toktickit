@@ -77,6 +77,9 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
     window.addEventListener('beforeunload', unload);
     return () => { window.removeEventListener('toktickit:before-navigate', guard); window.removeEventListener('beforeunload', unload); };
   }, [dirty, uncertain, busy]);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('tab') === 'actions') sectionRef.current?.focus();
+  }, [ticketId]);
   function handleFailure(err: unknown): boolean {
     if (err instanceof ActionsError && [401, 403, 404].includes(err.status)) {
       setData(null); setSelected(null); setHistory(null); closeForm(); setDenied(true); onAccessError?.(err);
@@ -94,11 +97,13 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
       const fresh = await getActions(ticketId, targetPage);
       if (!alive.current) return;
       setData(fresh); setDenied(false);
-      if (selected) {
-        let found = fresh.actions.find(a => a.id === selected.id);
+      const linkedId = new URLSearchParams(window.location.search).get('actionId');
+      const selectedId = selected?.id ?? linkedId;
+      if (selectedId) {
+        let found = fresh.actions.find(a => a.id === selectedId);
         // An effective-time edit can move the selected action to another page.
         for (let p = 1; !found && p <= Math.ceil(fresh.pagination.totalCount / fresh.pagination.pageSize); p++) {
-          if (p !== targetPage) found = (await getActions(ticketId, p)).actions.find(a => a.id === selected.id);
+          if (p !== targetPage) found = (await getActions(ticketId, p)).actions.find(a => a.id === selectedId);
         }
         if (!alive.current) return;
         if (!found) {

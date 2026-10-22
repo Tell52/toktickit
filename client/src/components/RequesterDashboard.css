@@ -14,3 +14,7 @@
 .requester-dashboard a:focus-visible,.requester-dashboard button:focus-visible { outline: 3px solid #006b3c; outline-offset: 3px; }
 @media(max-width:767px) { .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .dashboard-previews { grid-template-columns: minmax(0,1fr); } }
 @media(max-width:399px) { .dashboard-metrics { grid-template-columns: minmax(0,1fr); } }
+
+@media(max-width:1023px) { .staff-dashboard .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .staff-dashboard .dashboard-previews { grid-template-columns: minmax(0,1fr); } }
+@media(max-width:767px) { .staff-dashboard .dashboard-metrics { grid-template-columns: minmax(0,1fr); } }
+.staff-dashboard #my-actions:focus { outline: 3px solid #006b3c; outline-offset: 3px; }

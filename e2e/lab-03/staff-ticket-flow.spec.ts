@@ -154,8 +154,9 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     await page.getByPlaceholder(/enter password/i).fill('StaffPass123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Verify redirected to /queue
-    await expect(page).toHaveURL(/.*\/queue/);
+    // Staff lands on Dashboard, then opens the shared queue.
+    await expect(page).toHaveURL(/.*\/dashboard/);
+    await page.getByRole('link', { name: 'My Queue', exact: true }).click();
     await expect(page.getByText('E2E Flow Staff')).toBeVisible();
 
     // 2. Search for the unassigned ticket in Queue
@@ -164,7 +165,7 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     await searchInput.fill(unassignedSummary);
 
     // Click on matching ticket row
-    const ticketRow = page.getByText(unassignedSummary).first();
+    const ticketRow = page.getByTestId(`ticket-row-${unassignedTicket.ticketNumber}`);
     await expect(ticketRow).toBeVisible();
     await ticketRow.click();
 
@@ -400,7 +401,7 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     await page.getByPlaceholder(/name@example.com/i).fill(adminEmail);
     await page.getByPlaceholder(/enter password/i).fill('AdminPass123!');
     await page.getByRole('button', { name: /sign in/i }).click();
-    await expect(page).toHaveURL(/.*\/queue/);
+    await expect(page).toHaveURL(/.*\/dashboard/);
     await expect(page.getByText('E2E Responsive Administrator')).toBeVisible();
 
     // B1. Staff Ticket Queue across breakpoints

@@ -20,7 +20,7 @@ export async function requesterViewer(tx: Prisma.TransactionClient, actorId: str
   if (viewer.role !== 'REQUESTER') throw new ApiError(403, 'FORBIDDEN', 'This view is available to Requesters.');
   return viewer;
 }
-const summarySelect = { id: true, ticketNumber: true, summary: true, currentStatus: true, itPriority: true, requestedPriority: true, updatedAt: true, resolvedAt: true } as const;
+export const summarySelect = { id: true, ticketNumber: true, summary: true, currentStatus: true, itPriority: true, requestedPriority: true, updatedAt: true, resolvedAt: true } as const;
 export async function requesterDashboard(prisma: PrismaClient, actorId: string, now = new Date()) {
   const { asOf, since } = dashboardWindow(now);
   return prisma.$transaction(async tx => {

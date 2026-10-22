@@ -36,8 +36,8 @@ test.describe('Administrator User Management (Lab 3 E2E - E2E-05)', () => {
     await page.getByPlaceholder(/enter password/i).fill('AdminPassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Verify redirected to /queue
-    await expect(page).toHaveURL(/.*\/queue/);
+    // Verify redirected to /dashboard
+    await expect(page).toHaveURL(/.*\/dashboard/);
     await expect(page.getByText('E2E Admin Master')).toBeVisible();
 
     // 2. Navigate to Admin screen via top navbar

@@ -7,6 +7,8 @@ import { ticketIdentity } from '../services/action-validation.js';
 import { workflowDetail } from '../services/workflow-state.js';
 import { ApiError, sendApiError } from '../services/api-error.js';
 
+import { parseRequesterFilters } from '../services/dashboard.js';
+import { priorityWhere } from '../services/staff-dashboard.js';
 const router = Router();
 
 // Enforce IT_STAFF and ADMINISTRATOR role access for all routes in this router
@@ -37,7 +39,7 @@ export const PRIORITY_MAP: Record<string, string[]> = {
 
 // Valid sort options per API spec
 const VALID_SORTS = [
-  'createdAt', '-createdAt',
+  'createdAt', '-createdAt', 'updatedAt', '-updatedAt', 'resolvedAt', '-resolvedAt',
   'itPriority', '-itPriority',
   'status', '-status',
   'currentStatus', '-currentStatus',
@@ -82,7 +84,12 @@ router.get('/users', async (_req: Request, res: Response) => {
 router.get('/tickets', async (req: Request, res: Response) => {
   try {
     const prisma = getPrisma();
-    const whereConditions: any[] = [];
+    res.set('Cache-Control', 'no-store');
+    const sharedKeys = ['statusGroup', 'updatedFrom', 'updatedBefore', 'resolvedFrom', 'resolvedBefore'];
+    const sharedQuery = Object.fromEntries(sharedKeys.filter(key => req.query[key] !== undefined).map(key => [key, req.query[key]]));
+    if (req.query.statusGroup !== undefined && req.query.status !== undefined) sharedQuery.status = req.query.status;
+    const shared = parseRequesterFilters(sharedQuery);
+    const whereConditions: any[] = [shared.where];
 
     // 1. Search (case-insensitive substring in ticketNumber or summary)
     if (typeof req.query.search === 'string' && req.query.search.trim() !== '') {
@@ -156,16 +163,8 @@ router.get('/tickets', async (req: Request, res: Response) => {
         });
       }
 
-      // Check itPriority, or fallback to requestedPriority if itPriority is null
-      whereConditions.push({
-        OR: [
-          { itPriority: { in: matchedPriorities } },
-          {
-            itPriority: null,
-            requestedPriority: { in: matchedPriorities },
-          },
-        ],
-      });
+      // Share the exact effective-priority predicate with dashboard counts.
+      whereConditions.push(priorityWhere(priorityKey));
     }
 
     // 5. Owner filter ("me" | "unassigned" | userId)
@@ -228,6 +227,10 @@ router.get('/tickets', async (req: Request, res: Response) => {
         break;
     }
 
+    if (/^-?(updatedAt|resolvedAt)$/.test(sortParam)) {
+      orderByClause = parseRequesterFilters({ sort: sortParam }).orderBy;
+    }
+
     // 7. Pagination (default: page 1, pageSize 10, max 50)
     let page = 1;
     if (req.query.page !== undefined) {
@@ -249,8 +252,11 @@ router.get('/tickets', async (req: Request, res: Response) => {
     const whereClause = whereConditions.length > 0 ? { AND: whereConditions } : {};
     const skip = (page - 1) * pageSize;
 
-    const [tickets, totalCount] = await Promise.all([
-      prisma.ticket.findMany({
+    const [tickets, totalCount] = await prisma.$transaction(async tx => {
+      const viewer = await currentViewer(tx, req.session.user!.id);
+      if (!['IT_STAFF', 'ADMINISTRATOR'].includes(viewer.role)) throw new ApiError(403, 'FORBIDDEN', 'Staff access required.');
+      return Promise.all([
+      tx.ticket.findMany({
         where: whereClause,
         include: {
           category: { select: { id: true, name: true } },
@@ -262,8 +268,9 @@ router.get('/tickets', async (req: Request, res: Response) => {
         skip,
         take: pageSize,
       }),
-      prisma.ticket.count({ where: whereClause }),
+      tx.ticket.count({ where: whereClause }),
     ]);
+    }, { isolationLevel: 'RepeatableRead' });
 
     // Format response matching API Specification §4.1
     const formattedTickets = tickets.map((t) => ({
@@ -295,6 +302,7 @@ router.get('/tickets', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    if (error instanceof ApiError) return sendApiError(res, error);
     return res.status(500).json({
       error: {
         code: 'INTERNAL_ERROR',

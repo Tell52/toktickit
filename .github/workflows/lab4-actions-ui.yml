@@ -59,4 +59,5 @@ jobs:
             artifacts/lab-04/screenshots/actions-taken/
             artifacts/lab-04/screenshots/ticket-workflow/
             artifacts/lab-04/screenshots/requester-dashboard/
+            artifacts/lab-04/screenshots/staff-dashboard/
           retention-days: 30

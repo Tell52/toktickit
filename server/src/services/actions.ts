@@ -4,7 +4,7 @@ import { ActionInput, mergeAction, validateFinalAction, ticketIdentity } from '.
 import { ApiError, invalid } from './api-error.js';
 import { assertBusinessUser, currentViewer, lockActionUsers, staffRoles } from './action-access.js';
 
-const actionSelect = {
+export const actionSelect = {
   id: true, ticketId: true, resolutionCycle: true, actionAt: true, description: true, result: true,
   status: true, followUpRequired: true, followUpNote: true, attachmentNotes: true, cancellationReason: true,
   version: true, createdAt: true, updatedAt: true,
@@ -13,7 +13,7 @@ const actionSelect = {
   assignee: { select: { id: true, name: true, isActive: true } },
 } satisfies Prisma.ActionTakenSelect;
 type PublicAction = Prisma.ActionTakenGetPayload<{ select: typeof actionSelect }>;
-const actionDto = ({ ticket, actionAt, createdAt, updatedAt, ...action }: PublicAction) => ({
+export const actionDto = ({ ticket, actionAt, createdAt, updatedAt, ...action }: PublicAction) => ({
   ...action, ticketNumber: ticket.ticketNumber, actionAt: actionAt.toISOString(), createdAt: createdAt.toISOString(), updatedAt: updatedAt.toISOString(),
 });
 export const actionSnapshot = (action: ActionTaken): Prisma.InputJsonObject => ({
