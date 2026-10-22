@@ -58,6 +58,11 @@ jobs:
         env:
           LAB4_WORKFLOW_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
         run: npm run test:workflow -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-workflow.xml
+      - name: Verify Requester dashboard metrics, ownership and drill-down
+        working-directory: server
+        env:
+          LAB4_DASHBOARD_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+        run: npm run test:dashboard -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-requester-dashboard-api.xml
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -66,4 +71,5 @@ jobs:
             test-results/lab4-migration.xml
             test-results/lab4-actions.xml
             test-results/lab4-workflow.xml
+            test-results/lab4-requester-dashboard-api.xml
           retention-days: 30

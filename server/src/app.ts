@@ -8,6 +8,7 @@ import staffRoutes from './routes/staff.routes';
 import adminRoutes from './routes/admin.routes';
 import actionsRoutes, { actionsParseError } from './routes/actions.routes';
 import workflowRoutes, { workflowParseError } from './routes/workflow.routes';
+import dashboardRoutes from './routes/dashboard.routes';
 import { requireAuth, requireRole } from "./middleware/auth";
 
 import { Role } from "@prisma/client";
@@ -38,6 +39,7 @@ app.use(session({
 // their own paths. Legacy route hardening is tracked separately in Lab 4.
 app.use('/api', actionsRoutes);
 app.use('/api', workflowRoutes);
+app.use('/api', dashboardRoutes);
 
 // CSRF check for state-changing requests when authenticated via session
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -196,74 +198,6 @@ app.post("/api/tickets", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("CREATE TICKET ERROR:", error);
     res.status(500).json({ error: "Failed to create ticket" });
-  }
-});
-
-app.get("/api/tickets", async (req: Request, res: Response) => {
-  try {
-    // หากมี Cookie ส่งมา แต่ไม่มี session.user แสดงว่า session หมดอายุหรือไม่ถูกต้อง
-    if (req.headers.cookie && (!req.session || !req.session.user)) {
-      return res.status(401).json({
-        error: { code: 'UNAUTHENTICATED', message: 'Session expired or invalid' }
-      });
-    }
-
-    // 1. รับค่าจาก Query Parameters หรือ Session
-    let requesterId = req.session?.user?.id;
-    if (!requesterId) {
-      requesterId = req.query.requesterId as string;
-    }
-
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-    const search = req.query.search as string;
-    const status = req.query.status as string;
-
-    // 2. ตรวจสอบสิทธิ์ (Ownership Check)
-    if (!requesterId) {
-      return res.status(403).json({ error: "Requester ID is required to view tickets" });
-    }
-
-    // 3. สร้างเงื่อนไขการค้นหา (Where clause)
-    const whereClause: any = {
-      requesterId: requesterId, // บังคับดูได้แค่ของตัวเอง
-    };
-
-    if (search) {
-      whereClause.OR = [
-        { ticketNumber: { contains: search, mode: "insensitive" } },
-        { summary: { contains: search, mode: "insensitive" } }
-      ];
-    }
-    if (status) {
-      whereClause.currentStatus = status;
-    }
-
-    // 4. ดึงข้อมูลจากฐานข้อมูลพร้อม Pagination
-    const skip = (page - 1) * limit;
-    const [tickets, totalCount] = await Promise.all([
-      getPrisma().ticket.findMany({
-        where: whereClause,
-        include: { category: true, relatedSystem: true }, // ดึงชื่อหมวดหมู่มาด้วย
-        orderBy: { createdAt: "desc" }, // เรียงตั๋วใหม่ล่าสุดขึ้นก่อน
-        skip,
-        take: limit,
-      }),
-      getPrisma().ticket.count({ where: whereClause })
-    ]);
-
-    // 5. ส่งข้อมูลกลับพร้อม Metadata สำหรับแบ่งหน้า
-    res.status(200).json({
-      data: tickets,
-      meta: {
-        total: totalCount,
-        page,
-        limit,
-        totalPages: Math.ceil(totalCount / limit)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve tickets" });
   }
 });
 

@@ -12,6 +12,7 @@ import StaffTicketDetail from "./components/StaffTicketDetail.js";
 import UserManagement from "./components/UserManagement.js";
 import { allowNavigation } from './navigation-guard';
 import './App.css';
+import RequesterDashboard from './components/RequesterDashboard';
 
 
 export function RoleBadge({ role }: { role: string }) {
@@ -69,10 +70,12 @@ export default function App() {
   const authContext = useContext(AuthContext);
   const { user, loading, logout } = useAuth();
   const [lab2Requester, setLab2Requester] = useState<any>(null);
-  const [currentPath, setCurrentPath] = useState(
-    typeof window !== "undefined" ? window.location.pathname || "/" : "/"
+  const [currentUrl, setCurrentUrl] = useState(
+    typeof window !== "undefined" ? window.location.pathname + window.location.search : "/"
   );
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const currentPath = currentUrl.split('?')[0];
+  const detailMatch = /^\/tickets\/([1-9]\d*)$/.exec(currentPath);
+  const currentQuery = currentUrl.includes('?') ? currentUrl.slice(currentUrl.indexOf('?') + 1) : '';
 
   // Fallback for legacy Lab 1 & 2 tests that render <App /> directly without AuthProvider
   if (!authContext) {
@@ -82,21 +85,21 @@ export default function App() {
   }
 
   const navigate = (path: string) => {
-    if (path !== currentPath && !allowNavigation()) return;
-    if (typeof window !== "undefined" && window.location.pathname !== path) {
-      window.history.pushState({}, "", path);
+    if (path !== currentUrl && !allowNavigation()) return;
+    if (typeof window !== "undefined" && window.location.pathname + window.location.search !== path) {
+      window.history.pushState({ ticketList: currentPath === '/tickets' ? currentUrl : window.history.state?.ticketList }, "", path);
     }
-    setCurrentPath(path);
+    setCurrentUrl(path);
   };
 
   useEffect(() => {
     const handlePopState = () => {
-      if (!allowNavigation()) { window.history.pushState({}, "", currentPath); return; }
-      setCurrentPath(window.location.pathname || "/");
+      if (!allowNavigation()) { window.history.pushState({}, "", currentUrl); return; }
+      setCurrentUrl(window.location.pathname + window.location.search);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [currentPath]);
+  }, [currentUrl]);
 
   // Sync root path '/' with role-based default destination
   useEffect(() => {
@@ -119,7 +122,7 @@ export default function App() {
     if (currentPath === "/" || currentPath === "/login") {
       const userRole = (user.role || "").toUpperCase();
       if (userRole === "REQUESTER") {
-        navigate("/tickets");
+        navigate("/dashboard");
       } else {
         navigate("/queue");
       }
@@ -159,7 +162,6 @@ export default function App() {
   };
 
   const handleViewTicket = (ticketId: string) => {
-    setSelectedTicketId(ticketId);
     navigate(`/tickets/${ticketId}`);
   };
 
@@ -176,15 +178,17 @@ export default function App() {
           <h1
             className="h5 mb-0 fw-bold"
           >
-            <a href={isRequester ? '/tickets' : '/queue'} className="text-white text-decoration-none" onClick={event => { event.preventDefault(); navigate(isRequester ? '/tickets' : '/queue'); }}>TokTickIT</a>
+            <a href={isRequester ? '/dashboard' : '/queue'} className="text-white text-decoration-none" onClick={event => { event.preventDefault(); navigate(isRequester ? '/dashboard' : '/queue'); }}>TokTickIT</a>
           </h1>
 
           {/* Navigation Items filtered strictly by role (FR-07) */}
           <nav className="d-flex flex-wrap gap-3 align-items-center">
+            {isRequester && <a href="/dashboard" aria-current={currentPath === '/dashboard' ? 'page' : undefined} className={`text-white text-decoration-none ${currentPath === '/dashboard' ? 'fw-bold' : ''}`} onClick={e => { e.preventDefault(); navigate('/dashboard'); }}>Dashboard</a>}
             {/* Requester Navigation Links */}
             {isRequester && (
               <a
-                href="#tickets"
+                href="/tickets"
+                aria-current={currentPath === '/tickets' ? 'page' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/tickets" || currentPath.startsWith("/tickets/") ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/tickets" || currentPath.startsWith("/tickets/") ? 1 : 0.8 }}
                 onClick={(e) => { e.preventDefault(); navigate("/tickets"); }}
@@ -196,7 +200,8 @@ export default function App() {
             {/* IT Staff & Administrator Navigation Links */}
             {(isItStaff || isAdmin) && (
               <a
-                href="#queue"
+                href="/queue"
+                aria-current={currentPath === '/queue' ? 'page' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/queue" ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/queue" ? 1 : 0.8 }}
                 onClick={(e) => { e.preventDefault(); navigate("/queue"); }}
@@ -207,7 +212,8 @@ export default function App() {
 
             {/* Create Ticket available for all roles */}
             <a
-              href="#create-ticket"
+              href="/create-ticket"
+              aria-current={currentPath === '/create-ticket' ? 'page' : undefined}
               className={`text-white text-decoration-none ${currentPath === "/create-ticket" ? "fw-bold" : ""}`}
               style={{ opacity: currentPath === "/create-ticket" ? 1 : 0.8 }}
               onClick={(e) => { e.preventDefault(); navigate("/create-ticket"); }}
@@ -218,7 +224,8 @@ export default function App() {
             {/* Administrator only Navigation Link */}
             {isAdmin && (
               <a
-                href="#admin"
+                href="/admin"
+                aria-current={currentPath === '/admin' ? 'page' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/admin" ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/admin" ? 1 : 0.8 }}
                 onClick={(e) => { e.preventDefault(); navigate("/admin"); }}
@@ -229,7 +236,8 @@ export default function App() {
 
             {/* Profile available for all roles */}
             <a
-              href="#profile"
+              href="/profile"
+              aria-current={currentPath === '/profile' ? 'page' : undefined}
               className={`text-white text-decoration-none ${currentPath === "/profile" ? "fw-bold" : ""}`}
               style={{ opacity: currentPath === "/profile" ? 1 : 0.8 }}
               onClick={(e) => { e.preventDefault(); navigate("/profile"); }}
@@ -256,34 +264,42 @@ export default function App() {
 
       {/* Main Content with Route Guards */}
       <main className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : currentPath.startsWith('/tickets/') ? 1280 : 880 }}>
+        {currentPath === '/dashboard' && <ProtectedRoute allowedRoles={['REQUESTER']} currentPath={currentPath} onNavigate={navigate}>
+          <RequesterDashboard key={user.id} onNavigate={navigate} />
+        </ProtectedRoute>}
         {/* Requester: My Tickets */}
         {currentPath === "/tickets" && (
           <ProtectedRoute allowedRoles={["REQUESTER"]} currentPath={currentPath} onNavigate={navigate}>
             <MyTickets
+              key={user.id}
               requesterId={user.id}
               onViewTicket={handleViewTicket}
+              query={currentQuery}
+              onNavigate={navigate}
             />
           </ProtectedRoute>
         )}
 
         {/* Ticket Detail */}
-        {currentPath.startsWith("/tickets/") && (
+        {detailMatch && (
           <ProtectedRoute currentPath={currentPath} onNavigate={navigate}>
             <div>
               <button
                 className="btn btn-outline-secondary mb-3"
-                onClick={() => navigate(isRequester ? "/tickets" : "/queue")}
+                onClick={() => navigate(isRequester ? window.history.state?.ticketList || '/tickets' : "/queue")}
               >
                 &larr; Back to {isRequester ? "My Tickets" : "My Queue"}
               </button>
               {isRequester ? (
                 <RequesterTicketDetail
-                  ticketId={selectedTicketId || currentPath.replace("/tickets/", "")}
+                  key={currentPath}
+                  ticketId={detailMatch[1]}
                   currentRequesterId={user.id}
                 />
               ) : (
                 <StaffTicketDetail
-                  ticketId={selectedTicketId || currentPath.replace("/tickets/", "")}
+                  key={currentPath}
+                  ticketId={detailMatch[1]}
                   currentUser={user}
                   onBack={() => navigate("/queue")}
                 />
@@ -339,6 +355,9 @@ export default function App() {
             </div>
           </ProtectedRoute>
         )}
+        {!detailMatch && !['/', '/login', '/change-password', '/dashboard', '/tickets', '/queue', '/create-ticket', '/admin', '/profile'].includes(currentPath) && <section>
+          <h2>Page not found</h2><a href={isRequester ? '/dashboard' : '/queue'} onClick={e => { e.preventDefault(); navigate(isRequester ? '/dashboard' : '/queue'); }}>Return to your home page</a>
+        </section>}
       </main>
     </div>
   );

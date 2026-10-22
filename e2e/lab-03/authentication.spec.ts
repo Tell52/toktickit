@@ -39,8 +39,8 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
     // Submit
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    // Expect navigation to /tickets (for Requester)
-    await expect(page).toHaveURL(/.*\/tickets/);
+    // Expect navigation to /dashboard (for Requester)
+    await expect(page).toHaveURL(/.*\/dashboard/);
 
     // Authenticated app shell verification
     await expect(page.getByText('TokTickIT')).toBeVisible();
@@ -117,7 +117,7 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
     await continueButton.click();
 
     // 5. Successful continuation: user is redirected into the normal app shell
-    await expect(page).toHaveURL(/.*\/tickets/);
+    await expect(page).toHaveURL(/.*\/dashboard/);
     await expect(page.getByText('E2E Forced Change User')).toBeVisible();
     await expect(page.getByRole('link', { name: /my tickets/i })).toBeVisible();
   });
@@ -144,7 +144,7 @@ test.describe('Authentication and Session Flows (Lab 3 E2E)', () => {
     await page.getByPlaceholder(/enter password/i).fill('ActivePass123!');
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await expect(page).toHaveURL(/.*\/tickets/);
+    await expect(page).toHaveURL(/.*\/dashboard/);
     await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
 
     // 2. Perform Logout

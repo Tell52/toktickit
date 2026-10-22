@@ -118,12 +118,18 @@ export async function getMyTickets(arg1?: any, arg2?: any) {
   const queryParams = (typeof arg1 === "object" && arg1 !== null) ? arg1 : (arg2 || {});
   const url = new URL(`${API_URL}/api/tickets`);
 
-  if (queryParams.page) url.searchParams.append("page", queryParams.page.toString());
-  if (queryParams.search) url.searchParams.append("search", queryParams.search);
-  if (queryParams.status) url.searchParams.append("status", queryParams.status);
+  for (const key of ['page', 'limit', 'search', 'status', 'statusGroup', 'updatedFrom', 'updatedBefore', 'resolvedFrom', 'resolvedBefore', 'sort']) {
+    if (queryParams[key] !== undefined && queryParams[key] !== '') url.searchParams.set(key, String(queryParams[key]));
+  }
 
-  const res = await apiFetch(url.toString());
+  const res = await apiFetch(url.toString(), { cache: 'no-store' });
   return res.json();
+}
+
+export type DashboardTicket = { id: number; ticketNumber: string; summary: string; currentStatus: string; itPriority: string; updatedAt: string; resolvedAt: string | null };
+export type RequesterDashboardData = { asOf: string; timeZone: string; window: { since: string; before: string }; metrics: { openTickets: number; waitingForRequester: number; recentlyUpdated: number; recentlyResolved: number }; attentionTickets: DashboardTicket[]; recentTickets: DashboardTicket[] };
+export async function getRequesterDashboard(): Promise<RequesterDashboardData> {
+  return (await apiFetch('/api/dashboard/requester', { cache: 'no-store' })).json();
 }
 
 // รองรับทั้ง getTicketDetail(id) และ getTicketDetail(id, requesterId)

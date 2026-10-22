@@ -25,7 +25,8 @@ test.describe('Requester Ticket Flow (Lab 2 E2E)', () => {
         await page.getByPlaceholder(/name@example.com/i).fill(email);
         await page.getByPlaceholder(/enter password/i).fill('RequesterPass123!');
         await page.getByRole('button', { name: /sign in/i }).click();
-        await expect(page).toHaveURL(/\/tickets$/);
+        await expect(page).toHaveURL(/\/dashboard$/);
+        await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible();
         await expect(page.getByText('E2E Ticket Requester')).toBeVisible();
 
         // ---------------------------------------------------------
