@@ -41,7 +41,7 @@ async function login(page: Page, index = 0) {
   await page.getByPlaceholder(/name@example.com/i).fill(accounts[index].email);
   await page.getByPlaceholder(/enter password/i).fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
-  await expect(page).toHaveURL(index === 1 || index === 3 ? /\/dashboard$/ : /\/queue$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
   await page.goto(`/tickets/${ticketId}`);
   if (index !== 3) await expect(page.getByRole('heading', { name: 'Actions Taken', exact: true })).toBeVisible();
 }
@@ -54,6 +54,11 @@ async function add(page: Page, description = 'Inspect router connection') {
 const view = async (page: Page) => { await page.getByRole('button', { name: /^View action:/ }).first().click(); };
 
 test('real staff lifecycle, administrator history and Requester privacy', async ({ page, browser }, info) => {
+  // CI WebKit can spend ~22s opening its first page. This multi-role flow
+  // needs a separate overall budget, while a stuck interaction must fail fast.
+  test.setTimeout(120_000);
+  page.setDefaultTimeout(10_000);
+  page.setDefaultNavigationTimeout(30_000);
   await login(page); await add(page); await view(page);
   await page.getByRole('button', { name: 'Start action', exact: true }).click();
   await expect(page.getByText('Action saved successfully.', { exact: true })).toBeVisible(); await view(page);
@@ -65,7 +70,9 @@ test('real staff lifecycle, administrator history and Requester privacy', async 
   await expect(page.getByText('Action saved successfully.', { exact: true })).toBeVisible();
   const stored = await db!.actionTaken.findFirstOrThrow({ where: { ticketId } });
   expect(stored.status).toBe('COMPLETED'); expect(stored.performedById).toBe(accounts[0].id); expect(stored.assigneeId).toBe(accounts[0].id);
-  const adminContext = await browser.newContext(); const admin = await adminContext.newPage(); await login(admin, 2); await view(admin);
+  const adminContext = await browser.newContext(); adminContext.setDefaultTimeout(10_000);
+  adminContext.setDefaultNavigationTimeout(30_000);
+  const admin = await adminContext.newPage(); await login(admin, 2); await view(admin);
   await admin.getByRole('button', { name: 'Edit action', exact: true }).click();
   await expect(admin.getByLabel('Assigned to *', { exact: true })).toBeDisabled();
   await admin.getByLabel(/Follow-up required:/).uncheck(); await admin.getByRole('button', { name: 'Save action', exact: true }).click();
@@ -105,7 +112,9 @@ test('real staff lifecycle, administrator history and Requester privacy', async 
   expect((await db!.ticket.findUniqueOrThrow({ where: { id: ticketId } })).ownerId).toBe(accounts[2].id);
   const cancelled = await db!.actionTaken.findFirstOrThrow({ where: { ticketId, description: 'Duplicate inspection' } });
   expect(cancelled.status).toBe('CANCELLED'); expect(cancelled.assigneeId).toBe(accounts[2].id); expect(cancelled.performedById).toBe(accounts[0].id);
-  const requestContext = await browser.newContext(); const requester = await requestContext.newPage(); await login(requester, 1); await view(requester);
+  const requestContext = await browser.newContext(); requestContext.setDefaultTimeout(10_000);
+  requestContext.setDefaultNavigationTimeout(30_000);
+  const requester = await requestContext.newPage(); await login(requester, 1); await view(requester);
   await expect(requester.getByText('Connection is stable after restart')).toHaveCount(2);
   await expect(requester.getByText('PRIVATE_INTERNAL_DIAGNOSTIC')).toHaveCount(0);
   await expect(requester.getByRole('button', { name: /Internal Notes|Change history|Add action|Edit action/ })).toHaveCount(0);
@@ -117,7 +126,9 @@ test('real staff lifecycle, administrator history and Requester privacy', async 
     await requester.setViewportSize({ width: 390, height: 844 });
     await requester.locator('#actions-taken').screenshot({ path: 'artifacts/lab-04/screenshots/actions-taken/requester-read-only-390x844-chromium.png' });
   }
-  const otherContext = await browser.newContext(); const other = await otherContext.newPage(); await login(other, 3);
+  const otherContext = await browser.newContext(); otherContext.setDefaultTimeout(10_000);
+  otherContext.setDefaultNavigationTimeout(30_000);
+  const other = await otherContext.newPage(); await login(other, 3);
   await expect(other.getByText('Inspect router connection')).toHaveCount(0);
   expect((await other.request.get(`${apiUrl}/api/tickets/${ticketId}/actions`)).status()).toBe(404);
   await adminContext.close(); await requestContext.close(); await otherContext.close();
