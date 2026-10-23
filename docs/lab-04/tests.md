@@ -1,7 +1,7 @@
 # Test Plan and Acceptance-Criteria Traceability - Sprint 4
 
 **Issue:** [#42 - Test Plan & Acceptance-Criteria Traceability](https://github.com/Tell52/toktickit/issues/42)  
-**Status:** Test plan created in issue #42; database/migration execution added in issue #43, seed/fixture execution in issue #44 and Actions API execution in issue #45. UI/workflow, remaining API and final-release cases remain Planned unless a result below explicitly records execution.
+**Status:** Execution through Issue #51 now includes API/UI workflow, dashboards, legacy authorization hardening, concurrency and bounded performance smoke. Final-release cases remain Planned unless an execution row explicitly records a result.
 **Contracts:** [Specification](specification.md), [API](api-spec.md), [UI](ui-spec.md).
 
 ## 1. Scope and Test Strategy
@@ -212,16 +212,16 @@ Execute applicable cases for every new endpoint, plus touched existing endpoints
 
 | ID | Type | Requirement / AC | Scenario | Expected result | Automated test file | Final |
 |---|---|---|---|---|---|---|
-| SEC-01 | Authorization/API | BR-11, BR-23; AC-05 | R1 reads own/other/missing Ticket actions and status history | Own reads succeed; other/missing share 404 shape; cancelled and prior-cycle current actions remain visible | server/tests/lab-04/actions-taken.api.test.ts | Planned |
-| SEC-02 | Authorization/API | FR-13; AC-05, AC-07 | Requester calls all staff action/workflow/dashboard/owner/priority routes | 403 before resource lookup; no writes, conflict versions or private payload | server/tests/lab-04/authorization.api.test.ts | Planned |
+| SEC-01 | Authorization/API | BR-11, BR-23; AC-05 | R1 reads own/other/missing Ticket actions and status history | Own reads succeed; other/missing share 404 shape; cancelled and prior-cycle current actions remain visible | server/tests/lab-04/actions-taken.api.test.ts | Pass: SEC-RUN-01 |
+| SEC-02 | Authorization/API | FR-13; AC-05, AC-07 | Requester calls all staff action/workflow/dashboard/owner/priority routes | 403 before resource lookup; no writes, conflict versions or private payload | server/tests/lab-04/authorization.api.test.ts | Pass: SEC-RUN-01 |
 | SEC-03 | Authorization/API | BR-11; AC-06 | Requester requests action revisions; valid action ID under different parent; inspect shared DTOs | Revision route 403; staff parent mismatch 404; no note data/counts or sensitive account fields in shared data | server/tests/lab-04/actions-taken.api.test.ts | Pass: ACT-RUN-02 |
-| SEC-04 | Authorization/API | BR-22, BR-26; AC-17 | No cookie, expired/logout cookie, forged requesterId in body/query | 401; no client identity fallback, including old Ticket/attachment routes; no writes | server/tests/lab-04/authorization.api.test.ts | Planned |
-| SEC-05 | Authorization/API | BR-22; AC-17 | Deactivate/demote already logged-in user; P1 calls business API | Inactive session 401; current reduced role enforced; forced password change 403 PASSWORD_CHANGE_REQUIRED | server/tests/lab-04/authorization.api.test.ts | Planned |
-| SEC-06 | Authorization/API | API section 1; AC-17 | Valid session with missing/wrong/another session's CSRF on each mutation | 403; no mutation/receipt; matching token succeeds when other rules pass | server/tests/lab-04/authorization.api.test.ts | Planned |
-| SEC-07 | Authorization/API | BR-18, BR-22; AC-17 | Replay prior create after logout/deactivation/demotion | Reauthorization occurs before replay; unauthorized caller receives no original body or resource metadata | server/tests/lab-04/authorization.api.test.ts | Planned |
+| SEC-04 | Authorization/API | BR-22, BR-26; AC-17 | No cookie, expired/logout cookie, forged requesterId in body/query | 401; no client identity fallback, including old Ticket/attachment routes; no writes | server/tests/lab-04/authorization.api.test.ts | Pass: SEC-RUN-01 |
+| SEC-05 | Authorization/API | BR-22; AC-17 | Deactivate/demote already logged-in user; P1 calls business API | Inactive session 401; current reduced role enforced; forced password change 403 PASSWORD_CHANGE_REQUIRED | server/tests/lab-04/authorization.api.test.ts | Pass: SEC-RUN-01 |
+| SEC-06 | Authorization/API | API section 1; AC-17 | Valid session with missing/wrong/another session's CSRF on each mutation | 403; no mutation/receipt; matching token succeeds when other rules pass | server/tests/lab-04/authorization.api.test.ts | Pass: SEC-RUN-01 |
+| SEC-07 | Authorization/API | BR-18, BR-22; AC-17 | Replay prior create after logout/deactivation/demotion | Reauthorization occurs before replay; unauthorized caller receives no original body or resource metadata | server/tests/lab-04/authorization.api.test.ts | Pass: SEC-RUN-01 |
 | SEC-08 | Safe failure/API | BR-25; AC-18, AC-19 | Inject controlled DB failure; text containing HTML/script markup | Generic 500 without internals and no partial writes; UI renders user text as text, not executable HTML | server/tests/lab-04/actions-taken.api.test.ts; client/tests/lab-04/ActionsTaken.test.tsx | Pass: UI-RUN-02 |
 
-Actions portions of SEC-01/02/04..08 pass in ACT-RUN-02. Status-history access now passes in WF-REG-02; untouched older-route identity bypasses and broader business-route hardening remain Planned. SEC-08 now combines ACT-RUN-02 fault rollback/error checks with UI-RUN-02 safe text rendering.
+SEC-RUN-01 now closes the earlier Ticket-create/detail/attachment identity fallback and current-account/admin/Note checks. SEC-01/02/04..07 pass in the new authorization suite plus existing Actions/workflow suites; SEC-08 adds safe creation rollback and five retained-input form feedback cases. Historical ACT/WF/UI evidence remains recorded below.
 
 ### 5.2 Concurrency cases
 
@@ -325,8 +325,8 @@ When enumerating regression evidence, expand wildcard paths into the actual exec
 
 | ID | Type | Requirement / AC | Scenario | Expected result | Automated test file / evidence | Final |
 |---|---|---|---|---|---|---|
-| PERF-01 | Performance smoke | FR-10, FR-15; AC-22 | 10,000 Tickets / 30,000 actions; 5 warm-ups then 20 sequential requests per dashboard endpoint | p95 <1000ms for each endpoint; no hidden failure responses; record raw durations and environment | server/tests/lab-04/dashboard-performance.test.ts | Planned |
-| PERF-02 | Performance/integration | BR-20; AC-22 | Instrument database queries and response size under growing fixtures | Preview bounds remain 5, My actions page 5, other new pages <=50; no per-Ticket query loop or full-collection response | server/tests/lab-04/dashboard-performance.test.ts | Planned |
+| PERF-01 | Performance smoke | FR-10, FR-15; AC-22 | 10,000 Tickets / 30,000 actions; 5 warm-ups then 20 sequential requests per dashboard endpoint | p95 <1000ms for each endpoint; no hidden failure responses; record raw durations and environment | server/tests/lab-04/dashboard-performance.test.ts | Pass: SEC-PERF-01 |
+| PERF-02 | Performance/integration | BR-20; AC-22 | Instrument database queries and response size under growing fixtures | Preview bounds remain 5, My actions page 5, other new pages <=50; no per-Ticket query loop or full-collection response | server/tests/lab-04/dashboard-performance.test.ts | Pass: SEC-PERF-01 |
 | REL-01 | Release verification | FR-15; AC-23 | Final main builds and executes required suites | Logs identify SHA, commands, counts and outcomes; all required cases executed successfully; no unexplained skips or unresolved failures | CI logs, tests.md execution record, artifacts/lab-04/test-results/ | Planned |
 | REL-02 | Manual evidence | FR-15; AC-23 | Review documentation, screenshots and final PDF against nine submission parts | Real reviewer/PR evidence, actual AI prompts/reflection, current README, migration recovery, metric query comparisons, readable linked submission | docs/lab-04/reviewer.md; docs/lab-04/ai-use.md; README.md; final submission PDF (planned artifacts) | Planned |
 
@@ -463,3 +463,17 @@ See [staff-dashboard.md](staff-dashboard.md) for implementation, independent fix
 - Builds, whitespace and screenshot inspection are recorded in the guide. The large-data performance fixture/p95 measurement (AC-22), broader identity-hardening issue #51 and final release checks remain separate work.
 
 Final combined browser run: 68 passed / 1 Firefox Actions lifecycle timeout, followed by 3/3 successful isolated repeats without a code change. See `test-results/lab4-staff-all-browser.xml` and `test-results/lab4-staff-firefox-recheck.xml`. All nine Issue #50 cases passed; the intermittent old Actions case remains documented rather than reported as an all-green full run.
+
+## Issue #51 hardening execution — 2026-10-23
+
+Branch `feature/lab4-11-security-concurrency`, base `d7cf6df` from pulled `lab4-staging`; results apply to the working tree. [Implementation, contracts and reproduction](security-concurrency.md). Commit/push, a reviewed PR link and merge remain the maintainer's steps.
+
+| Evidence ID | Scope / command | Actual result | Evidence |
+|---|---|---|---|
+| SEC-RUN-01 | `npm run test:hardening --prefix server`; generated isolated databases; Actions 70 + workflow 68 + validation 54 + direct authorization 40 + additional concurrency 5 + performance 1 | 238 passed, 0 failed/skipped | test-results/lab4-security.xml; server/tests/lab-04/authorization.api.test.ts; concurrency.api.test.ts |
+| SEC-CLIENT-01 | Full client regression, including new 400/401/403/password-change/500 feedback and retained creation input | 218 passed, 0 failed/skipped | test-results/lab4-security-client.xml |
+| SEC-REG-01 | Default backend regression against an independent migrated/seeded database | 186 passed, 237 opt-in cases skipped; those skips include separately executed security/Actions/workflow/performance suites and migration/seed/dashboard suites not opted into this command | test-results/lab4-security-server.xml |
+| SEC-BROWSER-01 | Labs 2–4 across Chromium/Firefox/WebKit; `playwright.hardening.config.ts` (equivalent configuration used for local run) | 69 passed, 0 failed/skipped; no retries | test-results/lab4-security-all-browser.xml |
+| SEC-PERF-01 | 10,000 Tickets / 30,000 Actions, 5 warm-ups +20 sequential HTTP samples per role; PostgreSQL 16.15, Node 22.17.1, Windows 11, i7-14700HX, 31.7 GiB | Requester p95 6.791ms; IT Staff 31.397ms; Administrator 34.135ms; all <1000ms. Query counts stay 8/14/14 from empty to large fixture; all previews/pages bounded | test-results/lab4-dashboard-performance.json; dashboard-performance.test.ts |
+
+SEC-RUN-01 also reruns CON-01..05 from the existing Actions/workflow files: two edits, ordered resolution-gate races, rollback, actor/assignee administration and concurrent identical/different idempotent payloads. New Note/creation races recheck a committed account change under real row locks. The first hardening run exposed ownership masking the Note role failure after demotion; the final implementation performs the staff check under lock before ownership. Earlier regression fixtures that intentionally used an inactive admin were updated to exercise last-admin protection through an active admin's self-demotion, with cleanup in `finally`. No authorization assertion was weakened to accept inactive-session access.

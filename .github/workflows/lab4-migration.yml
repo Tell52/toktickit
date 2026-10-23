@@ -63,6 +63,11 @@ jobs:
         env:
           LAB4_DASHBOARD_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
         run: npm run test:dashboard -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-requester-dashboard-api.xml
+      - name: Verify direct API security, concurrency and bounded dashboard performance
+        working-directory: server
+        env:
+          LAB4_SECURITY_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+        run: npm run test:hardening -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-security.xml
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -72,4 +77,6 @@ jobs:
             test-results/lab4-actions.xml
             test-results/lab4-workflow.xml
             test-results/lab4-requester-dashboard-api.xml
+            test-results/lab4-security.xml
+            test-results/lab4-dashboard-performance.json
           retention-days: 30

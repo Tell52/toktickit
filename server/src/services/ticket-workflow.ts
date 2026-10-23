@@ -23,10 +23,10 @@ export function owned(ticket: Ticket, viewer: { id: string; role: string }) {
   if (viewer.role === 'REQUESTER' && ticket.requesterId !== viewer.id) throw new ApiError(404, 'NOT_FOUND', 'Ticket not found.');
 }
 // Parent first, then User: compatible with Actions writes, including account changes.
-export async function lockActivity(tx: Prisma.TransactionClient, identity: TicketIdentity, actorId: string, requesterOnly = false) {
+export async function lockActivity(tx: Prisma.TransactionClient, identity: TicketIdentity, actorId: string, requesterOnly = false, staffOnly = false) {
   const ticket = await lockActionTicket(tx, identity);
   const users = await tx.$queryRaw<{ id: string; name: string; role: string; isActive: boolean; mustChangePassword: boolean }[]>(Prisma.sql`SELECT "id", "name", "role", "isActive", "mustChangePassword" FROM "User" WHERE "id" = ${actorId} FOR UPDATE`);
-  const viewer = users[0]; assertBusinessUser(viewer ?? null);
+  const viewer = users[0]; assertBusinessUser(viewer ?? null, staffOnly);
   if (requesterOnly && viewer.role !== 'REQUESTER') throw new ApiError(403, 'FORBIDDEN', 'Only Requesters can perform this operation.');
   owned(ticket, viewer);
   return { ticket, viewer };

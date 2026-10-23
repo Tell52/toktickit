@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { getPrisma } from '../prisma.js';
-import { requireRole } from '../middleware/auth';
+import { requireRole, requireCsrf } from '../middleware/auth';
 import { Prisma } from '@prisma/client';
 import { requireCurrentBusinessUser, currentViewer, assertBusinessUser } from '../services/action-access.js';
+import { lockActivity, requiredText, strictBody } from '../services/ticket-workflow.js';
 import { ticketIdentity } from '../services/action-validation.js';
 import { workflowDetail } from '../services/workflow-state.js';
 import { ApiError, sendApiError } from '../services/api-error.js';
@@ -425,70 +426,17 @@ router.get('/tickets/:id', async (req: Request, res: Response) => {
  * POST /api/staff/tickets/:id/notes
  * Create an internal note (IT Staff & Administrator only, BR-16, AC-14)
  */
-router.post('/tickets/:id/notes', async (req: Request, res: Response) => {
+router.post('/tickets/:id/notes', requireCsrf, async (req: Request, res: Response) => {
   try {
-    const prisma = getPrisma();
-    const ticket = await findTicketByIdOrNumber(req.params.id);
-
-    if (!ticket) {
-      return res.status(404).json({
-        error: {
-          code: 'NOT_FOUND',
-          message: 'Ticket not found',
-        },
-      });
-    }
-
-    const { content } = req.body;
-
-    if (!content || typeof content !== 'string' || !content.trim()) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Note content cannot be empty or whitespace only',
-        },
-      });
-    }
-
-    const authorId = req.session?.user?.id;
-    if (!authorId) {
-      return res.status(401).json({
-        error: {
-          code: 'UNAUTHENTICATED',
-          message: 'Authentication required',
-        },
-      });
-    }
-
-    const author = await prisma.user.findUnique({
-      where: { id: authorId },
-      select: { id: true, name: true },
+    const content = requiredText(strictBody(req.body, ['content']).content, 'content', 10000);
+    const result = await getPrisma().$transaction(async tx => {
+      const { ticket, viewer } = await lockActivity(tx, ticketIdentity(req.params.id), req.session.user!.id, false, true);
+      const note = await tx.note.create({ data: { ticketId: ticket.id, authorId: viewer.id, content } });
+      // A private note must not touch the Requester's activity timestamps/version.
+      return { id: note.id, ticketId: ticket.ticketNumber, authorId: viewer.id, authorName: viewer.name, content: note.content, createdAt: note.createdAt.toISOString() };
     });
-
-    const note = await prisma.note.create({
-      data: {
-        ticketId: ticket.id,
-        authorId,
-        content: content.trim(),
-      },
-    });
-
-    return res.status(201).json({
-      id: note.id,
-      ticketId: ticket.ticketNumber,
-      authorId: note.authorId,
-      authorName: author?.name || req.session?.user?.name || 'Unknown',
-      content: note.content,
-      createdAt: note.createdAt.toISOString(),
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to create internal note',
-      },
-    });
-  }
+    return res.status(201).json(result);
+  } catch (error) { return sendApiError(res, error); }
 });
 
 /**

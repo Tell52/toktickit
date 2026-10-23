@@ -8,6 +8,9 @@ import staffRoutes from './routes/staff.routes';
 import adminRoutes from './routes/admin.routes';
 import actionsRoutes, { actionsParseError } from './routes/actions.routes';
 import workflowRoutes, { workflowParseError } from './routes/workflow.routes';
+import ticketsRoutes from './routes/tickets.routes';
+import { requireCurrentBusinessUser } from './services/action-access.js';
+import { ApiError, sendApiError } from './services/api-error.js';
 import dashboardRoutes from './routes/dashboard.routes';
 import { requireAuth, requireRole } from "./middleware/auth";
 
@@ -35,26 +38,11 @@ app.use(session({
   }
 }));
 
-// Actions revalidate current identity before role/CSRF checks and handle only
-// their own paths. Legacy route hardening is tracked separately in Lab 4.
+// Each business router revalidates current account state before roles/resources.
 app.use('/api', actionsRoutes);
 app.use('/api', workflowRoutes);
 app.use('/api', dashboardRoutes);
-
-// CSRF check for state-changing requests when authenticated via session
-app.use((req: Request, res: Response, next: NextFunction) => {
-  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) {
-    if (req.headers.cookie && req.session && req.session.user) {
-      const token = req.headers['x-csrf-token'];
-      if (!token || token !== req.session.csrfToken) {
-        return res.status(403).json({
-          error: { code: 'FORBIDDEN', message: 'Invalid CSRF token' }
-        });
-      }
-    }
-  }
-  next();
-});
+app.use('/api', ticketsRoutes);
 
 app.use('/api/auth', authRoutes);
 
@@ -80,7 +68,7 @@ app.get("/api/categories", async (_req: Request, res: Response) => {
   }
 });
 
-app.get("/api/requesters", async (_req: Request, res: Response) => {
+app.get("/api/requesters", requireCurrentBusinessUser, requireRole(['IT_STAFF', 'ADMINISTRATOR']), async (_req: Request, res: Response) => {
   try {
     const requesters = await getPrisma().user.findMany({
       where: {
@@ -108,199 +96,11 @@ app.get("/api/related-systems", async (_req: Request, res: Response) => {
   }
 });
 
-app.post("/api/tickets", async (req: Request, res: Response) => {
-  const { requesterId, summary, description, categoryId, category, relatedSystemId, relatedSystem, requestedPriority } = req.body;
-
-  // Resolve requesterId: if user is authenticated via session, BR-03 requires using session user ID (ignoring client value)
-  let finalRequesterId: string | undefined;
-  if (req.session && req.session.user) {
-    finalRequesterId = req.session.user.id;
-  } else if (requesterId) {
-    finalRequesterId = String(requesterId);
-  }
-
-  // Resolve categoryId if category name is passed
-  let finalCategoryId = Number(categoryId);
-  if (!finalCategoryId && category) {
-    const foundCategory = await getPrisma().category.findFirst({
-      where: { name: { equals: String(category), mode: "insensitive" } },
-    });
-    if (foundCategory) {
-      finalCategoryId = foundCategory.id;
-    }
-  }
-
-  // Resolve relatedSystemId if relatedSystem name is passed
-  let finalRelatedSystemId = Number(relatedSystemId);
-  if (!finalRelatedSystemId && relatedSystem) {
-    const foundSystem = await getPrisma().relatedSystem.findFirst({
-      where: { name: { equals: String(relatedSystem), mode: "insensitive" } },
-    });
-    if (foundSystem) {
-      finalRelatedSystemId = foundSystem.id;
-    }
-  }
-
-  // (400 Bad Request)
-  if (!finalRequesterId || !summary || !description || !finalCategoryId || !finalRelatedSystemId || !requestedPriority) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  try {
-    const userExists = await getPrisma().user.findUnique({ where: { id: finalRequesterId } });
-    if (!userExists) {
-      const fallbackRequester = await getPrisma().user.findFirst({
-        where: { role: Role.REQUESTER, isActive: true },
-        orderBy: { createdAt: "asc" },
-      });
-      if (fallbackRequester) {
-        finalRequesterId = fallbackRequester.id;
-      }
-    }
-
-    // จำลองการสร้าง Ticket Number เช่น TKT-2026-0001 (พร้อม retry ป้องกัน race condition เมื่อรัน test ขนานกัน)
-    let newTicket;
-    let attempts = 0;
-    while (!newTicket && attempts < 10) {
-      attempts++;
-      try {
-        const ticketCount = await getPrisma().ticket.count();
-        let counter = ticketCount + attempts;
-        let generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
-        while (await getPrisma().ticket.findUnique({ where: { ticketNumber: generatedTicketNumber } })) {
-          counter++;
-          generatedTicketNumber = `TKT-2026-${String(counter).padStart(4, "0")}`;
-        }
-
-        newTicket = await getPrisma().ticket.create({
-          data: {
-            ticketNumber: generatedTicketNumber,
-            summary,
-            description,
-            requestedPriority,
-            itPriority: requestedPriority,
-            currentStatus: "New",
-            requesterId: finalRequesterId,
-            categoryId: Number(finalCategoryId),
-            relatedSystemId: Number(finalRelatedSystemId),
-          },
-        });
-      } catch (err: any) {
-        if (err?.code === 'P2002' && attempts < 10) {
-          continue;
-        }
-        throw err;
-      }
-    }
-
-    // คืนค่าสถานะ 201 Created
-    res.status(201).json(newTicket);
-  } catch (error) {
-    console.error("CREATE TICKET ERROR:", error);
-    res.status(500).json({ error: "Failed to create ticket" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// 1. API ดึงรายละเอียดตั๋ว 1 ใบ (Ticket Detail)
-// ---------------------------------------------------------------------------
-app.get("/api/tickets/:id", async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const sessionUser = req.session?.user;
-  const requesterId = sessionUser ? sessionUser.id : (req.query.requesterId as string);
-
-  if (!sessionUser && !requesterId) {
-    return res.status(403).json({ error: "Requester ID is required" });
-  }
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({
-      where: { id: ticketId },
-      include: {
-        category: true,
-        relatedSystem: true,
-        attachments: true,
-        comments: {
-          include: {
-            author: {
-              select: { id: true, name: true, role: true }
-            }
-          },
-          orderBy: { createdAt: "asc" }
-        }
-      },
-    });
-
-    if (!ticket) {
-      return res.status(404).json({ error: "Ticket not found" });
-    }
-
-    // Role-based ownership check
-    if (sessionUser) {
-      if (sessionUser.role === "REQUESTER" && String(ticket.requesterId) !== String(sessionUser.id)) {
-        return res.status(404).json({ error: "Ticket not found" });
-      }
-    } else if (requesterId) {
-      if (String(ticket.requesterId) !== String(requesterId)) {
-        return res.status(403).json({ error: "Unauthorized access to this ticket" });
-      }
-    }
-
-    const formattedComments = (ticket.comments || []).map(c => ({
-      id: c.id,
-      ticketId: c.ticketId,
-      authorId: c.authorId,
-      authorName: c.author?.name || "Unknown",
-      authorRole: c.author?.role || "REQUESTER",
-      author: c.author,
-      content: c.content,
-      createdAt: c.createdAt
-    }));
-
-    res.status(200).json({
-      ...ticket,
-      comments: formattedComments
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve ticket details" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// 2. API อัปโหลดไฟล์แนบ (Upload Attachment)
-// ---------------------------------------------------------------------------
-app.get("/api/tickets/:id/attachments/:attachmentId", async (req: Request, res: Response) => {
-  const ticketId = Number(req.params.id);
-  const attachmentId = Number(req.params.attachmentId);
-  const requesterId = req.session?.user?.id || (req.query.requesterId as string);
-
-  try {
-    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId } });
-    if (!ticket || (requesterId && String(ticket.requesterId) !== String(requesterId))) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    const attachment = await getPrisma().attachment.findUnique({
-      where: { id: attachmentId },
-    });
-
-    if (!attachment || attachment.ticketId !== ticketId) {
-      return res.status(404).json({ error: "Attachment not found" });
-    }
-
-    // บล็อกการดาวน์โหลดหากไฟล์ถูกลบไปแล้ว[cite: 8]
-    if (attachment.isRemoved) {
-      return res.status(403).json({ error: "This attachment has been removed and cannot be downloaded" });
-    }
-
-    // ในระบบจริง จะใช้ res.download() หรือส่งไฟล์สตรีมกลับไป
-    res.status(200).json({ message: "File ready for download", fileUrl: attachment.fileUrl });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve attachment" });
-  }
-});
-
 app.use(actionsParseError);
 app.use(workflowParseError);
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const malformed = error instanceof URIError || (error && typeof error === 'object' && 'type' in error && ['entity.parse.failed', 'entity.too.large'].includes(String(error.type)));
+  return sendApiError(res, malformed ? new ApiError(400, 'VALIDATION_ERROR', 'Use a valid request within size limits.') : error);
+});
 
 export default app;
