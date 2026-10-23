@@ -1,7 +1,7 @@
 # Test Plan and Acceptance-Criteria Traceability - Sprint 4
 
 **Issue:** [#42 - Test Plan & Acceptance-Criteria Traceability](https://github.com/Tell52/toktickit/issues/42)  
-**Status:** Execution through Issue #51 now includes API/UI workflow, dashboards, legacy authorization hardening, concurrency and bounded performance smoke. Final-release cases remain Planned unless an execution row explicitly records a result.
+**Status:** Issue #53 consolidates Labs 1–4 API/unit/component regression and all browser journeys, including role/account switching, workflow/dashboard agreement and accessibility. See the Issue #53 execution ledger; final-main/deployment release checks remain Planned.
 **Contracts:** [Specification](specification.md), [API](api-spec.md), [UI](ui-spec.md).
 
 ## 1. Scope and Test Strategy
@@ -262,15 +262,15 @@ Capture screenshots under artifacts/lab-04/screenshots/staff-dashboard/, request
 
 ## 7. End-to-End Scenarios
 
-Run on the configured Chromium, Firefox and WebKit projects. Use fresh browser contexts per role and real backend sessions. Selectors should prefer roles/labels over CSS implementation details.
+Run on the configured Chromium, Firefox and WebKit projects. Use real backend sessions and isolated contexts for simultaneous roles; E2E-05 deliberately reuses one context to detect stale state across logout/account switches. Selectors should prefer roles/labels over CSS implementation details.
 
 | ID | Type | Requirement / AC | Scenario | Expected result | Automated test file | Final |
 |---|---|---|---|---|---|---|
-| E2E-01 | E2E | FR-01..05; AC-01, AC-24 | Staff records multiple actions on one Ticket owned by different staff; assigns, starts, edits, completes; Requester reads | Actors/assignees independent; versions/history consistent; Requester read-only visibility; inactive assignment and validation failures covered | e2e/lab-04/actions-taken-flow.spec.ts | Pass: UI-BROWSER-02 |
-| E2E-02 | E2E | FR-06, FR-07; AC-09, AC-24 | Create Ticket, progress, advisory indication, blocked Resolve, complete work, resolve, close, reopen and resolve again | Advisory never bypasses gate; new-cycle evidence required after reopen; status/history/dashboard agree | e2e/lab-04/ticket-resolution.spec.ts | Partial: workflow and return-to-list portions pass WFUI-BROWSER-02; dashboard agreement remains Planned |
-| E2E-03 | E2E | BR-14; AC-10, AC-24 | Cancel Ticket with mixed actions and required reason; view as Requester | Unfinished actions cancelled together, completed evidence retained; no further edits, consistent shared display | e2e/lab-04/ticket-resolution.spec.ts | Pass: WFUI-BROWSER-02 |
-| E2E-04 | E2E | FR-09..11; AC-15 | Every Requester/staff metric and action destination; browser refresh/back/forward | Correct list filters and encoded bounds persist; IDs resolve correctly; personal action paging works | e2e/lab-04/requester-dashboard.spec.ts; planned staff dashboards.spec.ts | Partial: RQD-BROWSER-01 covers all Requester cards/URL/history; staff remains #50 |
-| E2E-05 | E2E | FR-11, FR-13; AC-15 | Mutate then return to dashboard; log out and switch role/user; direct unauthorized URLs | Fresh counts, isolated caches, no previous-user data; role guards and safe permission feedback | e2e/lab-04/requester-dashboard.spec.ts; planned staff dashboards.spec.ts | Partial: RQD-BROWSER-01 and RQD-NAV-01 cover Requester refresh/auth; combined role/account-switch cases remain #53 |
+| E2E-01 | E2E | FR-01..05; AC-01, AC-24 | Staff records multiple actions on one Ticket owned by different staff; assigns, starts, edits, completes; Requester reads | Actors/assignees independent; versions/history consistent; Requester read-only visibility; inactive assignment and validation failures covered | e2e/lab-04/actions-taken-flow.spec.ts | Pass: REG13-BROWSER-01 |
+| E2E-02 | E2E | FR-06, FR-07; AC-09, AC-24 | Create Ticket, progress, advisory indication, blocked Resolve, complete work, resolve, close, reopen and resolve again | Advisory never bypasses gate; new-cycle evidence required after reopen; status/history/dashboard agree | e2e/lab-04/ticket-resolution.spec.ts | Pass: REG13-BROWSER-01 |
+| E2E-03 | E2E | BR-14; AC-10, AC-24 | Cancel Ticket with mixed actions and required reason; view as Requester | Unfinished actions cancelled together, completed evidence retained; no further edits, consistent shared display | e2e/lab-04/ticket-resolution.spec.ts | Pass: REG13-BROWSER-01 |
+| E2E-04 | E2E | FR-09..11; AC-15 | Every Requester/staff metric and action destination; browser refresh/back/forward | Correct list filters and encoded bounds persist; IDs resolve correctly; personal action paging works | e2e/lab-04/requester-dashboard.spec.ts; e2e/lab-04/staff-dashboard.spec.ts; e2e/lab-04/dashboards.spec.ts | Pass: REG13-BROWSER-01 |
+| E2E-05 | E2E | FR-11, FR-13; AC-15 | Mutate then return to dashboard; log out and switch role/user; direct unauthorized URLs | Fresh counts, isolated caches, no previous-user data; role guards and safe permission feedback | e2e/lab-04/requester-dashboard.spec.ts; e2e/lab-04/staff-dashboard.spec.ts; e2e/lab-04/dashboards.spec.ts | Pass: REG13-BROWSER-01 |
 
 ## 8. Migration and Labs 1-3 Regression
 
@@ -309,15 +309,15 @@ SEED-04/06 validate fixture data and the expected SQL oracle; DASH-01..06 remain
 
 ### Existing regression suites
 
-These paths already exist. Their status below refers to the **future Lab 4 regression run**, not earlier lab results. Update tests only for intentional contract changes (real authentication, versions, gate, dashboard landing); do not remove meaningful assertions to obtain a green run.
+These paths already exist. Their status below refers to the Issue #53 feature regression run, not a final-main release certification. Update tests only for intentional contract changes (real authentication, versions, gate, dashboard landing); do not remove meaningful assertions to obtain a green run.
 
 | ID | Type | Requirement / AC | Scenario | Expected result | Existing automated test files | Final |
 |---|---|---|---|---|---|---|
-| REG-01 | Unit/API/UI regression | FR-12, FR-15; AC-21 | Health/category endpoints and initial UI behavior | Health/category behavior preserved under supported app initialization | server/tests/lab-01/health.test.ts; server/tests/lab-01/categories.test.ts; client/tests/lab-01/App.test.tsx | Planned |
-| REG-02 | API/UI/E2E regression | FR-12, FR-13; AC-21 | Create/list/detail/attachments through authenticated Requester | Ownership retained; max 5 active files, 5MB/type limits and reasoned soft removal enforced; removed files inaccessible | server/tests/lab-02/*.test.ts; client/tests/lab-02/*.test.tsx; e2e/lab-02/requester-ticket-flow.spec.ts | Planned |
-| REG-03 | API/UI/E2E regression | FR-13; AC-21 | Login/logout, first-login password change, role navigation and direct API/route guards | Supported authentication behavior preserved; no development identity fallback; new dashboard landing intentional | server/tests/lab-03/auth.api.test.ts; server/tests/lab-03/authorization.api.test.ts; client/tests/lab-03/Login.test.tsx; client/tests/lab-03/ChangePassword.test.tsx; client/tests/lab-03/AppNavigationAndGuards.test.tsx; e2e/lab-03/authentication.spec.ts | Planned |
-| REG-04 | API/UI/E2E regression | FR-12, BR-24; AC-21 | Queue filters, ownership/priority, comments/notes, Requester detail | Existing envelopes/filter behavior retained; privacy and append-only comments/notes remain correct; versions/gate intentionally enforced | server/tests/lab-03/staff-queue.api.test.ts; server/tests/lab-03/staff-ticket-detail.api.test.ts; server/tests/lab-03/comments-notes.api.test.ts; server/tests/lab-03/requester-ticket-detail.api.test.ts; client/tests/lab-03/StaffTicketQueue.test.tsx; client/tests/lab-03/StaffTicketDetail.test.tsx; client/tests/lab-03/RequesterTicketDetail.test.tsx; e2e/lab-03/staff-ticket-flow.spec.ts | Planned |
-| REG-05 | API/UI/E2E regression | FR-13; AC-21 | Admin list/search/create/edit/reset password and self/last-admin restrictions | Original admin rules hold; deactivated/demoted active sessions are revalidated; historical references remain | server/tests/lab-03/users-admin.api.test.ts; client/tests/lab-03/UserManagement.test.tsx; e2e/lab-03/user-administration.spec.ts | Planned |
+| REG-01 | Unit/API/UI regression | FR-12, FR-15; AC-21 | Health/category endpoints and initial UI behavior | Health/category behavior preserved under supported app initialization | server/tests/lab-01/health.test.ts; server/tests/lab-01/categories.test.ts; client/tests/lab-01/App.test.tsx | Pass: REG13-SERVER-01 / REG13-CLIENT-01 / REG13-BROWSER-01 (applicable scopes) |
+| REG-02 | API/UI/E2E regression | FR-12, FR-13; AC-21 | Create/list/detail/attachments through authenticated Requester | Ownership retained; max 5 active files, 5MB/type limits and reasoned soft removal enforced; removed files inaccessible | server/tests/lab-02/*.test.ts; client/tests/lab-02/*.test.tsx; e2e/lab-02/requester-ticket-flow.spec.ts | Pass: REG13-SERVER-01 / REG13-CLIENT-01 / REG13-BROWSER-01 (applicable scopes) |
+| REG-03 | API/UI/E2E regression | FR-13; AC-21 | Login/logout, first-login password change, role navigation and direct API/route guards | Supported authentication behavior preserved; no development identity fallback; new dashboard landing intentional | server/tests/lab-03/auth.api.test.ts; server/tests/lab-03/authorization.api.test.ts; client/tests/lab-03/Login.test.tsx; client/tests/lab-03/ChangePassword.test.tsx; client/tests/lab-03/AppNavigationAndGuards.test.tsx; e2e/lab-03/authentication.spec.ts | Pass: REG13-SERVER-01 / REG13-CLIENT-01 / REG13-BROWSER-01 (applicable scopes) |
+| REG-04 | API/UI/E2E regression | FR-12, BR-24; AC-21 | Queue filters, ownership/priority, comments/notes, Requester detail | Existing envelopes/filter behavior retained; privacy and append-only comments/notes remain correct; versions/gate intentionally enforced | server/tests/lab-03/staff-queue.api.test.ts; server/tests/lab-03/staff-ticket-detail.api.test.ts; server/tests/lab-03/comments-notes.api.test.ts; server/tests/lab-03/requester-ticket-detail.api.test.ts; client/tests/lab-03/StaffTicketQueue.test.tsx; client/tests/lab-03/StaffTicketDetail.test.tsx; client/tests/lab-03/RequesterTicketDetail.test.tsx; e2e/lab-03/staff-ticket-flow.spec.ts | Pass: REG13-SERVER-01 / REG13-CLIENT-01 / REG13-BROWSER-01 (applicable scopes) |
+| REG-05 | API/UI/E2E regression | FR-13; AC-21 | Admin list/search/create/edit/reset password and self/last-admin restrictions | Original admin rules hold; deactivated/demoted active sessions are revalidated; historical references remain | server/tests/lab-03/users-admin.api.test.ts; client/tests/lab-03/UserManagement.test.tsx; e2e/lab-03/user-administration.spec.ts | Pass: REG13-SERVER-01 / REG13-CLIENT-01 / REG13-BROWSER-01 (applicable scopes) |
 
 When enumerating regression evidence, expand wildcard paths into the actual executed files. Update cleanup for new child FKs so old fixtures do not fail simply because revisions/actions now exist. Tests requiring separate datasets must not share mutable seed records across parallel browser projects.
 
@@ -494,3 +494,22 @@ The review corrected measured contrast/label/ARIA failures, the Requester metric
 | UIA-BUILD-01 | Client TypeScript/production build and whitespace | Passed | Build output; git diff --check |
 
 These results support VIS-01/02 and A11Y-01/02 in the tested scope. The guide explicitly records automated/manual limits; no complete screen-reader/WCAG certification is claimed. Commit/push, remote CI, human PR review and merge remain pending the maintainer. Backend hardening results remain Issue #51 evidence, not a newly executed backend run for this UI change.
+
+## Issue #53 E2E and Labs 1–3 regression execution — 2026-10-23
+
+Branch `feature/lab4-13-e2e-regression`, pulled staging base `fc56ed80758b854d2d60b0b9fc41bcbb1dfbf96d`. [Coverage, changes and reproduction](e2e-regression.md); [persisted per-file execution summary](../../artifacts/lab-04/regression/execution-summary.json). Results apply to the feature working tree; no commit/push, remote CI, reviewed PR or final-main release is claimed.
+
+| Evidence ID | Scope / command | Actual result | Evidence |
+|---|---|---|---|
+| REG13-SERVER-01 | Full `vitest.regression.config.ts`, explicit disposable PostgreSQL database; all Labs 1–4 and opt-in suites | 424 passed, 0 failed/skipped; 24 files, 81.46s | test-results/lab4-regression-server.xml; persisted summary |
+| REG13-CLIENT-01 | Full client Vitest, default + JUnit reporters | 228 passed, 0 failed/skipped; 21 files, 8.98s | test-results/lab4-regression-client.xml |
+| REG13-BROWSER-01 | `npx playwright test --config=playwright.regression.config.ts`; real API/UI, independent UI database, one worker, no retries | 90 passed, 0 failed/skipped; 30 per Chromium/Firefox/WebKit, 298.78s | artifacts/lab-04/regression/browser.xml; execution-summary.json |
+| REG13-AXE-01 | Role/shared/legacy screens and dialog scans within the full browser run | 84 unique scans, 0 detected violations; 54 incomplete rule occurrences retained | Persisted per-state summary; duplicate attachment copies excluded from scan count |
+| REG13-PERF-01 | Existing 10k Ticket/30k Action fixture and per-role p95/query-bound assertions, included in the 424 API cases | Passed; synthetic local smoke, not production capacity certification | artifacts/lab-04/regression/dashboard-performance.json |
+| REG13-BUILD-01 | Server and client TypeScript/production builds; whitespace review | Passed | Local build output; git diff --check |
+
+The initial backend run passed 422/423; SEED-04 failed because the SQL oracle implicitly used the PostgreSQL session timezone. Explicit UTC bounds plus a new UTC/Asia/Bangkok transaction-local regression passed in the final 424-case run. Expected counts and application behavior were unchanged. A preliminary Chromium selection passed 3/3 before the full browser run. Existing client tests emit React `act` warnings; their assertions all passed.
+
+E2E-01 now includes distinct staff/admin performers and follow-up validation. E2E-02 now checks resolved Ticket status against both dashboards after the complete reopen lifecycle. E2E-05 reuses one browser across two Requesters, staff, admin and the original Requester, including private-data absence and logout/back guards. REG-01..05 were rerun, with exact paths/counts in the persisted summary. Full regression uses the same explicit UI URL for legacy fixture helpers and the backend.
+
+Native browser-menu zoom, complete assistive-technology certification, MIG-05 actual deployment/file recovery and REL-01/02 final-main/review evidence remain pending their release scope. This run retains the existing reviewed screenshot baselines; generated local images are not treated as new visual approvals.

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { beforeAll, afterAll, afterEach, describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -28,12 +28,14 @@ function seedCli(url: string, fixtureProfile?: string) {
   return result.stdout;
 }
 
-async function requesterMetrics(db: PrismaClient, requesterId: string, since: Date, asOf: Date) {
+// Prisma Date parameters are timestamptz; schema DateTime columns store UTC
+// timestamps without timezone. Normalize explicitly, independent of server TZ.
+async function requesterMetrics(db: Prisma.TransactionClient, requesterId: string, since: Date, asOf: Date) {
   const rows = await db.$queryRaw<Record<string, number>[]>`
     SELECT count(*) FILTER (WHERE "currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened'))::int AS "openTickets",
       count(*) FILTER (WHERE "currentStatus" = 'Waiting for Requester')::int AS "waitingForRequester",
-      count(*) FILTER (WHERE "updatedAt" >= ${since} AND "updatedAt" < ${asOf})::int AS "recentlyUpdated",
-      count(*) FILTER (WHERE "currentStatus" IN ('Resolved','Closed') AND "resolvedAt" >= ${since} AND "resolvedAt" < ${asOf})::int AS "recentlyResolved"
+      count(*) FILTER (WHERE "updatedAt" >= (${since}::timestamptz AT TIME ZONE 'UTC') AND "updatedAt" < (${asOf}::timestamptz AT TIME ZONE 'UTC'))::int AS "recentlyUpdated",
+      count(*) FILTER (WHERE "currentStatus" IN ('Resolved','Closed') AND "resolvedAt" >= (${since}::timestamptz AT TIME ZONE 'UTC') AND "resolvedAt" < (${asOf}::timestamptz AT TIME ZONE 'UTC'))::int AS "recentlyResolved"
     FROM "Ticket" WHERE "requesterId" = ${requesterId}`;
   return rows[0];
 }
@@ -130,6 +132,15 @@ describe.skipIf(!databaseUrl).sequential('Lab 4 seed and dashboard fixtures', ()
     expect(await snapshot(db)).toEqual(before);
   }, 60_000);
 
+  it('SEED-04: UTC timestamp oracle is independent of PostgreSQL session timezone', async () => {
+    for (const timezone of ['UTC', 'Asia/Bangkok']) {
+      await metrics.$transaction(async tx => {
+        await tx.$queryRaw`SELECT set_config('TimeZone', ${timezone}, true)`;
+        expect(await requesterMetrics(tx, fixtureId('dashboard', 'R1'), new Date('2026-10-13T17:00:00Z'), fixtureAsOf)).toEqual({ openTickets: 4, waitingForRequester: 1, recentlyUpdated: 6, recentlyResolved: 2 });
+      });
+    }
+  });
+
   it('SEED-04: independent SQL proves the documented requester/staff counts, ordering and ownership predicates', async () => {
     const since = new Date('2026-10-13T17:00:00.000Z');
     const r1 = fixtureId('dashboard', 'R1'), r2 = fixtureId('dashboard', 'R2'), r0 = fixtureId('dashboard', 'R0');
@@ -140,15 +151,15 @@ describe.skipIf(!databaseUrl).sequential('Lab 4 seed and dashboard fixtures', ()
     const staff = await metrics.$queryRaw<Record<string, number>[]>`SELECT
       count(*) FILTER (WHERE "currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened') AND "ownerId" IS NULL)::int AS unassigned,
       count(*) FILTER (WHERE "currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened') AND "ownerId" = ${s1})::int AS mine,
-      count(*) FILTER (WHERE "updatedAt" >= ${since} AND "updatedAt" < ${fixtureAsOf})::int AS recent FROM "Ticket"`;
+      count(*) FILTER (WHERE "updatedAt" >= (${since}::timestamptz AT TIME ZONE 'UTC') AND "updatedAt" < (${fixtureAsOf}::timestamptz AT TIME ZONE 'UTC'))::int AS recent FROM "Ticket"`;
     expect(staff).toEqual([{ unassigned: 2, mine: 2, recent: 8 }]);
     const byStatus = await metrics.$queryRaw<{ label: string; count: number }[]>`SELECT "currentStatus" AS label, count(*)::int AS count FROM "Ticket" GROUP BY "currentStatus"`;
     expect(Object.fromEntries(byStatus.map(x => [x.label, x.count]))).toEqual({ New: 1, Open: 1, 'In Progress': 1, 'Waiting for Requester': 1, Resolved: 3, Closed: 2, Reopened: 1, Cancelled: 1 });
     const byPriority = await metrics.$queryRaw<{ label: string; count: number }[]>`SELECT coalesce("itPriority", "requestedPriority") AS label, count(*)::int AS count FROM "Ticket" WHERE "currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened') GROUP BY coalesce("itPriority", "requestedPriority")`;
     expect(Object.fromEntries(byPriority.map(x => [x.label, x.count]))).toEqual({ Low: 1, Medium: 1, High: 3 });
     const aliases = (rows: { ticketNumber: string }[]) => rows.map(t => t.ticketNumber.split('-').at(-1));
-    expect(aliases(await metrics.$queryRaw`SELECT "ticketNumber" FROM "Ticket" WHERE "requesterId" = ${r1} AND "updatedAt" >= ${since} AND "updatedAt" < ${fixtureAsOf} ORDER BY "updatedAt" DESC, id DESC LIMIT 5`)).toEqual(['T11', 'T4', 'T6', 'T5', 'T3']);
-    expect(aliases(await metrics.$queryRaw`SELECT "ticketNumber" FROM "Ticket" WHERE "updatedAt" >= ${since} AND "updatedAt" < ${fixtureAsOf} ORDER BY "updatedAt" DESC, id DESC LIMIT 5`)).toEqual(['T11', 'T4', 'T9', 'T8', 'T6']);
+    expect(aliases(await metrics.$queryRaw`SELECT "ticketNumber" FROM "Ticket" WHERE "requesterId" = ${r1} AND "updatedAt" >= (${since}::timestamptz AT TIME ZONE 'UTC') AND "updatedAt" < (${fixtureAsOf}::timestamptz AT TIME ZONE 'UTC') ORDER BY "updatedAt" DESC, id DESC LIMIT 5`)).toEqual(['T11', 'T4', 'T6', 'T5', 'T3']);
+    expect(aliases(await metrics.$queryRaw`SELECT "ticketNumber" FROM "Ticket" WHERE "updatedAt" >= (${since}::timestamptz AT TIME ZONE 'UTC') AND "updatedAt" < (${fixtureAsOf}::timestamptz AT TIME ZONE 'UTC') ORDER BY "updatedAt" DESC, id DESC LIMIT 5`)).toEqual(['T11', 'T4', 'T9', 'T8', 'T6']);
     expect(aliases(await metrics.$queryRaw`SELECT "ticketNumber" FROM "Ticket" WHERE "currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened') AND coalesce("itPriority", "requestedPriority") = 'High' ORDER BY "updatedAt" DESC, id DESC LIMIT 5`)).toEqual(['T7', 'T4', 'T3']);
     const activeActions = await metrics.$queryRaw<{ id: string }[]>`SELECT a.id FROM "ActionTaken" a JOIN "Ticket" t ON t.id=a."ticketId" WHERE a."assigneeId" = ${s1} AND a.status IN ('PLANNED','IN_PROGRESS') AND a."resolutionCycle"=t."resolutionCycle" AND t."currentStatus" IN ('New','Open','In Progress','Waiting for Requester','Reopened') ORDER BY a."actionAt" DESC, a.id DESC`;
     expect(activeActions.map(x => x.id)).toEqual(['X6', 'X2', 'X1'].map(alias => fixtureId('dashboard', alias)));

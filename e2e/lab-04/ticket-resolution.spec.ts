@@ -124,6 +124,14 @@ test('E2E-02: create, advisory, gated resolve, close, reopen and resolve with ne
   await expect(page.getByRole('row').filter({ hasText: summary }).getByText('Resolved', { exact: true })).toBeVisible();
   await requester.getByRole('link', { name: /My Tickets/ }).click();
   await expect(requester.getByRole('row').filter({ hasText: summary }).getByText('Resolved', { exact: true })).toBeVisible();
+  await requester.getByRole('link', { name: 'Dashboard', exact: true }).click();
+  await expect(requester.getByRole('link', { name: 'Open tickets 0', exact: true })).toBeVisible();
+  await requester.getByRole('link', { name: 'Resolved in last 7 days 1', exact: true }).click();
+  await expect(requester.getByRole('row').filter({ hasText: summary }).getByText('Resolved', { exact: true })).toBeVisible();
+  const resolvedCount = await db!.ticket.count({ where: { currentStatus: 'Resolved' } });
+  await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
+  await page.getByRole('region', { name: 'Tickets by status' }).getByRole('link', { name: `Resolved: ${resolvedCount}`, exact: true }).click();
+  await expect(page.getByRole('row').filter({ hasText: summary }).getByText('Resolved', { exact: true })).toBeVisible();
   await requesterContext.close();
 });
 

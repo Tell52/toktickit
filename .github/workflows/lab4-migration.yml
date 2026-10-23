@@ -28,7 +28,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      LAB4_MIGRATION_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+      LAB4_REGRESSION_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
       # Schema validation/generation needs a URL; this is also disposable.
       DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
     steps:
@@ -42,41 +42,22 @@ jobs:
         run: |
           npx prisma validate
           npx prisma generate
-      - name: Exercise migrations, repeatable seeds, metric fixtures and recovery
+      - name: Prepare disposable legacy regression database
+        working-directory: server
+        run: |
+          npx prisma migrate deploy
+          npm run prisma:seed
+      - run: npm run build --prefix server
+      - name: Verify all Labs 1-4 API, migration, seed, security and concurrency suites
         working-directory: server
         env:
           LAB4_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
-        run: npm run test:migration -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-migration.xml
-      - run: npm run build --prefix server
-      - name: Verify Actions API and validation on an isolated database
-        working-directory: server
-        env:
-          LAB4_ACTIONS_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
-        run: npm run test:actions -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-actions.xml
-      - name: Verify Ticket workflow, resolution gates and transaction races
-        working-directory: server
-        env:
-          LAB4_WORKFLOW_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
-        run: npm run test:workflow -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-workflow.xml
-      - name: Verify Requester dashboard metrics, ownership and drill-down
-        working-directory: server
-        env:
-          LAB4_DASHBOARD_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
-        run: npm run test:dashboard -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-requester-dashboard-api.xml
-      - name: Verify direct API security, concurrency and bounded dashboard performance
-        working-directory: server
-        env:
-          LAB4_SECURITY_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
-        run: npm run test:hardening -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-security.xml
+        run: npm run test:regression -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-regression-server.xml
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: lab4-migration-results
           path: |
-            test-results/lab4-migration.xml
-            test-results/lab4-actions.xml
-            test-results/lab4-workflow.xml
-            test-results/lab4-requester-dashboard-api.xml
-            test-results/lab4-security.xml
+            test-results/lab4-regression-server.xml
             test-results/lab4-dashboard-performance.json
           retention-days: 30
