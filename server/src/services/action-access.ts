@@ -10,16 +10,20 @@ export function assertBusinessUser(user: { isActive: boolean; mustChangePassword
   if (staffOnly && !staffRoles.includes(user.role)) throw new ApiError(403, 'FORBIDDEN', 'You do not have permission to perform this action.');
 }
 export const businessUserSelect = { id: true, name: true, email: true, role: true, isActive: true, mustChangePassword: true } as const;
-export const requireCurrentBusinessUser = async (req: Request, res: Response, next: NextFunction) => {
+function currentSession(allowPasswordChange: boolean) { return async (req: Request, res: Response, next: NextFunction) => {
   try {
+    res.set('Cache-Control', 'no-store');
     if (!req.session?.user) throw new ApiError(401, 'UNAUTHENTICATED', 'Please log in to continue.');
     const user = await getPrisma().user.findUnique({ where: { id: req.session.user.id }, select: businessUserSelect });
-    assertBusinessUser(user);
+    assertBusinessUser(user && allowPasswordChange ? { ...user, mustChangePassword: false } : user);
     const { isActive, ...sessionUser } = user!;
     req.session.user = sessionUser;
     next();
   } catch (error) { sendApiError(res, error); }
-};
+}; }
+export const requireCurrentBusinessUser = currentSession(false);
+// Forced-change users still need /me and change-password to recover their account.
+export const requireCurrentSession = currentSession(true);
 export async function lockActionUsers(tx: Prisma.TransactionClient, actorId: string, assigneeId: string) {
   const users = await tx.$queryRaw<{ id: string; role: string; isActive: boolean; mustChangePassword: boolean }[]>(Prisma.sql`
     SELECT "id", "role", "isActive", "mustChangePassword" FROM "User"

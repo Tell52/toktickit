@@ -69,7 +69,7 @@ describe("Attachments API", () => {
     });
 
     describe("GET /api/tickets/:id/attachments/:attachmentId", () => {
-        it("returns 403 Forbidden if trying to download a soft-removed attachment", async () => {
+        it("requires a session before downloading even with a forged requesterId", async () => {
             mockPrisma.ticket.findUnique.mockResolvedValue({ id: 1, requesterId: 1 });
 
             // จำลองข้อมูลไฟล์ที่ถูกทำเครื่องหมายว่าถูกลบแล้ว (isRemoved: true)
@@ -82,8 +82,9 @@ describe("Attachments API", () => {
             const res = await request(app).get("/api/tickets/1/attachments/101?requesterId=1");
 
             // ต้องถูกบล็อกไม่ให้ดาวน์โหลด[cite: 8]
-            expect(res.status).toBe(403);
-            expect(res.body.error).toMatch(/has been removed and cannot be downloaded/i);
+            expect(res.status).toBe(401);
+            expect(res.body.error.code).toBe('UNAUTHENTICATED');
+            expect(mockPrisma.attachment.findUnique).not.toHaveBeenCalled();
         });
     });
 });

@@ -360,61 +360,20 @@ describe('Administrator User Management API Tests (Lab 3)', () => {
       expect(dbUser?.isActive).toBe(true);
     });
 
-    it('prevents deactivating the last remaining active Administrator (API-17, LAST_ACTIVE_ADMIN)', async () => {
-      // First, find all active admins except adminUser and temporarily deactivate them
-      const otherAdmins = await prisma.user.findMany({
-        where: {
-          role: 'ADMINISTRATOR',
-          isActive: true,
-          id: { not: adminUser.id },
-        },
-      });
-
-      if (otherAdmins.length > 0) {
-        await prisma.user.updateMany({
-          where: { id: { in: otherAdmins.map((a) => a.id) } },
-          data: { isActive: false },
-        });
-      }
-
-      // Create a second admin to test deactivating
-      const passwordHash = await bcrypt.hash('Str0ng!Pass1', 10);
-      const soloAdmin = await prisma.user.create({
-        data: {
-          name: 'Solo Admin',
-          email: 'solo.admin@toktickit.com',
-          role: 'ADMINISTRATOR',
-          isActive: true,
-          passwordHash,
-        },
-      });
-
-      // Now deactivate adminUser's active status from DB directly to simulate soloAdmin being the only active admin
-      await prisma.user.update({
-        where: { id: adminUser.id },
-        data: { isActive: false },
-      });
-
-      // Now try to deactivate soloAdmin via API using adminCookie (even though session user is inactive in DB, token is valid)
-      const res = await request(app)
-        .patch(`/api/admin/users/${soloAdmin.id}`)
-        .set('Cookie', adminCookie)
-        .set('x-csrf-token', adminCsrf)
-        .send({ isActive: false });
-
-      expect(res.status).toBe(409);
-      expect(res.body.error.code).toBe('LAST_ACTIVE_ADMIN');
-
-      // Restore adminUser and other admins
-      await prisma.user.update({
-        where: { id: adminUser.id },
-        data: { isActive: true },
-      });
-      if (otherAdmins.length > 0) {
-        await prisma.user.updateMany({
-          where: { id: { in: otherAdmins.map((a) => a.id) } },
-          data: { isActive: true },
-        });
+    it('prevents demoting the last active Administrator using that active account (API-17)', async () => {
+      const otherAdmins = await prisma.user.findMany({ where: { role: 'ADMINISTRATOR', isActive: true, id: { not: adminUser.id } } });
+      try {
+        await prisma.user.updateMany({ where: { id: { in: otherAdmins.map(a => a.id) } }, data: { isActive: false } });
+        // An inactive session is no longer authorized. The remaining active admin
+        // exercises LAST_ACTIVE_ADMIN through self-demotion; self-deactivation
+        // is covered separately by CANNOT_DEACTIVATE_SELF above.
+        const res = await request(app).patch(`/api/admin/users/${adminUser.id}`)
+          .set('Cookie', adminCookie).set('x-csrf-token', adminCsrf).send({ role: 'REQUESTER' });
+        expect(res.status).toBe(409);
+        expect(res.body.error.code).toBe('LAST_ACTIVE_ADMIN');
+        expect((await prisma.user.findUniqueOrThrow({ where: { id: adminUser.id } })).role).toBe('ADMINISTRATOR');
+      } finally {
+        await prisma.user.updateMany({ where: { id: { in: otherAdmins.map(a => a.id) } }, data: { isActive: true } });
       }
     });
   });

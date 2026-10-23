@@ -67,7 +67,12 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
             setCreatedTicketNumber(newTicket.ticketNumber);
             setStatus("success");
         } catch (error: any) {
-            setApiError(error.message || "Failed to create ticket.");
+            const failure = error?.error;
+            if (failure?.code === 'VALIDATION_ERROR' && failure.fields) setValidationErrors(failure.fields);
+            setApiError(failure?.code === 'PASSWORD_CHANGE_REQUIRED' ? 'Change your password before creating a ticket.'
+                : error?.status === 401 ? 'Your session has ended. Please sign in again.'
+                : error?.status === 403 ? 'You do not have permission to create a ticket.'
+                : error?.status === 400 ? 'Please correct the highlighted fields.' : 'Failed to create ticket. Please try again.');
             setStatus("error");
         }
     }
