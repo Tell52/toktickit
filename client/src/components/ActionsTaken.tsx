@@ -244,7 +244,7 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
         <button disabled={page <= 1 || busy || loading || !!uncertain} onClick={() => { if (canLeave()) { closeForm(); setSelected(null); setPage(page - 1); void load(page - 1); } }}>Previous actions</button>
         <button disabled={page * data.pagination.pageSize >= data.pagination.totalCount || busy || loading || !!uncertain} onClick={() => { if (canLeave()) { closeForm(); setSelected(null); setPage(page + 1); void load(page + 1); } }}>Next actions</button>
       </div></div>}
-      {selected && !mode && <div className="action-detail" aria-label="Action details"><h4>Action details</h4><ActionValues action={selected} />
+      {selected && !mode && <div className="action-detail" role="region" aria-label="Action details"><h4>Action details</h4><ActionValues action={selected} />
         {selected.resolutionCycle !== data.resolutionCycle && <p>Previous resolution cycle — read-only</p>}
         {!selected.assignee.isActive && ['PLANNED', 'IN_PROGRESS'].includes(selected.status) && <p>Reassign this action to active staff before completion.</p>}
         <div className="action-buttons">
@@ -255,7 +255,7 @@ export default function ActionsTaken({ ticketId, ticketStatus, ticketCreatedAt, 
         </div>
         {historyBusy && <p role="status">Loading change history…</p>}
         {historyError && <div role="alert">Change history could not be loaded. <button onClick={() => void loadHistory()}>Retry history</button></div>}
-        {staff && history && <div aria-label="Change history"><h4>Change history</h4>{history.revisions.map(revision => <details key={revision.revision}><summary>Revision {revision.revision} · {revision.actor.name} · {dateLabel(revision.createdAt)}</summary><dl>{Object.entries(revision.snapshot).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value === null ? 'None' : typeof value === 'boolean' ? value ? 'Yes' : 'No' : String(value)}</dd></div>)}</dl></details>)}
+        {staff && history && <div role="group" aria-label="Change history"><h4>Change history</h4>{history.revisions.map(revision => <details key={revision.revision}><summary>Revision {revision.revision} · {revision.actor.name} · {dateLabel(revision.createdAt)}</summary><dl>{Object.entries(revision.snapshot).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value === null ? 'None' : typeof value === 'boolean' ? value ? 'Yes' : 'No' : String(value)}</dd></div>)}</dl></details>)}
           <div className="action-buttons"><button disabled={historyBusy || history.pagination.page <= 1} onClick={() => void loadHistory(history.pagination.page - 1)}>Previous revisions</button><button disabled={historyBusy || history.pagination.page * history.pagination.pageSize >= history.pagination.totalCount} onClick={() => void loadHistory(history.pagination.page + 1)}>Next revisions</button></div>
         </div>}
       </div>}

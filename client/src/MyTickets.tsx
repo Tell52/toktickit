@@ -1,3 +1,4 @@
+import { StatusBadge } from './components/StaffTicketQueue.js';
 import { useState, useEffect } from "react";
 import { getMyTickets } from "./api.js";
 import { accessFailure } from "./workflow-feedback";
@@ -97,7 +98,7 @@ export default function MyTickets({ requesterId, onViewTicket, query, onNavigate
                 </div>
             </div>
 
-            <div className="d-flex flex-wrap gap-2 mb-3" aria-label="Applied ticket filters">
+            <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Applied ticket filters">
                 {Object.entries(chipNames).filter(([key]) => params.has(key)).map(([key, label]) => <span className="badge bg-light text-dark border" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }} key={key}>{label}: {params.get(key)}</span>)}
             </div>
             {/* 4. การจัดการ UI States ต่างๆ */}
@@ -144,9 +145,7 @@ export default function MyTickets({ requesterId, onViewTicket, query, onNavigate
 
                                         <td>{ticket.category.name}</td>
                                         <td>
-                                            <span className="badge bg-success bg-opacity-75">
-                                                {ticket.currentStatus}
-                                            </span>
+                                            <StatusBadge status={ticket.currentStatus} />
                                         </td>
                                     </tr>
                                 ))}
@@ -161,7 +160,7 @@ export default function MyTickets({ requesterId, onViewTicket, query, onNavigate
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between mb-2">
                                         <span className="fw-bold" style={{ color: "#006B3C" }}>{ticket.ticketNumber}</span>
-                                        <span className="badge bg-success bg-opacity-75">{ticket.currentStatus}</span>
+                                        <StatusBadge status={ticket.currentStatus} />
                                     </div>
 
                                     {/* แก้ไขที่ 2 (Mobile): ทำให้ Summary กดคลิกได้ */}

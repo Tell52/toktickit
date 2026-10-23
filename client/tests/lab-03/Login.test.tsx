@@ -85,7 +85,7 @@ describe("Login Component (UI-01)", () => {
 
       fireEvent.click(forgotLink);
       expect(
-        screen.getByText(/Password reset via email is not available in this version/i)
+        screen.getByText(/Contact your Administrator to reset your password/i)
       ).toBeInTheDocument();
     });
   });

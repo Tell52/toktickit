@@ -1,3 +1,4 @@
+import AttachmentReference from './components/AttachmentReference';
 import React, { useState, useEffect, useRef } from "react";
 import {
   getTicketDetail,
@@ -6,6 +7,7 @@ import {
   createComment,
   indicateResolved,
 } from "./api.js";
+import { StatusBadge, PriorityBadge } from './components/StaffTicketQueue.js';
 import { RoleBadge } from "./App.js";
 import ActionsTaken from './components/ActionsTaken';
 import TicketStatusHistory from './components/TicketStatusHistory';
@@ -51,94 +53,6 @@ interface Ticket {
   comments?: Comment[];
   category: { name: string };
   relatedSystem: { name: string };
-}
-
-// Helper badge function for Ticket Status
-function StatusBadge({ status }: { status: string }) {
-  const norm = (status || "").toUpperCase().replace(/\s+/g, "_");
-  let bg = "#F1F3F5";
-  let color = "#495057";
-  let border = "#CED4DA";
-
-  if (norm === "NEW") {
-    bg = "#F8F9FA";
-    color = "#6C757D";
-    border = "#6C757D";
-  } else if (norm === "OPEN") {
-    bg = "#EBF5FF";
-    color = "#0D6EFD";
-    border = "#0D6EFD";
-  } else if (norm === "IN_PROGRESS") {
-    bg = "#FFFBEB";
-    color = "#D97706";
-    border = "#D97706";
-  } else if (norm === "WAITING_FOR_REQUESTER") {
-    bg = "#F3E8FF";
-    color = "#7C3AED";
-    border = "#7C3AED";
-  } else if (norm === "RESOLVED") {
-    bg = "#EAF6EF";
-    color = "#006B3C";
-    border = "#006B3C";
-  } else if (norm === "CLOSED") {
-    bg = "#E9ECEF";
-    color = "#495057";
-    border = "#495057";
-  } else if (norm === "REOPENED") {
-    bg = "#FFF4E6";
-    color = "#FD7E14";
-    border = "#FD7E14";
-  } else if (norm === "CANCELLED") {
-    bg = "#FEE2E2";
-    color = "#DC2626";
-    border = "#DC2626";
-  }
-
-  return (
-    <span
-      className="badge px-2 py-1"
-      style={{
-        backgroundColor: bg,
-        color,
-        border: `1px solid ${border}`,
-        fontWeight: 600,
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-// Helper badge function for Priority
-function PriorityBadge({ priority }: { priority: string }) {
-  const norm = (priority || "").toUpperCase();
-  let bg = "#EAF6EF";
-  let color = "#006B3C";
-  let border = "#006B3C";
-
-  if (norm === "HIGH") {
-    bg = "#FEE2E2";
-    color = "#DC2626";
-    border = "#DC2626";
-  } else if (norm === "MEDIUM") {
-    bg = "#FFFBEB";
-    color = "#D97706";
-    border = "#D97706";
-  }
-
-  return (
-    <span
-      className="badge px-2 py-1"
-      style={{
-        backgroundColor: bg,
-        color,
-        border: `1px solid ${border}`,
-        fontWeight: 600,
-      }}
-    >
-      {priority}
-    </span>
-  );
 }
 
 export default function RequesterTicketDetail({
@@ -285,7 +199,7 @@ export default function RequesterTicketDetail({
 
   if (error && !ticket) {
     return (
-      <div className="container py-4">
+      <div className="requester-ticket-detail container py-4">
         <div className="alert alert-danger" role="alert">
           Error: {error}
         </div>
@@ -324,7 +238,7 @@ export default function RequesterTicketDetail({
   );
 
   return (
-    <div className="container py-4">
+    <div className="requester-ticket-detail container py-4">
       {error && <div role="alert">{error}<button type="button" onClick={() => void fetchTicket().catch(() => {})}>Retry loading ticket</button></div>}
       {indicatorError && !showResolvedDialog && <div role="alert">{indicatorError}<button type="button" disabled={resolvingIndicator} onClick={() => void refreshIndicator()}>Load latest ticket</button></div>}
       {/* Header with Title and Status/Priority Badges */}
@@ -333,7 +247,7 @@ export default function RequesterTicketDetail({
           <h2 className="mb-1 fw-bold" style={{ color: "#006B3C" }}>
             Ticket Details: {ticket.ticketNumber}
           </h2>
-          <div className="d-flex align-items-center gap-2 mt-2">
+          <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
             <span className="text-muted small">Status:</span>
             <StatusBadge status={ticket.currentStatus} />
             <span className="text-muted small ms-2">Priority:</span>
@@ -411,9 +325,8 @@ export default function RequesterTicketDetail({
         <div className="card-body p-4">
           <div className="row g-3">
             <div className="col-md-6">
-              <label className="form-label text-muted small fw-semibold">Summary</label>
-              <input
-                type="text"
+              <label htmlFor="ticket-summary" className="form-label text-muted small fw-semibold">Summary</label>
+              <textarea id="ticket-summary" rows={2}
                 className="form-control"
                 value={ticket.summary}
                 readOnly
@@ -421,8 +334,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label text-muted small fw-semibold">Status</label>
-              <input
+              <label htmlFor="ticket-status" className="form-label text-muted small fw-semibold">Status</label>
+              <input id="ticket-status"
                 type="text"
                 className="form-control"
                 value={ticket.currentStatus}
@@ -431,8 +344,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Category</label>
-              <input
+              <label htmlFor="ticket-category" className="form-label text-muted small fw-semibold">Category</label>
+              <input id="ticket-category"
                 type="text"
                 className="form-control"
                 value={ticket.category?.name || ""}
@@ -441,8 +354,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Related System</label>
-              <input
+              <label htmlFor="ticket-related-system" className="form-label text-muted small fw-semibold">Related System</label>
+              <input id="ticket-related-system"
                 type="text"
                 className="form-control"
                 value={ticket.relatedSystem?.name || ""}
@@ -451,8 +364,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Priority</label>
-              <input
+              <label htmlFor="ticket-priority" className="form-label text-muted small fw-semibold">Priority</label>
+              <input id="ticket-priority"
                 type="text"
                 className="form-control"
                 value={ticket.requestedPriority}
@@ -461,8 +374,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-12">
-              <label className="form-label text-muted small fw-semibold">Description</label>
-              <textarea
+              <label htmlFor="ticket-description" className="form-label text-muted small fw-semibold">Description</label>
+              <textarea id="ticket-description"
                 className="form-control"
                 rows={4}
                 value={ticket.description}
@@ -479,7 +392,7 @@ export default function RequesterTicketDetail({
       {/* ======================================================== */}
       <div className="card shadow-sm border-0 mb-4" style={{ borderRadius: 12 }}>
         <div className="card-body p-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
             <h5 className="mb-0 fw-bold" style={{ color: "#006B3C" }}>
               Public Comments ({sortedComments.length})
             </h5>
@@ -563,8 +476,9 @@ export default function RequesterTicketDetail({
           </h5>
 
           {/* ฟอร์มอัปโหลดไฟล์ */}
+          <label htmlFor="ticket-attachment" className="form-label">Add a Ticket attachment (JPG, PNG, WebP or PDF; up to 5 MB)</label>
           <div className="d-flex align-items-center mb-4 mt-2 flex-wrap gap-2">
-            <input
+            <input id="ticket-attachment"
               type="file"
               className="form-control"
               onChange={(e) => setSelectedFile(e.target.files ? e.target.files[0] : null)}
@@ -592,9 +506,9 @@ export default function RequesterTicketDetail({
             {(ticket.attachments || []).map((att) => (
               <li
                 key={att.id}
-                className="list-group-item d-flex justify-content-between align-items-start p-3"
+                className="list-group-item d-flex flex-wrap gap-2 justify-content-between align-items-start p-3"
               >
-                <div>
+                <div className="flex-grow-1" style={{ flexBasis: '12rem', minWidth: 0 }}>
                   {att.isRemoved ? (
                     // กรณี Soft-remove: แสดงแค่ข้อมูล ห้ามมีลิงก์ดาวน์โหลด
                     <div>
@@ -604,26 +518,20 @@ export default function RequesterTicketDetail({
                     </div>
                   ) : (
                     // กรณี Active: แสดงชื่อไฟล์และลิงก์
-                    <a
-                      href={att.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: "#006B3C", fontWeight: "600", textDecoration: "none" }}
-                    >
-                      📎 <span>{att.fileName}</span>
-                    </a>
+                    <AttachmentReference fileName={att.fileName} fileUrl={att.fileUrl} />
                   )}
                 </div>
 
                 {/* ปุ่มลบไฟล์ สำหรับไฟล์ที่ยัง Active */}
                 {!att.isRemoved && (
-                  <div>
+                  <div style={{ maxWidth: '100%', flexShrink: 0 }}>
                     {removingId === att.id ? (
                       <div className="input-group input-group-sm" style={{ maxWidth: 300 }}>
                         <input
                           type="text"
                           className="form-control"
                           placeholder="Reason for removal..."
+                          aria-label={`Removal reason for ${att.fileName}`}
                           value={removalReason}
                           onChange={(e) => setRemovalReason(e.target.value)}
                         />

@@ -467,7 +467,7 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
   // 8. Attachments Tab
   // ---------------------------------------------------------------------------
   describe("Attachments Tab", () => {
-    it("renders attachment list with file details and download links", async () => {
+    it("renders attachment metadata without a dead upload link", async () => {
       render(<StaffTicketDetail currentUser={{ id: "staff-1", name: "Sarah Tech", role: "IT_STAFF" }} ticketId="101" />);
 
       await waitFor(() => {
@@ -480,10 +480,8 @@ describe("StaffTicketDetail Component (Lab 3)", () => {
         expect(screen.getByTestId("attachments-panel")).toBeInTheDocument();
         expect(screen.getByText("network_log.txt")).toBeInTheDocument();
         expect(screen.getByText(/2.0 KB · text\/plain/i)).toBeInTheDocument();
-        expect(screen.getByRole("link", { name: /download \/ view/i })).toHaveAttribute(
-          "href",
-          "/uploads/network_log.txt"
-        );
+        expect(screen.getByText(/Download unavailable/)).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /download \/ view/i })).not.toBeInTheDocument();
       });
     });
 

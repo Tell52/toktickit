@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import AttachmentReference from './AttachmentReference';
+import React, { useState, useEffect, useCallback, useRef, useId } from "react";
 import {
   getStaffTicketDetail,
   createComment,
@@ -30,6 +31,7 @@ export default function StaffTicketDetail({
 }: StaffTicketDetailProps) {
   const [ticket, setTicket] = useState<StaffTicketDetailData | null>(null);
   const [staffUsers, setStaffUsers] = useState<StaffUserItem[]>([]);
+  const tabsId = useId();
   const [activeTab, setActiveTab] = useState<"comments" | "notes" | "attachments">("comments");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -277,7 +279,7 @@ export default function StaffTicketDetail({
           {/* Section 5: Tabbed Section (Public Comments · Internal Notes · Attachments) */}
           <div className="mt-4">
             {/* Tabs Header */}
-            <ul className="nav nav-tabs mb-3" role="tablist">
+            <ul className="nav nav-tabs mb-3" role="tablist" aria-label="Ticket conversation and attachments">
               {/* Public Comments Tab */}
               <li className="nav-item" role="presentation">
                 <button
@@ -285,6 +287,14 @@ export default function StaffTicketDetail({
                   onClick={() => setActiveTab("comments")}
                   type="button"
                   data-testid="tab-public-comments"
+                  role="tab" id={`${tabsId}-comments-tab`} aria-controls={`${tabsId}-comments-panel`} aria-selected={activeTab === 'comments'} tabIndex={activeTab === 'comments' ? 0 : -1}
+                  onKeyDown={event => {
+                    const order = ['comments', 'notes', 'attachments'] as const;
+                    const index = order.indexOf('comments');
+                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : event.key === 'ArrowRight' ? (index + 1) % 3 : event.key === 'ArrowLeft' ? (index + 2) % 3 : -1;
+                    if (next < 0) return;
+                    event.preventDefault(); setActiveTab(order[next]); document.getElementById(`${tabsId}-${order[next]}-tab`)?.focus();
+                  }}
                   style={{
                     borderColor: activeTab === "comments" ? "#006B3C #006B3C #FFFFFF" : undefined,
                     borderTopWidth: activeTab === "comments" ? 3 : 1,
@@ -301,6 +311,14 @@ export default function StaffTicketDetail({
                   onClick={() => setActiveTab("notes")}
                   type="button"
                   data-testid="tab-internal-notes"
+                  role="tab" id={`${tabsId}-notes-tab`} aria-controls={`${tabsId}-notes-panel`} aria-selected={activeTab === 'notes'} tabIndex={activeTab === 'notes' ? 0 : -1}
+                  onKeyDown={event => {
+                    const order = ['comments', 'notes', 'attachments'] as const;
+                    const index = order.indexOf('notes');
+                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : event.key === 'ArrowRight' ? (index + 1) % 3 : event.key === 'ArrowLeft' ? (index + 2) % 3 : -1;
+                    if (next < 0) return;
+                    event.preventDefault(); setActiveTab(order[next]); document.getElementById(`${tabsId}-${order[next]}-tab`)?.focus();
+                  }}
                   style={{
                     backgroundColor: activeTab === "notes" ? "#FFFBEB" : undefined,
                     color: activeTab === "notes" ? "#B45309" : "#6B7280",
@@ -319,6 +337,14 @@ export default function StaffTicketDetail({
                   onClick={() => setActiveTab("attachments")}
                   type="button"
                   data-testid="tab-attachments"
+                  role="tab" id={`${tabsId}-attachments-tab`} aria-controls={`${tabsId}-attachments-panel`} aria-selected={activeTab === 'attachments'} tabIndex={activeTab === 'attachments' ? 0 : -1}
+                  onKeyDown={event => {
+                    const order = ['comments', 'notes', 'attachments'] as const;
+                    const index = order.indexOf('attachments');
+                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : event.key === 'ArrowRight' ? (index + 1) % 3 : event.key === 'ArrowLeft' ? (index + 2) % 3 : -1;
+                    if (next < 0) return;
+                    event.preventDefault(); setActiveTab(order[next]); document.getElementById(`${tabsId}-${order[next]}-tab`)?.focus();
+                  }}
                   style={{
                     borderColor: activeTab === "attachments" ? "#006B3C #006B3C #FFFFFF" : undefined,
                     borderTopWidth: activeTab === "attachments" ? 3 : 1,
@@ -330,6 +356,7 @@ export default function StaffTicketDetail({
             </ul>
 
             {/* Tab 1: Public Comments Panel */}
+            <section role="tabpanel" id={`${tabsId}-comments-panel`} aria-labelledby={`${tabsId}-comments-tab`} hidden={activeTab !== 'comments'} tabIndex={0}>
             {activeTab === "comments" && (
               <div data-testid="public-comments-panel" className="p-3 border rounded" style={{ backgroundColor: "#FFFFFF" }}>
                 <div className="mb-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
@@ -408,7 +435,10 @@ export default function StaffTicketDetail({
               </div>
             )}
 
+            </section>
+
             {/* Tab 2: Internal Notes Panel (Visually Distinct STYLE-04, UI-09) */}
+            <section role="tabpanel" id={`${tabsId}-notes-panel`} aria-labelledby={`${tabsId}-notes-tab`} hidden={activeTab !== 'notes'} tabIndex={0}>
             {activeTab === "notes" && (
               <div
                 data-testid="internal-notes-panel"
@@ -513,7 +543,10 @@ export default function StaffTicketDetail({
               </div>
             )}
 
+            </section>
+
             {/* Tab 3: Attachments Panel */}
+            <section role="tabpanel" id={`${tabsId}-attachments-panel`} aria-labelledby={`${tabsId}-attachments-tab`} hidden={activeTab !== 'attachments'} tabIndex={0}>
             {activeTab === "attachments" && (
               <div data-testid="attachments-panel" className="p-3 border rounded" style={{ backgroundColor: "#FFFFFF" }}>
                 <h6 className="fw-bold mb-3 text-dark">Attached Files</h6>
@@ -530,27 +563,20 @@ export default function StaffTicketDetail({
                         data-testid="attachment-item"
                       >
                         <div>
-                          <div className="fw-semibold text-dark">{att.fileName}</div>
+                          <AttachmentReference fileName={att.fileName} fileUrl={att.fileUrl} />
                           <div className="small text-muted">
                             {(att.fileSize / 1024).toFixed(1)} KB · {att.fileType}
                           </div>
                         </div>
-                        {att.fileUrl && (
-                          <a
-                            href={att.fileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="btn btn-sm btn-outline-success"
-                          >
-                            Download / View
-                          </a>
-                        )}
+
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
+            </section>
+
           </div>
         </div>
       </div>

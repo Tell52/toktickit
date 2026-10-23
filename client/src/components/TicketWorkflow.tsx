@@ -135,7 +135,7 @@ export default function TicketWorkflow({ ticketId, ticket, staffUsers, currentUs
           {targets.map(target => <option key={target} value={target} disabled={target === 'Resolved' && !gate?.eligible}>→ Move to {target}{target === 'Resolved' && !gate?.eligible ? ' (requirements not met)' : ''}</option>)}
         </select><small>{targets.length ? `${targets.length} valid next state(s)` : 'Terminal status — no further transitions'}</small></div>
     </div>
-    <div className="resolution-gate" aria-label="Resolution requirements">
+    <div className="resolution-gate" role="group" aria-label="Resolution requirements">
       <strong>Resolution cycle {ticket.resolutionCycle ?? 1}</strong>
       {ticket.resolvedAt && <p>Resolved at {new Date(ticket.resolvedAt).toLocaleString('en-GB', { timeZone: 'Asia/Bangkok', hour12: false })} (Asia/Bangkok)</p>}
       {gate ? <><p>{gate.completedCount} completed · {gate.unfinishedCount} unfinished · {gate.followUpCount} requiring follow-up</p>
@@ -151,7 +151,7 @@ export default function TicketWorkflow({ ticketId, ticket, staffUsers, currentUs
     {confirmation && pending && <WorkflowDialog title={pending.value === 'Cancelled' ? 'Cancel ticket' : 'Reopen ticket'} returnFocusId="staff-status-select" busy={busy} onDismiss={discard}>
       {pending.value === 'Cancelled' ? <><p>Cancel this ticket and all Planned or In Progress actions in the current cycle. Completed actions remain in history.</p>
         <label htmlFor="ticket-cancel-reason">Ticket cancellation reason *</label>
-        <textarea ref={reasonRef} id="ticket-cancel-reason" value={reason} disabled={busy} aria-invalid={!!reasonError} aria-describedby={reasonError ? 'ticket-reason-error' : undefined} onChange={e => { setReason(e.target.value); setReasonError(''); }} />
+        <textarea ref={reasonRef} id="ticket-cancel-reason" aria-required="true" value={reason} disabled={busy} aria-invalid={!!reasonError} aria-describedby={reasonError ? 'ticket-reason-error' : undefined} onChange={e => { setReason(e.target.value); setReasonError(''); }} />
         {reasonError && <p id="ticket-reason-error" role="alert">{reasonError}</p>}</> : <p>Reopening starts a new resolution cycle and clears the previous resolution time and Requester advisory. Previous actions remain read-only history. Complete new work before resolving again.</p>}
       {feedback}
       <div className="workflow-buttons">

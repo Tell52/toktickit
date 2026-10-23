@@ -35,7 +35,7 @@ export function StatusBadge({ isActive }: { isActive: boolean }) {
       className="badge px-2 py-1"
       style={{
         backgroundColor: "#F8F9FA",
-        color: "#6C757D",
+        color: "#495057",
         border: "1px solid #CED4DA",
         fontWeight: 600,
       }}
@@ -381,7 +381,7 @@ export default function UserManagement({ currentUser: propCurrentUser }: UserMan
               <button
                 data-testid="create-user-btn"
                 className="btn text-white fw-semibold d-flex align-items-center justify-content-center gap-1"
-                style={{ backgroundColor: "#006B3C", borderRadius: 8, minHeight: 40 }}
+                style={{ backgroundColor: "#006B3C", borderRadius: 8, minHeight: 44 }}
                 onClick={handleOpenCreate}
               >
                 <span>+</span> <span>Create User</span>
@@ -394,6 +394,7 @@ export default function UserManagement({ currentUser: propCurrentUser }: UserMan
                 <input
                   type="text"
                   data-testid="user-search-input"
+                  aria-label="Search users by name or email"
                   className="form-control"
                   placeholder="Search users by name or email…"
                   value={searchTerm}
@@ -404,6 +405,7 @@ export default function UserManagement({ currentUser: propCurrentUser }: UserMan
               <div className="col-12 col-md-4">
                 <select
                   data-testid="user-role-filter"
+                  aria-label="Filter users by role"
                   className="form-select"
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
@@ -430,7 +432,7 @@ export default function UserManagement({ currentUser: propCurrentUser }: UserMan
                 <p className="mb-0">No users found.</p>
               </div>
             ) : (
-              <div className="table-responsive">
+              <div className="table-responsive" tabIndex={0} role="region" aria-label="Users table; scroll horizontally on narrow screens">
                 <table className="table table-hover align-middle mb-0" data-testid="user-table">
                   <thead className="table-light">
                     <tr>

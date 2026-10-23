@@ -89,7 +89,7 @@ describe("Lab 3: Navigation, Role Badges, and Route Guards", () => {
       expect(badge).toHaveTextContent("IT Staff");
       expect(badge.style.border).toContain("solid");
       // ตรวจสอบโทนสีฟ้า
-      expect(badge.style.color).toBe("rgb(13, 110, 253)");
+      expect(badge.style.color).toBe("rgb(7, 85, 165)");
     });
 
     it("renders dark green outline Role badge for ADMINISTRATOR", () => {
