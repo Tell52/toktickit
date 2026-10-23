@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import App from '../../src/App';
 import { AuthContext } from '../../src/context/AuthContext';
 import * as api from '../../src/api';
@@ -28,7 +28,13 @@ describe('Sprint 4 shell accessibility', () => {
   });
   it('moves focus and updates the title after navigation; Create Ticket contains no placeholder upload', async () => {
     show(); fireEvent.click(screen.getByRole('link', { name: 'Create Ticket' }));
-    await waitFor(() => expect(screen.getByRole('main')).toHaveFocus());
+    // Route focus must be settled before the user can start filling a field.
+    expect(screen.getByRole('main')).toHaveFocus();
+    const summary = screen.getByLabelText('Summary *');
+    summary.focus(); fireEvent.change(summary, { target: { value: 'Immediate input' } });
+    await act(async () => { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); });
+    expect(summary).toHaveFocus(); expect(summary).toHaveValue('Immediate input');
+    fireEvent.change(summary, { target: { value: '' } });
     expect(document.title).toBe('Create Ticket · TokTickIT');
     expect(screen.queryByRole('button', { name: 'Upload' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Submit Ticket' }));

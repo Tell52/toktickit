@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useContext, useRef } from "react";
 import { AuthContext, useAuth } from "./context/AuthContext.js";
 import RequesterSelection from "./RequesterSelection.js";
 import Login from "./components/Login.js";
@@ -127,16 +127,15 @@ export default function App() {
     }
   }, [user, loading, currentPath]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const titles: Record<string, string> = { '/dashboard': 'Dashboard', '/tickets': 'My Tickets', '/queue': 'My Queue', '/create-ticket': 'Create Ticket', '/admin': 'User management', '/profile': 'Profile', '/login': 'Sign in', '/change-password': 'Change password' };
     document.title = `${detailMatch ? 'Ticket details' : titles[currentPath] ?? 'Page not found'} · TokTickIT`;
     if (loading || !user || previousPath.current === currentPath) return;
     previousPath.current = currentPath;
-    const frame = requestAnimationFrame(() => {
-      const target = detailMatch && new URLSearchParams(currentQuery).get('tab') === 'actions' ? document.getElementById('actions-taken') : document.getElementById('main-content');
-      target?.focus({ preventScroll: true });
-    });
-    return () => cancelAnimationFrame(frame);
+    // Set route focus before paint. A deferred animation frame can steal focus
+    // from someone who has already begun typing into the destination form.
+    const target = detailMatch && new URLSearchParams(currentQuery).get('tab') === 'actions' ? document.getElementById('actions-taken') : document.getElementById('main-content');
+    target?.focus({ preventScroll: true });
   }, [currentPath, loading, user?.id]);
 
   // Loading indicator while verifying authentication

@@ -51,12 +51,30 @@ test('Requester cards match filtered lists, preserve URLs and never reveal anoth
 test('creation and requester activity are refreshed when returning to Dashboard', async ({ page }) => {
   await login(page); await page.getByRole('link', { name: 'Create a ticket', exact: true }).click();
   await page.getByLabel(/Summary/i).fill('Dashboard created ticket'); await page.getByLabel(/Description/i).fill('Verify dashboard refresh after creation');
+  await expect(page.getByLabel(/Summary/i)).toHaveValue('Dashboard created ticket');
   await page.getByLabel(/Category/i).selectOption({ label: 'Hardware' }); await page.getByLabel(/Related System/i).selectOption({ label: 'Corporate Laptop' }); await page.getByLabel(/Requested Priority/i).selectOption({ label: 'Medium' });
   await page.getByRole('button', { name: /Submit Ticket/i }).click(); await expect(page.getByText(/Ticket submitted|Ticket created/i)).toBeVisible();
   await page.getByRole('link', { name: 'Dashboard', exact: true }).click(); await expect(page.getByRole('link', { name: 'Open tickets 3' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Recently updated' }).getByRole('link', { name: /Dashboard created ticket/ })).toBeVisible();
   await page.getByRole('region', { name: 'Waiting for you' }).getByRole('link').click();
-  await page.getByPlaceholder('Write a public comment for IT Staff...').fill('Requester public update'); await page.getByRole('button', { name: 'Post Comment', exact: true }).click(); await expect(page.getByText('Requester public update', { exact: true })).toBeVisible();
+  const comment = page.getByPlaceholder('Write a public comment for IT Staff...');
+  await comment.fill('Requester public update');
+  let releaseComment!: () => void;
+  const commentGate = new Promise<void>(resolve => { releaseComment = resolve; });
+  await page.route(`**/api/tickets/${ticketIds[0]}/comments`, async route => {
+    if (route.request().method() === 'POST') await commentGate;
+    await route.continue();
+  });
+  const saved = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(`/api/tickets/${ticketIds[0]}/comments`));
+  try {
+    await page.getByRole('button', { name: 'Post Comment', exact: true }).click();
+    await expect(comment).toBeDisabled();
+    await expect(comment).toHaveValue('Requester public update');
+  } finally { releaseComment(); }
+  expect((await saved).status()).toBe(201);
+  // Text in the textarea is a draft, not evidence that the write committed.
+  await expect(comment).toHaveValue('');
+  await expect(page.locator('div.text-secondary').filter({ hasText: /^Requester public update$/ })).toBeVisible();
   await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Recently updated' }).getByRole('link').first()).toContainText('Router response needed');
   await expect(page.getByRole('link', { name: 'Waiting for you 1' })).toBeVisible();
