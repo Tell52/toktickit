@@ -9,7 +9,8 @@ html:has(.staff-ticket-detail) { scroll-behavior: auto; }
 .ticket-workflow select,.workflow-dialog textarea { width: 100%; min-width: 0; min-height: 44px; background: #fff; border: 1.5px solid #006b3c; border-radius: .3rem; padding: .5rem; }
 .ticket-workflow button,.ticket-status-history button,.workflow-dialog button { min-height: 44px; padding: .5rem .85rem; white-space: normal; }
 .workflow-buttons { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
-.workflow-dialog { border: 2px solid #006b3c; border-radius: .5rem; background: #fff; padding: 1rem; margin-top: 1rem; max-width: 38rem; }
+.workflow-dialog { border: 2px solid #006b3c; border-radius: 12px; background: #fff; color: #243b30; padding: 1.5rem; margin: auto; width: calc(100% - 2rem); max-width: 38rem; max-height: calc(100dvh - 2rem); overflow: auto; overflow-wrap: anywhere; }
+.workflow-dialog::backdrop { background: rgb(12 39 25 / 55%); }
 .workflow-message { border-left: 4px solid #a63a24; background: #fff2eb; padding: .75rem; margin-top: .75rem; }
 .resolution-gate { padding: .75rem; border: 1px solid #b8cfc0; border-radius: .3rem; margin-top: 1rem; }
 .ticket-status-history li { margin-bottom: .75rem; }

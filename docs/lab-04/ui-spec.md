@@ -1,6 +1,6 @@
 # UI Specification - Sprint 4
 
-**Status:** Actions Taken is implemented in #46 ([guide](actions-ui.md)), Ticket workflow/history in #48 ([guide](ticket-workflow-ui.md)), and Requester dashboard/navigation/filter drill-down in #49 ([guide](requester-dashboard.md)). Staff dashboard/landing is implemented by #50 ([guide](staff-dashboard.md)); final release checks remain tracked separately.
+**Status:** Actions Taken is implemented in #46 ([guide](actions-ui.md)), Ticket workflow/history in #48 ([guide](ticket-workflow-ui.md)), and Requester dashboard/navigation/filter drill-down in #49 ([guide](requester-dashboard.md)). Staff dashboard/landing is implemented by #50 ([guide](staff-dashboard.md)); the cross-screen Zen Green/responsive/accessibility review is implemented by #52 ([checklist and evidence](ui-accessibility.md)); final release checks remain tracked separately.
 
 **Authority:** [specification.md](specification.md) defines roles, rules and metrics; [api-spec.md](api-spec.md) defines wire behavior.
 
@@ -171,3 +171,7 @@ Visual evidence demonstrates appearance, while API/component/E2E results demonst
 ## 8. Ticket Workflow Implementation Evidence
 
 Issue [#48](https://github.com/Tell52/toktickit/issues/48) implements section 4's transition/gate controls, cancellation/reopen confirmations, shared status history and section 5's recoverable conflict flow. See [ticket-workflow-ui.md](ticket-workflow-ui.md) for behavior, screenshots, reproduction and scoped test evidence. Dashboard and final product verification remain tracked separately.
+
+## 9. Cross-screen review
+
+Issue [#52](https://github.com/Tell52/toktickit/issues/52) implements shared focus/navigation, consistent contrast and feedback, correct responsive Dashboard breakpoints, keyboard tabs, native modal containment and truthful attachment availability. The [review guide](ui-accessibility.md) records the checklist, tested states, screenshots, actual reports and automation limits. The section 7 checklist is a specification-era handoff; current execution is recorded in that guide and tests.md.

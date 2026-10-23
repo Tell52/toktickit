@@ -34,11 +34,11 @@ export function StatusBadge({ status }: { status: string }) {
 
   if (norm === "new" || norm === "open") {
     bg = "#E7F5FF";
-    color = "#1971C2";
+    color = "#0755A5";
     border = "#A5D8FF";
   } else if (norm === "in progress" || norm === "in_progress") {
     bg = "#FFF3BF";
-    color = "#D9480F";
+    color = "#9A3412";
     border = "#FFE066";
   } else if (norm === "waiting for requester" || norm === "waiting_for_requester") {
     bg = "#F3F0FF";
@@ -58,7 +58,7 @@ export function StatusBadge({ status }: { status: string }) {
     border = "#FFA8A8";
   } else if (norm === "reopened") {
     bg = "#FFF4E6";
-    color = "#D9480F";
+    color = "#9A3412";
     border = "#FFD8A8";
   }
 
@@ -92,7 +92,7 @@ export function PriorityBadge({ priority }: { priority: string }) {
     border = "#FFA8A8";
   } else if (norm === "medium") {
     bg = "#FFF3BF";
-    color = "#B15600";
+    color = "#844500";
     border = "#FFE066";
   } else if (norm === "low") {
     bg = "#EAF6EF";
@@ -279,7 +279,7 @@ export default function StaffTicketQueue({ onViewTicket, query = "", onNavigate 
         </span>
       </div>
 
-      {query && <p aria-label="Active queue filters">{Array.from(params.entries()).map(([key, value]) => `${key}: ${value}`).join(' · ')}</p>}
+      {query && <div role="group" aria-label="Active queue filters">{Array.from(params.entries()).map(([key, value]) => `${key}: ${value}`).join(' · ')}</div>}
       {/* Search & Filter Bar */}
       <div className="card shadow-sm border-0 mb-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 10 }}>
         <div className="card-body p-3">

@@ -69,6 +69,9 @@ async function complete(page: Page, description: string) {
 const resolveOption = (page: Page) => page.getByLabel('Current Status', { exact: true }).locator('option[value="Resolved"]');
 
 test('E2E-02: create, advisory, gated resolve, close, reopen and resolve with new work', async ({ page, browser }) => {
+  // Two independent sessions exercise two full resolution cycles. WebKit can
+  // exceed the usual 60s budget before the final Requester assertions.
+  test.setTimeout(120_000);
   const requesterContext = await browser.newContext(), requester = await requesterContext.newPage();
   await login(requester, 1, false);
   await requester.getByRole('link', { name: /Create Ticket/i }).click();

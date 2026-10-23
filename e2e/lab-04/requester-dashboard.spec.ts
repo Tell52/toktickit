@@ -45,8 +45,8 @@ test('Requester cards match filtered lists, preserve URLs and never reveal anoth
   await page.getByRole('link', { name: 'Router response needed', exact: true }).first().click(); await expect(page).toHaveURL(new RegExp(`/tickets/${ticketIds[0]}$`));
   await page.getByRole('button', { name: /Back to My Tickets/ }).click(); await expect(page).toHaveURL(listUrl);
   await page.getByRole('link', { name: 'Laptop investigation', exact: true }).first().click(); await expect(page).toHaveURL(new RegExp(`/tickets/${ticketIds[1]}$`));
-  await expect(page.locator('input[value="Laptop investigation"]')).toBeVisible();
-  await page.goBack(); await page.goForward(); await expect(page.locator('input[value="Laptop investigation"]')).toBeVisible();
+  await expect(page.getByLabel('Summary', { exact: true })).toHaveValue('Laptop investigation');
+  await page.goBack(); await page.goForward(); await expect(page.getByLabel('Summary', { exact: true })).toHaveValue('Laptop investigation');
 });
 test('creation and requester activity are refreshed when returning to Dashboard', async ({ page }) => {
   await login(page); await page.getByRole('link', { name: 'Create a ticket', exact: true }).click();

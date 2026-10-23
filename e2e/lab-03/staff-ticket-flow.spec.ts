@@ -66,7 +66,7 @@ test.describe('Staff and Requester Ticket Flows (Lab 3 E2E)', () => {
     // Verify navigation to Ticket Details
     await expect(page).toHaveURL(new RegExp(`.*\\/tickets\\/${ticket.id}`));
     await expect(page.getByRole('heading', { name: /ticket details:/i })).toBeVisible();
-    await expect(page.locator(`input[value="${ticketSummary}"]`)).toBeVisible();
+    await expect(page.getByLabel('Summary', { exact: true })).toHaveValue(ticketSummary);
 
     // Initial Status Badge verification: "In Progress"
     const statusBadges = page.locator('.badge', { hasText: 'In Progress' });

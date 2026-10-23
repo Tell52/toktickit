@@ -52,9 +52,9 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, onNavigate }) => {
 
         <form onSubmit={handleLogin}>
           <div className="mb-3">
-            <label className="form-label fw-semibold">Email address</label>
+            <label htmlFor="login-email" className="form-label fw-semibold">Email address</label>
             <input
-              type="email"
+              id="login-email" autoComplete="username" type="email"
               className="form-control"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -63,10 +63,10 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, onNavigate }) => {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label fw-semibold">Password</label>
+            <label htmlFor="login-password" className="form-label fw-semibold">Password</label>
             <div className="input-group">
               <input
-                type={showPassword ? 'text' : 'password'}
+                id="login-password" autoComplete="current-password" type={showPassword ? 'text' : 'password'}
                 className="form-control"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
@@ -102,20 +102,18 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, onNavigate }) => {
         </form>
 
         <div className="text-center mt-3">
-          <a
-            href="#forgot-password"
-            title="Password reset via email is not available in this version."
-            className="text-muted small text-decoration-none"
-            onClick={(e) => {
-              e.preventDefault();
-              setShowForgotNotice(true);
-            }}
+          <button
+            type="button"
+            className="btn btn-link small"
+            aria-expanded={showForgotNotice}
+            aria-controls={showForgotNotice ? "password-help" : undefined}
+            onClick={() => setShowForgotNotice(value => !value)}
           >
             Forgot your password?
-          </a>
+          </button>
           {showForgotNotice && (
-            <div className="alert alert-info py-1 px-2 mt-2 small mb-0">
-              Password reset via email is not available in this version.
+            <div id="password-help" role="status" className="alert alert-info py-1 px-2 mt-2 small mb-0">
+              Contact your Administrator to reset your password. You will choose a new password after signing in.
             </div>
           )}
         </div>

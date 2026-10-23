@@ -12,9 +12,9 @@
 .dashboard-preview a { display: inline-block; color: #006b3c; min-height: 44px; }
 .requester-dashboard button,.requester-dashboard .btn { min-height: 44px; white-space: normal; }
 .requester-dashboard a:focus-visible,.requester-dashboard button:focus-visible { outline: 3px solid #006b3c; outline-offset: 3px; }
-@media(max-width:767px) { .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .dashboard-previews { grid-template-columns: minmax(0,1fr); } }
-@media(max-width:399px) { .dashboard-metrics { grid-template-columns: minmax(0,1fr); } }
-
-@media(max-width:1023px) { .staff-dashboard .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .staff-dashboard .dashboard-previews { grid-template-columns: minmax(0,1fr); } }
-@media(max-width:767px) { .staff-dashboard .dashboard-metrics { grid-template-columns: minmax(0,1fr); } }
+@media(max-width:1023px) {
+  .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .dashboard-previews { grid-template-columns: minmax(0,1fr); }
+}
+@media(max-width:767px) { .dashboard-metrics { grid-template-columns: minmax(0,1fr); } }
 .staff-dashboard #my-actions:focus { outline: 3px solid #006b3c; outline-offset: 3px; }

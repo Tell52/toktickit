@@ -217,3 +217,5 @@ toktickit/
 Staff/Administrator dashboard: [implementation and verification](docs/lab-04/staff-dashboard.md). All roles now land on `/dashboard`; My Queue and Admin remain available through navigation.
 
 Lab 4 security/concurrency hardening: [contracts, isolated test commands and performance evidence](docs/lab-04/security-concurrency.md). Run `npm run test:hardening --prefix server` with `LAB4_SECURITY_DATABASE_URL` pointing to a disposable PostgreSQL server.
+
+Zen Green UI and accessibility review: [checklist, screenshots and verification](docs/lab-04/ui-accessibility.md). Run `npx playwright test --config=playwright.accessibility.config.ts` against the explicitly selected disposable UI database.

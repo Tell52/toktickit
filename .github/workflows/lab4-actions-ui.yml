@@ -50,6 +50,8 @@ jobs:
       - run: npx playwright install --with-deps
       - name: Verify real Actions and Ticket workflow flows on all browsers
         run: npx playwright test --config=playwright.actions.config.ts
+      - name: Review role screens, keyboard navigation, responsive layouts and axe accessibility
+        run: npx playwright test --config=playwright.accessibility.config.ts
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

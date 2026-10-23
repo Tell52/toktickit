@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { AuthContext, useAuth } from "./context/AuthContext.js";
 import RequesterSelection from "./RequesterSelection.js";
 import Login from "./components/Login.js";
@@ -41,8 +41,8 @@ export function RoleBadge({ role }: { role: string }) {
         className="badge px-2 py-1"
         style={{
           backgroundColor: "#EBF5FF",
-          color: "#0D6EFD",
-          border: "1.5px solid #0D6EFD",
+          color: "#0755A5",
+          border: "1.5px solid #0755A5",
           fontWeight: 600,
         }}
       >
@@ -76,6 +76,8 @@ export default function App() {
   );
   const currentPath = currentUrl.split('?')[0];
   const detailMatch = /^\/tickets\/([1-9]\d*)$/.exec(currentPath);
+  const previousPath = useRef(currentPath);
+  const [logoutBusy, setLogoutBusy] = useState(false), [shellError, setShellError] = useState('');
   const currentQuery = currentUrl.includes('?') ? currentUrl.slice(currentUrl.indexOf('?') + 1) : '';
 
   // Fallback for legacy Lab 1 & 2 tests that render <App /> directly without AuthProvider
@@ -125,6 +127,18 @@ export default function App() {
     }
   }, [user, loading, currentPath]);
 
+  useEffect(() => {
+    const titles: Record<string, string> = { '/dashboard': 'Dashboard', '/tickets': 'My Tickets', '/queue': 'My Queue', '/create-ticket': 'Create Ticket', '/admin': 'User management', '/profile': 'Profile', '/login': 'Sign in', '/change-password': 'Change password' };
+    document.title = `${detailMatch ? 'Ticket details' : titles[currentPath] ?? 'Page not found'} · TokTickIT`;
+    if (loading || !user || previousPath.current === currentPath) return;
+    previousPath.current = currentPath;
+    const frame = requestAnimationFrame(() => {
+      const target = detailMatch && new URLSearchParams(currentQuery).get('tab') === 'actions' ? document.getElementById('actions-taken') : document.getElementById('main-content');
+      target?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [currentPath, loading, user?.id]);
+
   // Loading indicator while verifying authentication
   if (loading) {
     return (
@@ -153,8 +167,11 @@ export default function App() {
 
   const handleLogout = async () => {
     if (!allowNavigation()) return;
-    await logout();
-    navigate("/login");
+    if (logoutBusy) return;
+    setLogoutBusy(true); setShellError('');
+    try { await logout(); navigate('/login'); }
+    catch { setShellError('Could not sign out. Please try Logout again.'); }
+    finally { setLogoutBusy(false); }
   };
 
   const handleViewTicket = (ticketId: string) => {
@@ -167,27 +184,29 @@ export default function App() {
   const isAdmin = userRole === "ADMINISTRATOR";
 
   return (
-    <div style={{ backgroundColor: "#F5F7F6", minHeight: "100vh" }}>
+    <div className="app-shell" style={{ backgroundColor: "#F5F7F6", minHeight: "100vh" }}>
+      <a tabIndex={0} className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus(); }}>Skip to main content</a>
       {/* Navbar Header */}
       <header className="app-shell-header p-3 text-white d-flex flex-wrap gap-3 justify-content-between align-items-center shadow-sm" style={{ backgroundColor: "#006B3C" }}>
         <div className="d-flex flex-wrap align-items-center gap-4">
           <h1
             className="h5 mb-0 fw-bold"
           >
-            <a href="/dashboard" className="text-white text-decoration-none" onClick={event => { event.preventDefault(); navigate('/dashboard'); }}>TokTickIT</a>
+            <a tabIndex={0} href="/dashboard" className="text-white text-decoration-none" onClick={event => { if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); navigate('/dashboard'); }}>TokTickIT</a>
           </h1>
 
           {/* Navigation Items filtered strictly by role (FR-07) */}
-          <nav className="d-flex flex-wrap gap-3 align-items-center">
-            <a href="/dashboard" aria-current={currentPath === '/dashboard' ? 'page' : undefined} className={`text-white text-decoration-none ${currentPath === '/dashboard' ? 'fw-bold' : ''}`} onClick={e => { e.preventDefault(); navigate('/dashboard'); }}>Dashboard</a>
+          <nav aria-label="Main navigation" className="d-flex flex-wrap gap-3 align-items-center">
+            <a tabIndex={0} href="/dashboard" aria-current={currentPath === '/dashboard' ? 'page' : undefined} className={`text-white text-decoration-none ${currentPath === '/dashboard' ? 'fw-bold' : ''}`} onClick={e => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate('/dashboard'); }}>Dashboard</a>
             {/* Requester Navigation Links */}
             {isRequester && (
               <a
+                tabIndex={0}
                 href="/tickets"
-                aria-current={currentPath === '/tickets' ? 'page' : undefined}
+                aria-current={currentPath === '/tickets' ? 'page' : detailMatch && isRequester ? 'location' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/tickets" || currentPath.startsWith("/tickets/") ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/tickets" || currentPath.startsWith("/tickets/") ? 1 : 0.8 }}
-                onClick={(e) => { e.preventDefault(); navigate("/tickets"); }}
+                onClick={(e) => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate("/tickets"); }}
               >
                 My Tickets
               </a>
@@ -196,11 +215,12 @@ export default function App() {
             {/* IT Staff & Administrator Navigation Links */}
             {(isItStaff || isAdmin) && (
               <a
+                tabIndex={0}
                 href="/queue"
-                aria-current={currentPath === '/queue' ? 'page' : undefined}
+                aria-current={currentPath === '/queue' ? 'page' : detailMatch && !isRequester ? 'location' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/queue" ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/queue" ? 1 : 0.8 }}
-                onClick={(e) => { e.preventDefault(); navigate("/queue"); }}
+                onClick={(e) => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate("/queue"); }}
               >
                 My Queue
               </a>
@@ -208,11 +228,12 @@ export default function App() {
 
             {/* Create Ticket available for all roles */}
             <a
+              tabIndex={0}
               href="/create-ticket"
               aria-current={currentPath === '/create-ticket' ? 'page' : undefined}
               className={`text-white text-decoration-none ${currentPath === "/create-ticket" ? "fw-bold" : ""}`}
               style={{ opacity: currentPath === "/create-ticket" ? 1 : 0.8 }}
-              onClick={(e) => { e.preventDefault(); navigate("/create-ticket"); }}
+              onClick={(e) => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate("/create-ticket"); }}
             >
               Create Ticket
             </a>
@@ -220,11 +241,12 @@ export default function App() {
             {/* Administrator only Navigation Link */}
             {isAdmin && (
               <a
+                tabIndex={0}
                 href="/admin"
                 aria-current={currentPath === '/admin' ? 'page' : undefined}
                 className={`text-white text-decoration-none ${currentPath === "/admin" ? "fw-bold" : ""}`}
                 style={{ opacity: currentPath === "/admin" ? 1 : 0.8 }}
-                onClick={(e) => { e.preventDefault(); navigate("/admin"); }}
+                onClick={(e) => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate("/admin"); }}
               >
                 Admin
               </a>
@@ -232,11 +254,12 @@ export default function App() {
 
             {/* Profile available for all roles */}
             <a
+              tabIndex={0}
               href="/profile"
               aria-current={currentPath === '/profile' ? 'page' : undefined}
               className={`text-white text-decoration-none ${currentPath === "/profile" ? "fw-bold" : ""}`}
               style={{ opacity: currentPath === "/profile" ? 1 : 0.8 }}
-              onClick={(e) => { e.preventDefault(); navigate("/profile"); }}
+              onClick={(e) => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate("/profile"); }}
             >
               Profile
             </a>
@@ -252,14 +275,16 @@ export default function App() {
           <button
             className="btn btn-sm btn-outline-light"
             onClick={handleLogout}
+            disabled={logoutBusy}
           >
-            Logout
+            {logoutBusy ? 'Signing out…' : 'Logout'}
           </button>
         </div>
       </header>
 
       {/* Main Content with Route Guards */}
-      <main className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : currentPath.startsWith('/tickets/') || currentPath === '/dashboard' ? 1280 : 880 }}>
+      <main id="main-content" tabIndex={-1} aria-label="Main content" className="container py-4" style={{ maxWidth: currentPath === "/admin" ? 1140 : currentPath.startsWith('/tickets/') || currentPath === '/dashboard' ? 1280 : 880 }}>
+        {shellError && <p role="alert" className="alert alert-danger">{shellError}</p>}
         {currentPath === '/dashboard' && <ProtectedRoute currentPath={currentPath} onNavigate={navigate}>
           {isRequester ? <RequesterDashboard key={user.id} onNavigate={navigate} /> : <StaffDashboard key={user.id + user.role} query={currentQuery} onNavigate={navigate} />}
         </ProtectedRoute>}
@@ -332,12 +357,12 @@ export default function App() {
               <h3 className="h5 mb-4" style={{ color: "#006B3C" }}>Profile</h3>
               <div className="row g-3 mb-4">
                 <div className="col-md-6">
-                  <label className="form-label text-muted small fw-semibold">Full Name</label>
-                  <input type="text" className="form-control" value={user.name} readOnly style={{ backgroundColor: "#F0F4F1" }} />
+                  <label htmlFor="profile-name" className="form-label text-muted small fw-semibold">Full Name</label>
+                  <input id="profile-name" type="text" className="form-control" value={user.name} readOnly style={{ backgroundColor: "#F0F4F1" }} />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label text-muted small fw-semibold">Email Address</label>
-                  <input type="text" className="form-control" value={user.email} readOnly style={{ backgroundColor: "#F0F4F1" }} />
+                  <label htmlFor="profile-email" className="form-label text-muted small fw-semibold">Email Address</label>
+                  <input id="profile-email" type="email" className="form-control" value={user.email} readOnly style={{ backgroundColor: "#F0F4F1" }} />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label text-muted small fw-semibold">Role</label>
@@ -352,7 +377,7 @@ export default function App() {
           </ProtectedRoute>
         )}
         {!detailMatch && !['/', '/login', '/change-password', '/dashboard', '/tickets', '/queue', '/create-ticket', '/admin', '/profile'].includes(currentPath) && <section>
-          <h2>Page not found</h2><a href="/dashboard" onClick={e => { e.preventDefault(); navigate('/dashboard'); }}>Return to your home page</a>
+          <h2>Page not found</h2><a tabIndex={0} href="/dashboard" onClick={e => { if (e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return; e.preventDefault(); navigate('/dashboard'); }}>Return to your home page</a>
         </section>}
       </main>
     </div>
