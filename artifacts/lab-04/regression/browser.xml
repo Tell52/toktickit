@@ -1,0 +1,422 @@
+<testsuites id="" name="" tests="90" failures="0" skipped="90" errors="0" time="0.13470600000000002">
+<testsuite name="lab-02\requester-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Requester Ticket Flow (Lab 2 E2E) › Complete submission flow, view in My Tickets, and soft-remove attachment (AC-01, AC-05)" classname="lab-02\requester-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\authentication.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-01: Valid login lands in authenticated app shell with role-based navigation (AC-01)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-02: Initial login forces Change Password screen before normal app access (AC-02)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-06: Logout destroys session and blocks browser back navigation (AC-12)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\staff-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-03: Requester logs in, opens own Ticket, posts Public Comment, and marks Problem Appears Resolved (AC-08)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-04: IT Staff searches Queue, claims Ticket, updates IT Priority &amp; Status, adds Internal Note, and verifies persistence (AC-06)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-07: Requester account cannot access Queue or see Internal Notes (FR-22, AC-04)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-08: Responsive user journey renders cleanly across desktop, tablet, and mobile viewports (ui-spec §7)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\user-administration.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Administrator User Management (Lab 3 E2E - E2E-05) › E2E-05: Admin lifecycle — create, duplicate check, edit, reset password, self-deactivation protection (AC-09, AC-10, AC-11)" classname="lab-03\user-administration.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\actions-taken-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="multiple performers preserve authorship and require follow-up details" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="real staff lifecycle, administrator history and Requester privacy" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="lost create response replays the committed request without duplicate work" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale edit keeps draft, requires latest review and guards shell navigation" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive long-text cards, keyboard focus and visual evidence" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\dashboards.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="E2E-05: same-browser account/role switches isolate dashboards, action assignments and guarded routes" classname="lab-04\dashboards.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\requester-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Requester cards match filtered lists, preserve URLs and never reveal another owner" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="creation and requester activity are refreshed when returning to Dashboard" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Requester dashboard supports narrow layouts, large text, safe errors and keyboard links" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\staff-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Staff metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Administrator metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive dashboard, keyboard drill-down and safe retry" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ticket-resolution.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="E2E-02: create, advisory, gated resolve, close, reopen and resolve with new work" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E-03: cancellation keeps completed evidence and shares reason/history safely" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale cancellation retains input, loads latest and retries the reviewed version" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="workflow confirmation supports responsive layout, large text, keyboard focus and discard" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ui-accessibility.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="chromium" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="role 0: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 1: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 2: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="keyboard skip link, visible focus and native confirmation containment/return" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="sign-in labels and usable password recovery guidance" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-02\requester-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Requester Ticket Flow (Lab 2 E2E) › Complete submission flow, view in My Tickets, and soft-remove attachment (AC-01, AC-05)" classname="lab-02\requester-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\authentication.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-01: Valid login lands in authenticated app shell with role-based navigation (AC-01)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-02: Initial login forces Change Password screen before normal app access (AC-02)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-06: Logout destroys session and blocks browser back navigation (AC-12)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\staff-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-03: Requester logs in, opens own Ticket, posts Public Comment, and marks Problem Appears Resolved (AC-08)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-04: IT Staff searches Queue, claims Ticket, updates IT Priority &amp; Status, adds Internal Note, and verifies persistence (AC-06)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-07: Requester account cannot access Queue or see Internal Notes (FR-22, AC-04)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-08: Responsive user journey renders cleanly across desktop, tablet, and mobile viewports (ui-spec §7)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\user-administration.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Administrator User Management (Lab 3 E2E - E2E-05) › E2E-05: Admin lifecycle — create, duplicate check, edit, reset password, self-deactivation protection (AC-09, AC-10, AC-11)" classname="lab-03\user-administration.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\actions-taken-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="multiple performers preserve authorship and require follow-up details" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="real staff lifecycle, administrator history and Requester privacy" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="lost create response replays the committed request without duplicate work" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale edit keeps draft, requires latest review and guards shell navigation" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive long-text cards, keyboard focus and visual evidence" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\dashboards.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="E2E-05: same-browser account/role switches isolate dashboards, action assignments and guarded routes" classname="lab-04\dashboards.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\requester-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Requester cards match filtered lists, preserve URLs and never reveal another owner" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="creation and requester activity are refreshed when returning to Dashboard" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Requester dashboard supports narrow layouts, large text, safe errors and keyboard links" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\staff-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Staff metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Administrator metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive dashboard, keyboard drill-down and safe retry" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ticket-resolution.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="E2E-02: create, advisory, gated resolve, close, reopen and resolve with new work" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E-03: cancellation keeps completed evidence and shares reason/history safely" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale cancellation retains input, loads latest and retries the reviewed version" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="workflow confirmation supports responsive layout, large text, keyboard focus and discard" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ui-accessibility.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="firefox" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="role 0: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 1: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 2: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="keyboard skip link, visible focus and native confirmation containment/return" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="sign-in labels and usable password recovery guidance" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-02\requester-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Requester Ticket Flow (Lab 2 E2E) › Complete submission flow, view in My Tickets, and soft-remove attachment (AC-01, AC-05)" classname="lab-02\requester-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\authentication.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-01: Valid login lands in authenticated app shell with role-based navigation (AC-01)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-02: Initial login forces Change Password screen before normal app access (AC-02)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication and Session Flows (Lab 3 E2E) › E2E-06: Logout destroys session and blocks browser back navigation (AC-12)" classname="lab-03\authentication.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\staff-ticket-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-03: Requester logs in, opens own Ticket, posts Public Comment, and marks Problem Appears Resolved (AC-08)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-04: IT Staff searches Queue, claims Ticket, updates IT Priority &amp; Status, adds Internal Note, and verifies persistence (AC-06)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-07: Requester account cannot access Queue or see Internal Notes (FR-22, AC-04)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Staff and Requester Ticket Flows (Lab 3 E2E) › E2E-08: Responsive user journey renders cleanly across desktop, tablet, and mobile viewports (ui-spec §7)" classname="lab-03\staff-ticket-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-03\user-administration.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="Administrator User Management (Lab 3 E2E - E2E-05) › E2E-05: Admin lifecycle — create, duplicate check, edit, reset password, self-deactivation protection (AC-09, AC-10, AC-11)" classname="lab-03\user-administration.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\actions-taken-flow.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="multiple performers preserve authorship and require follow-up details" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="real staff lifecycle, administrator history and Requester privacy" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="lost create response replays the committed request without duplicate work" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale edit keeps draft, requires latest review and guards shell navigation" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive long-text cards, keyboard focus and visual evidence" classname="lab-04\actions-taken-flow.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\dashboards.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="1" failures="0" skipped="1" time="0" errors="0">
+<testcase name="E2E-05: same-browser account/role switches isolate dashboards, action assignments and guarded routes" classname="lab-04\dashboards.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\requester-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Requester cards match filtered lists, preserve URLs and never reveal another owner" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="creation and requester activity are refreshed when returning to Dashboard" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Requester dashboard supports narrow layouts, large text, safe errors and keyboard links" classname="lab-04\requester-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\staff-dashboard.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Staff metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Administrator metrics, queue bounds, action pages and return refresh" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="responsive dashboard, keyboard drill-down and safe retry" classname="lab-04\staff-dashboard.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ticket-resolution.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="4" failures="0" skipped="4" time="0" errors="0">
+<testcase name="E2E-02: create, advisory, gated resolve, close, reopen and resolve with new work" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="E2E-03: cancellation keeps completed evidence and shares reason/history safely" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="stale cancellation retains input, loads latest and retries the reviewed version" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="workflow confirmation supports responsive layout, large text, keyboard focus and discard" classname="lab-04\ticket-resolution.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="lab-04\ui-accessibility.spec.ts" timestamp="2026-10-23T08:24:52.724Z" hostname="webkit" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="role 0: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 1: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="role 2: shell, responsive dashboard, shared actions and earlier destinations" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="keyboard skip link, visible focus and native confirmation containment/return" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="sign-in labels and usable password recovery guidance" classname="lab-04\ui-accessibility.spec.ts">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

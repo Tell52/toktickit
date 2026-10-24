@@ -48,10 +48,8 @@ jobs:
         working-directory: client
         run: npm test -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-client-regression.xml
       - run: npx playwright install --with-deps
-      - name: Verify real Actions and Ticket workflow flows on all browsers
-        run: npx playwright test --config=playwright.actions.config.ts
-      - name: Review role screens, keyboard navigation, responsive layouts and axe accessibility
-        run: npx playwright test --config=playwright.accessibility.config.ts
+      - name: Verify Labs 2-4 journeys, dashboards, responsive layouts and accessibility on all browsers
+        run: npm run test:e2e:regression
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

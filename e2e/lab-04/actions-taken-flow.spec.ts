@@ -53,6 +53,34 @@ async function add(page: Page, description = 'Inspect router connection') {
 }
 const view = async (page: Page) => { await page.getByRole('button', { name: /^View action:/ }).first().click(); };
 
+test('multiple performers preserve authorship and require follow-up details', async ({ page, browser }) => {
+  test.setTimeout(120_000);
+  await login(page); await add(page, 'Staff investigation');
+  const context = await browser.newContext();
+  try {
+    const admin = await context.newPage(); await login(admin, 2);
+    await admin.getByRole('button', { name: 'Add action', exact: true }).click();
+    await admin.getByLabel('Description *', { exact: true }).fill('Administrator follow-up');
+    await admin.getByLabel(/Follow-up required:/).check();
+    await admin.getByRole('button', { name: 'Save action', exact: true }).click();
+    await expect(admin.getByLabel('Follow-up note *', { exact: true })).toBeFocused();
+    expect(await db!.actionTaken.count({ where: { ticketId } })).toBe(1);
+    await admin.getByLabel('Follow-up note *', { exact: true }).fill('Review next business day');
+    await admin.getByRole('button', { name: 'Save action', exact: true }).click();
+    await expect(admin.getByText('Action saved successfully.', { exact: true })).toBeVisible();
+    const actions = await db!.actionTaken.findMany({ where: { ticketId }, orderBy: { description: 'asc' } });
+    expect(actions.map(action => action.performedById)).toEqual([accounts[2].id, accounts[0].id]);
+    expect((await db!.ticket.findUniqueOrThrow({ where: { id: ticketId } })).ownerId).toBe(accounts[2].id);
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
+    await login(page, 1);
+    for (const description of ['Staff investigation', 'Administrator follow-up']) {
+      await expect(page.getByRole('button', { name: `View action: ${description}`, exact: true })).toBeVisible();
+    }
+    await expect(page.getByRole('button', { name: 'Add action', exact: true })).toHaveCount(0);
+    await expect(page.getByText('PRIVATE_INTERNAL_DIAGNOSTIC')).toHaveCount(0);
+  } finally { await context.close(); }
+});
+
 test('real staff lifecycle, administrator history and Requester privacy', async ({ page, browser }, info) => {
   // CI WebKit can spend ~22s opening its first page. This multi-role flow
   // needs a separate overall budget, while a stuck interaction must fail fast.

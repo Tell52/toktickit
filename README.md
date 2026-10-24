@@ -219,3 +219,5 @@ Staff/Administrator dashboard: [implementation and verification](docs/lab-04/sta
 Lab 4 security/concurrency hardening: [contracts, isolated test commands and performance evidence](docs/lab-04/security-concurrency.md). Run `npm run test:hardening --prefix server` with `LAB4_SECURITY_DATABASE_URL` pointing to a disposable PostgreSQL server.
 
 Zen Green UI and accessibility review: [checklist, screenshots and verification](docs/lab-04/ui-accessibility.md). Run `npx playwright test --config=playwright.accessibility.config.ts` against the explicitly selected disposable UI database.
+
+Lab 4 full E2E and Labs 1–3 regression: [coverage, reproducible commands and execution evidence](docs/lab-04/e2e-regression.md). Use `npm run test:regression --prefix server` with `LAB4_REGRESSION_DATABASE_URL` and `npm run test:e2e:regression` with `LAB4_UI_DATABASE_URL`, each targeting its own migrated/seeded disposable database. The combined runs include every opt-in API suite and all three browser projects.

@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="424" failures="0" errors="0" time="81.463">
+    <testsuite name="tests/lab-01/categories.test.ts" timestamp="2026-10-23T08:19:33.928Z" hostname="LAPTOP-TPJO7VEP" tests="1" failures="0" errors="0" skipped="0" time="0.0543134">
+        <testcase classname="tests/lab-01/categories.test.ts" name="GET /api/categories &gt; returns the four seeded categories in id order" time="0.0536198">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-01/health.test.ts" timestamp="2026-10-23T08:19:33.929Z" hostname="LAPTOP-TPJO7VEP" tests="1" failures="0" errors="0" skipped="0" time="0.0186906">
+        <testcase classname="tests/lab-01/health.test.ts" name="GET /api/health &gt; returns 200 with status ok and the service name" time="0.0179795">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-02/attachments.api.test.ts" timestamp="2026-10-23T08:19:33.930Z" hostname="LAPTOP-TPJO7VEP" tests="4" failures="0" errors="0" skipped="0" time="0.0566506">
+        <testcase classname="tests/lab-02/attachments.api.test.ts" name="Attachments API &gt; POST /api/tickets/:id/attachments &gt; rejects an unauthenticated upload even when requesterId is supplied" time="0.0267399">
+        </testcase>
+        <testcase classname="tests/lab-02/attachments.api.test.ts" name="Attachments API &gt; DELETE /api/tickets/:id/attachments/:attachmentId &gt; rejects forged requesterId during unauthenticated removal" time="0.0163019">
+        </testcase>
+        <testcase classname="tests/lab-02/attachments.api.test.ts" name="Attachments API &gt; DELETE /api/tickets/:id/attachments/:attachmentId &gt; authenticates before validating a removal reason" time="0.0051189">
+        </testcase>
+        <testcase classname="tests/lab-02/attachments.api.test.ts" name="Attachments API &gt; GET /api/tickets/:id/attachments/:attachmentId &gt; requires a session before downloading even with a forged requesterId" time="0.0072911">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-02/create-ticket.api.test.ts" timestamp="2026-10-23T08:19:33.931Z" hostname="LAPTOP-TPJO7VEP" tests="2" failures="0" errors="0" skipped="0" time="0.2199627">
+        <testcase classname="tests/lab-02/create-ticket.api.test.ts" name="POST /api/tickets &gt; API-01: Create valid ticket returns 201, a saved Ticket, and generated ticket number" time="0.025019">
+        </testcase>
+        <testcase classname="tests/lab-02/create-ticket.api.test.ts" name="POST /api/tickets &gt; returns 400 Bad Request when required fields are missing" time="0.005653">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-02/my-tickets.api.test.ts" timestamp="2026-10-23T08:19:33.932Z" hostname="LAPTOP-TPJO7VEP" tests="2" failures="0" errors="0" skipped="0" time="0.2155696">
+        <testcase classname="tests/lab-02/my-tickets.api.test.ts" name="GET /api/tickets &gt; returns 200 and a paginated list of tickets for a valid requester" time="0.0181893">
+        </testcase>
+        <testcase classname="tests/lab-02/my-tickets.api.test.ts" name="GET /api/tickets &gt; returns 401 without a session even with a client requesterId" time="0.004971">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-02/ticket-detail.api.test.ts" timestamp="2026-10-23T08:19:33.933Z" hostname="LAPTOP-TPJO7VEP" tests="3" failures="0" errors="0" skipped="0" time="0.0255291">
+        <testcase classname="tests/lab-02/ticket-detail.api.test.ts" name="Legacy Ticket identity fallback is closed &gt; requires a session before looking up /api/tickets/1?requesterId=1" time="0.0175493">
+        </testcase>
+        <testcase classname="tests/lab-02/ticket-detail.api.test.ts" name="Legacy Ticket identity fallback is closed &gt; requires a session before looking up /api/tickets/1?requesterId=2" time="0.0041845">
+        </testcase>
+        <testcase classname="tests/lab-02/ticket-detail.api.test.ts" name="Legacy Ticket identity fallback is closed &gt; requires a session before looking up /api/tickets/999?requesterId=1" time="0.0030172">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/action-validation.test.ts" timestamp="2026-10-23T08:19:33.933Z" hostname="LAPTOP-TPJO7VEP" tests="54" failures="0" errors="0" skipped="0" time="0.0133453">
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; trims text, counts Unicode characters, normalizes optional blanks and preserves omitted defaults for hashing" time="0.0031506">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = &quot;&quot;" time="0.0007975">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = &quot; \t\n&quot;" time="0.0001757">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;" time="0.0001476">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = null" time="0.000111">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = &quot;invalid\u0000text&quot;" time="0.000162">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field description = &quot;\ud800&quot;" time="0.00013">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field result = &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;" time="0.0001194">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field result = 4" time="0.0002446">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field followUpNote = &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;" time="0.0002107">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field attachmentNotes = &quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;" time="0.0001319">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field followUpRequired = &quot;true&quot;" time="0.0000924">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field followUpRequired = null" time="0.0000843">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field assigneeId = null" time="0.000128">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field assigneeId = &quot;not-a-uuid&quot;" time="0.0001391">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field expectedTicketVersion = &quot;1&quot;" time="0.0000848">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field expectedTicketVersion = 0" time="0.0000785">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field expectedTicketVersion = 1.1" time="0.0000738">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field expectedTicketVersion = 2147483648" time="0.0000742">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field performedById = &quot;spoof&quot;" time="0.0000799">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field status = &quot;COMPLETED&quot;" time="0.0000756">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field resolutionCycle = 2" time="0.0001703">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid create field createdAt = &quot;2026-10-20T10:00:00.000Z&quot;" time="0.0001382">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; requires an object body (null)" time="0.0001457">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; requires an object body (%j)" time="0.0000802">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; requires an object body (&quot;text&quot;)" time="0.0000775">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; requires an object body (10)" time="0.0000737">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-10-20" time="0.0002852">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-10-20T10:00:00" time="0.000207">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-02-30T10:00:00Z" time="0.0001021">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-13-01T00:00:00Z" time="0.0000859">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-10-20T24:00:00Z" time="0.0001325">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-10-20T10:60:00Z" time="0.0000965">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 2026-10-20T10:00:00+24:00" time="0.0000855">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects invalid/local-only actionAt 0000-01-01T00:00:00Z" time="0.0000972">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; normalizes offsets and accepts leap days and inclusive Ticket/server bounds" time="0.0005058">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; validates final merged state, clears omitted follow-up note, and keeps the current completed Result" time="0.0008953">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix PLANNED -&gt; PLANNED" time="0.0001826">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix PLANNED -&gt; IN_PROGRESS" time="0.0000845">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix PLANNED -&gt; COMPLETED" time="0.0000785">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix PLANNED -&gt; CANCELLED" time="0.0000702">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix IN_PROGRESS -&gt; PLANNED" time="0.0001285">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix IN_PROGRESS -&gt; IN_PROGRESS" time="0.0001203">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix IN_PROGRESS -&gt; COMPLETED" time="0.0000673">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix IN_PROGRESS -&gt; CANCELLED" time="0.0000629">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix COMPLETED -&gt; PLANNED" time="0.0000808">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix COMPLETED -&gt; IN_PROGRESS" time="0.0001068">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix COMPLETED -&gt; COMPLETED" time="0.0000886">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix COMPLETED -&gt; CANCELLED" time="0.0000761">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix CANCELLED -&gt; PLANNED" time="0.0000744">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix CANCELLED -&gt; IN_PROGRESS" time="0.00011">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix CANCELLED -&gt; COMPLETED" time="0.0000705">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; covers action matrix CANCELLED -&gt; CANCELLED" time="0.000068">
+        </testcase>
+        <testcase classname="tests/lab-04/action-validation.test.ts" name="Action validation (UNIT-01..03) &gt; rejects empty patches, unknown mutable fields and malformed pagination" time="0.0008754">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/actions-taken.api.test.ts" timestamp="2026-10-23T08:19:33.941Z" hostname="LAPTOP-TPJO7VEP" tests="70" failures="0" errors="0" skipped="0" time="4.0518745">
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-01/02: s1 creates defaulted Planned work independently of Ticket Owner with one full revision" time="0.0527232">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-01/02: admin creates defaulted Planned work independently of Ticket Owner with one full revision" time="0.0223321">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;description&quot;:&quot;&quot;} without any writes" time="0.011657">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;description&quot;:&quot; \t &quot;} without any writes" time="0.0106751">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;description&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;} without any writes" time="0.0091171">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;description&quot;:null} without any writes" time="0.0101722">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;result&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;} without any writes" time="0.008607">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;attachmentNotes&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;} without any writes" time="0.0093714">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;followUpNote&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;} without any writes" time="0.0095872">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;followUpRequired&quot;:true} without any writes" time="0.0125746">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;followUpRequired&quot;:true,&quot;followUpNote&quot;:&quot; &quot;} without any writes" time="0.0109467">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;followUpRequired&quot;:false,&quot;followUpNote&quot;:&quot;Unexpected&quot;} without any writes" time="0.0115073">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;followUpRequired&quot;:&quot;true&quot;} without any writes" time="0.0098897">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;assigneeId&quot;:null} without any writes" time="0.0092677">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;assigneeId&quot;:&quot;bad&quot;} without any writes" time="0.009778">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;expectedTicketVersion&quot;:0} without any writes" time="0.0097922">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;expectedTicketVersion&quot;:&quot;1&quot;} without any writes" time="0.0100561">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;expectedTicketVersion&quot;:1.5} without any writes" time="0.0101358">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;performedById&quot;:&quot;da57e36b-884e-4052-9b21-8f87eb84da2e&quot;} without any writes" time="0.0129983">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;actorId&quot;:&quot;9e3a9d2b-c512-4721-9c90-a32f6f65e002&quot;} without any writes" time="0.010623">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;ticketId&quot;:99} without any writes" time="0.0091776">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;resolutionCycle&quot;:3} without any writes" time="0.0094653">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;status&quot;:&quot;COMPLETED&quot;} without any writes" time="0.0097162">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;createdAt&quot;:&quot;2026-10-01T00:00:00Z&quot;} without any writes" time="0.0096836">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;cancellationReason&quot;:&quot;No&quot;} without any writes" time="0.0103923">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;actionAt&quot;:&quot;2026-10-20T10:00:00&quot;} without any writes" time="0.0109303">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;actionAt&quot;:&quot;2026-02-30T10:00:00Z&quot;} without any writes" time="0.0099011">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;actionAt&quot;:&quot;2026-09-30T23:59:59.999Z&quot;} without any writes" time="0.0116703">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: rejects invalid/spoofed POST {&quot;actionAt&quot;:&quot;2099-01-01T00:00:00Z&quot;} without any writes" time="0.010916">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03: exact maximum strings and offset-equivalent Ticket creation time round-trip" time="0.0235447">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-04: assignment, different editor and reassignment preserve performer and Ticket Owner" time="0.0286445">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-05: refuses new assignment to r1" time="0.0113886">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-05: refuses new assignment to inactive" time="0.0109778">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-05: refuses new assignment to missing" time="0.0107337">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-05: inactive-assignee completion fails; reassignment enables completion and historical correction" time="0.0565968">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06/07/08: validates merged completion/follow-up, appends immutable revisions and rejects no-ops/fixed fields" time="0.1392766">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: cancellation requires reason, preserves cancellation evidence and makes the action read-only" time="0.0678558">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix PLANNED -&gt; PLANNED" time="0.0347641">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix PLANNED -&gt; IN_PROGRESS" time="0.0315015">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix PLANNED -&gt; COMPLETED" time="0.0310837">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix PLANNED -&gt; CANCELLED" time="0.0279365">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix IN_PROGRESS -&gt; PLANNED" time="0.0391388">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix IN_PROGRESS -&gt; IN_PROGRESS" time="0.0359968">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix IN_PROGRESS -&gt; COMPLETED" time="0.0380161">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix IN_PROGRESS -&gt; CANCELLED" time="0.036152">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix COMPLETED -&gt; PLANNED" time="0.036449">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix COMPLETED -&gt; IN_PROGRESS" time="0.0346588">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix COMPLETED -&gt; COMPLETED" time="0.0344612">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix COMPLETED -&gt; CANCELLED" time="0.0369201">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix CANCELLED -&gt; PLANNED" time="0.0357107">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix CANCELLED -&gt; IN_PROGRESS" time="0.0314413">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix CANCELLED -&gt; COMPLETED" time="0.0286194">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: direct API matrix CANCELLED -&gt; CANCELLED" time="0.03019">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-03/08/09: invalid PATCH, missing nested resources, empty/beyond-last history and unsupported history writes are safe" time="0.1001851">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: freezes action writes under Resolved parent" time="0.027487">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: freezes action writes under Closed parent" time="0.0357269">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: freezes action writes under Cancelled parent" time="0.040427">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-06: preserves visible prior-cycle records while refusing edits after reopening" time="0.0470284">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-09: list ordering, pagination, actionAt correction and scoped parent/revision lookups are stable" time="0.1000533">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-10/11: canonical replay retains original body after edits/terminal state; changed payload/parent conflicts and actor scopes differ" time="0.065093">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; API-11: failed input stores no receipt and the same key can submit corrected work" time="0.0152685">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; SEC-01/03: Requester reads only own current actions, including cancelled history, without private/account fields" time="0.0439564">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; SEC-02/04/06: authentication, role and CSRF checks reject direct requests before lookup or writes" time="0.0495464">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; SEC-05/07: current deactivation/demotion/password-change state is enforced before replay" time="0.1076474">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; SEC-08: receipt failure rolls back action/audit/version and returns a generic error; JSON and IDs fail safely" time="0.0538148">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; CON-01/05 (action portion): simultaneous creates/retries and edits cannot duplicate or overwrite current work" time="0.1522511">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; CON-04 (action portion): revalidates actor after waiting for an account-change lock" time="0.0854801">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; CON-04 (action portion): revalidates assignee after waiting for an account-change lock" time="0.0196145">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; CON-03 (action portion): database SQLSTATE 40001 rolls back and returns a retryable conflict" time="0.019106">
+        </testcase>
+        <testcase classname="tests/lab-04/actions-taken.api.test.ts" name="Actions Taken API (Lab 4) &gt; CON-03 (action portion): database SQLSTATE 40P01 rolls back and returns a retryable conflict" time="0.020509">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/authorization.api.test.ts" timestamp="2026-10-23T08:19:33.949Z" hostname="LAPTOP-TPJO7VEP" tests="40" failures="0" errors="0" skipped="0" time="2.8697003">
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/tickets" time="0.0065718">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/tickets/1" time="0.0031897">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/tickets/1/attachments/1" time="0.003842">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/tickets/1/actions" time="0.0028524">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/tickets/1/status-history" time="0.0024414">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/staff/tickets" time="0.0024667">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/admin/users" time="0.0023315">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: absent/forged identity cannot read /api/requesters" time="0.0023806">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: anonymous creation never falls back to an active Requester" time="0.0086463">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: logout, invalid signature and expired cookie have no business access" time="0.0627674">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: logging in rotates an existing session and its CSRF token" time="0.1003804">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: r1 creation uses authenticated identity and ignores forged requesterId" time="0.0231948">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: staff creation uses authenticated identity and ignores forged requesterId" time="0.0064535">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-04: admin creation uses authenticated identity and ignores forged requesterId" time="0.005601">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-01/03: Ticket, attachment, action and history reads hide other-owner existence and Internal Notes" time="0.1010951">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/dashboard" time="0.0057515">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/actions/mine" time="0.003528">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/tickets" time="0.0033628">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/users" time="0.0028729">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/tickets/1" time="0.0030773">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/tickets/1/notes" time="0.0027653">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/staff/tickets/1/actions/e8c900d7-31d4-4ef8-aeb8-c713ecc58afe/revisions" time="0.0030388">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/admin/users" time="0.0032053">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester forbidden before lookup at /api/requesters" time="0.0032388">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester cannot mutate staff status with valid CSRF" time="0.0037393">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester cannot mutate staff owner with valid CSRF" time="0.0037073">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester cannot mutate staff priority with valid CSRF" time="0.0038048">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-02: Requester cannot mutate staff actions with valid CSRF" time="0.0037561">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: forced-change r1 cannot use any business endpoint but can recover" time="0.0196666">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: forced-change staff cannot use any business endpoint but can recover" time="0.0218076">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: forced-change admin cannot use any business endpoint but can recover" time="0.0205087">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: deactivation invalidates already logged-in r1, including /me" time="0.0157281">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: deactivation invalidates already logged-in staff, including /me" time="0.0149223">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: deactivation invalidates already logged-in admin, including /me" time="0.0159425">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: current database role replaces the session role for admin and private-note access" time="0.0166055">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-05: mandatory password change remains available while business access is blocked" time="0.1247254">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-06: missing/wrong/another session CSRF rejects every business mutation without writes" time="0.2885499">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-07: successful Action replay is reauthorized after logout/demotion/deactivation/forced change" time="0.1456817">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-08: creation validation/failure is safe and a database failure has no partial Ticket" time="0.0611496">
+        </testcase>
+        <testcase classname="tests/lab-04/authorization.api.test.ts" name="Lab 4 direct API authorization and safe failures &gt; SEC-08: Internal Notes bind the actor, reject spoofing and never change public activity/version" time="0.0267274">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/concurrency.api.test.ts" timestamp="2026-10-23T08:19:33.956Z" hostname="LAPTOP-TPJO7VEP" tests="5" failures="0" errors="0" skipped="0" time="1.9343344">
+        <testcase classname="tests/lab-04/concurrency.api.test.ts" name="Lab 4 legacy mutation concurrency hardening &gt; CON-04: creation rechecks account change false/undefined after waiting" time="0.0800933">
+        </testcase>
+        <testcase classname="tests/lab-04/concurrency.api.test.ts" name="Lab 4 legacy mutation concurrency hardening &gt; CON-04: creation rechecks account change undefined/true after waiting" time="0.0396897">
+        </testcase>
+        <testcase classname="tests/lab-04/concurrency.api.test.ts" name="Lab 4 legacy mutation concurrency hardening &gt; CON-04: private-note writer reauthorizes after a committed role/activation change" time="0.0308572">
+        </testcase>
+        <testcase classname="tests/lab-04/concurrency.api.test.ts" name="Lab 4 legacy mutation concurrency hardening &gt; CON-04: private-note writer reauthorizes after a committed role/activation change" time="0.029618">
+        </testcase>
+        <testcase classname="tests/lab-04/concurrency.api.test.ts" name="Lab 4 legacy mutation concurrency hardening &gt; CON-01: simultaneous authenticated Ticket creation preserves distinct work and unique numbers" time="0.0839739">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/dashboard-calculations.test.ts" timestamp="2026-10-23T08:19:33.957Z" hostname="LAPTOP-TPJO7VEP" tests="19" failures="0" errors="0" skipped="0" time="0.0071139">
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; normalizes effective priority and only falls back when IT priority is null" time="0.0011284">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; uses Bangkok calendar dates for 2026-10-20T10:00:00.000Z" time="0.0010627">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; uses Bangkok calendar dates for 2026-10-20T17:00:00.000Z" time="0.000123">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; uses Bangkok calendar dates for 2026-01-01T00:00:00.000+07:00" time="0.0000863">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; uses Bangkok calendar dates for 2024-03-01T12:00:00.000+07:00" time="0.0000707">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; converts equivalent offsets into equal instants" time="0.0011794">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;requesterId&quot;:&quot;another-user&quot;}" time="0.0007028">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;page&quot;:&quot;0&quot;}" time="0.0001658">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;page&quot;:&quot;2.5&quot;}" time="0.0002975">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;limit&quot;:&quot;51&quot;}" time="0.0001565">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;statusGroup&quot;:&quot;all&quot;}" time="0.0001094">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;status&quot;:&quot;New&quot;,&quot;statusGroup&quot;:&quot;active&quot;}" time="0.00009">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;status&quot;:[&quot;New&quot;,&quot;Closed&quot;]}" time="0.0000854">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;sort&quot;:&quot;passwordHash&quot;}" time="0.0000848">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;updatedFrom&quot;:&quot;2026-10-13&quot;}" time="0.0001915">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;updatedFrom&quot;:&quot;2026-02-30T00:00:00Z&quot;}" time="0.00012">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;updatedFrom&quot;:&quot;2026-10-13T24:00:00Z&quot;}" time="0.0000924">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;updatedFrom&quot;:&quot;2026-10-13T00:00:00+25:00&quot;}" time="0.0000865">
+        </testcase>
+        <testcase classname="tests/lab-04/dashboard-calculations.test.ts" name="Dashboard calendar and list validation &gt; rejects invalid filters {&quot;updatedFrom&quot;:&quot;2026-10-13T00:00:00Z&quot;,&quot;updatedBefore&quot;:&quot;2026-10-13T00:00:00Z&quot;}" time="0.0000927">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/dashboard-performance.test.ts" timestamp="2026-10-23T08:19:33.960Z" hostname="LAPTOP-TPJO7VEP" tests="1" failures="0" errors="0" skipped="0" time="7.3355828">
+        <testcase classname="tests/lab-04/dashboard-performance.test.ts" name="Lab 4 bounded dashboard performance smoke &gt; PERF-01/02: 10k Tickets/30k Actions, five warmups and twenty sequential HTTP measurements per role" time="2.4525598">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/migration-regression.test.ts" timestamp="2026-10-23T08:19:33.960Z" hostname="LAPTOP-TPJO7VEP" tests="9" failures="0" errors="0" skipped="0" time="15.7120574">
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; MIG-01 preserves every legacy row/reference except documented aliases; backfills without fabricated history" time="0.5994599">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; DB-01 stores independent performers/assignees, required defaults, revisions, receipts and events through Prisma" time="0.0171959">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; DB-02 rejects invalid field boundaries, missing conditional evidence and nonpositive counters" time="0.0428784">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; DB-03 restricts orphans/deletion, validates audit payloads and enforces uniqueness scopes" time="0.0530647">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; DB-04 supports conditional stale-write detection, transaction rollback and required query indexes" time="0.0594056">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; MIG-02 preflight rejects unknown currentStatus and leaves Lab 3 schema/data intact" time="2.091133">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; MIG-02 preflight rejects unknown requestedPriority and leaves Lab 3 schema/data intact" time="2.4960981">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; MIG-02 preflight rejects unknown itPriority and leaves Lab 3 schema/data intact" time="2.4832225">
+        </testcase>
+        <testcase classname="tests/lab-04/migration-regression.test.ts" name="Lab 4 database migration and recovery &gt; MIG-03 rolls back late DDL failure and restores the complete Lab 3 backup with attachment bytes" time="2.0930504">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/requester-dashboard.api.test.ts" timestamp="2026-10-23T08:19:33.962Z" hostname="LAPTOP-TPJO7VEP" tests="19" failures="0" errors="0" skipped="0" time="2.4101364">
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; DASH-01: exact independent fixture counts, ordering, fallback and private-field projection" time="0.0524981">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; DASH-02/06: genuine zero/empty response, including a wholly empty ticket table" time="0.0449206">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; caps both previews at five while counts include all matches" time="0.0235045">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; DASH-05: each drill-down matches its metric and independent ordered fixture IDs" time="0.071808">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects dashboard identity/window overrides: requesterId=someone-else" time="0.0155491">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects dashboard identity/window overrides: timeZone=UTC" time="0.0144172">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects dashboard identity/window overrides: since=2020-01-01" time="0.0145085">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: requesterId=someone-else" time="0.0180796">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: status=New&amp;statusGroup=active" time="0.0176077">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: updatedFrom=2026-10-20" time="0.0148124">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: updatedFrom=2026-02-30T00%3A00%3A00Z" time="0.0145464">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: resolvedFrom=2026-10-20T00%3A00%3A00Z&amp;resolvedBefore=2026-10-19T00%3A00%3A00Z" time="0.0160432">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: limit=51" time="0.0148601">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: page=-1" time="0.0150421">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: sort=notes" time="0.0156843">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; rejects malformed list filters: status=New&amp;status=Closed" time="0.0156978">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; enforces session, current role, activation and password-change state on both views" time="0.057617">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; DASH-06: aggregates and previews use one snapshot during a concurrent update" time="0.1080178">
+        </testcase>
+        <testcase classname="tests/lab-04/requester-dashboard.api.test.ts" name="Requester dashboard API and drill-down (Lab 4) &gt; refreshes after public activity; private notes do not change requester-visible metrics" time="0.0613201">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/seed-fixtures.test.ts" timestamp="2026-10-23T08:19:33.965Z" hostname="LAPTOP-TPJO7VEP" tests="11" failures="0" errors="0" skipped="0" time="20.2364152">
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; MIG-04 / SEED-01: normal CLI extends the legacy seed, and repeated runs preserve every stored value" time="2.8569509">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; MIG-04 / SEED-02: passwords, user edits, related work and changed action history survive reseeding" time="2.7955947">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-03: deterministic CLI creates the exact 11-Ticket dashboard fixture and role/priority/action coverage" time="2.315291">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-04: UTC timestamp oracle is independent of PostgreSQL session timezone" time="0.0462869">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-04: independent SQL proves the documented requester/staff counts, ordering and ownership predicates" time="0.0780206">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-05: action snapshots are complete, ordered and consistent, including follow-up clearing and reopened history" time="0.0626085">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-06: separate boundary and empty profiles provide exact before/at/after and all-zero fixtures" time="3.0776859">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-07: concurrent same-profile seed attempts commit one complete dataset" time="1.2557607">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-08: email collisions abort without changing existing work or leaving a partial dataset" time="1.0414612">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-09: a late nested-record collision rolls back every new fixture and leaves the existing Ticket intact" time="1.0680744">
+        </testcase>
+        <testcase classname="tests/lab-04/seed-fixtures.test.ts" name="Lab 4 seed and dashboard fixtures &gt; SEED-10: an existing Ticket key gets no added action/history; invalid demo clocks fail before writes" time="1.1971265">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/staff-dashboard.api.test.ts" timestamp="2026-10-23T08:19:33.967Z" hostname="LAPTOP-TPJO7VEP" tests="15" failures="0" errors="0" skipped="0" time="2.0145037">
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; matches independent counts, boundaries, zero buckets and bounded ordered previews" time="0.0318591">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; administrator uses their own assignment and owner scope" time="0.0184341">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; paginates current-cycle actions without duplicates and permits beyond-last pages" time="0.0300882">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; every status, priority and top metric queue filter matches dashboard counts" time="0.1416499">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/dashboard?owner=me" time="0.0051718">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/actions/mine?assigneeId=other" time="0.006201">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/actions/mine?page=0" time="0.0065395">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/actions/mine?page=2.1" time="0.0036929">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/tickets?statusGroup=active&amp;status=Open" time="0.0036413">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/tickets?updatedFrom=2026-02-30T00:00:00Z" time="0.0037188">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; rejects malformed or spoofed query /api/staff/tickets?resolvedFrom=2026-10-20T00:00:00Z&amp;resolvedBefore=2026-10-19T00:00:00Z" time="0.0037091">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; enforces session and current role on /api/staff/dashboard" time="0.0237316">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; enforces session and current role on /api/staff/actions/mine" time="0.022652">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; keeps aggregates, previews and actions in a single snapshot during concurrent writes" time="0.0903349">
+        </testcase>
+        <testcase classname="tests/lab-04/staff-dashboard.api.test.ts" name="Staff dashboard and queue drill-down &gt; retains every zero bucket and empty preview in an empty database" time="0.0230778">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-04/ticket-workflow.api.test.ts" timestamp="2026-10-23T08:19:33.969Z" hostname="LAPTOP-TPJO7VEP" tests="68" failures="0" errors="0" skipped="0" time="5.5365707">
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-01: all 64 transition pairs as s1 obey the independent matrix" time="0.9687255">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-01: all 64 transition pairs as admin obey the independent matrix" time="0.7868372">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;legacy zero actions&apos;" time="0.0251909">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;cancelled only&apos;" time="0.0220131">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;old completion&apos;" time="0.0231088">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;unfinished follow-up&apos;" time="0.0232924">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;planned plus completed&apos;" time="0.0248449">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;started plus completed&apos;" time="0.0248333">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;completed follow-up&apos;" time="0.0211343">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;completed only&apos;" time="0.0247599">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;cancelled follow-up ignored&apos;" time="0.0257037">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;In Progress&apos; gate: &apos;old unfinished/follow-up ignored&apos;" time="0.0240306">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;legacy zero actions&apos;" time="0.0202043">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;cancelled only&apos;" time="0.0225344">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;old completion&apos;" time="0.0226296">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;unfinished follow-up&apos;" time="0.0223884">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;planned plus completed&apos;" time="0.0240922">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;started plus completed&apos;" time="0.0224028">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;completed follow-up&apos;" time="0.0214512">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;completed only&apos;" time="0.0234734">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;cancelled follow-up ignored&apos;" time="0.0235887">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: &apos;Waiting for Requester&apos; gate: &apos;old unfinished/follow-up ignored&apos;" time="0.0234421">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-02: clearing completed follow-up via Actions API unblocks resolution without losing its revision" time="0.0275877">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in New" time="0.0101703">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Open" time="0.0215934">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in In Progress" time="0.0228659">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Waiting for Requester" time="0.0242249">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Resolved" time="0.0089885">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Closed" time="0.00974">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Reopened" time="0.0095837">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-03: advisory is restricted and idempotent in Cancelled" time="0.009291">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-04: reopen Resolved preserves old work, resets advisory/time and requires new-cycle evidence" time="0.0427116">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-04: reopen Closed preserves old work, resets advisory/time and requires new-cycle evidence" time="0.0433297">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-04: already-Resolved legacy Ticket closes with unknown resolvedAt; modern closure preserves its instant" time="0.0283376">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-05: cancellation cascades once over current unfinished work, retaining completed/cancelled/old evidence" time="0.1312872">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-06: history scopes ownership, is immutable/paginated/deterministic, and discloses only shared fields" time="0.0636994">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-07: owner/priority require versions, keep legacy aliases and do not change requested priority" time="0.0552774">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-07: public comment/upload/removal bump parent version atomically; private notes and repeated removal do not" time="0.0559326">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {} with no writes" time="0.0100615">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:0,&quot;status&quot;:&quot;Open&quot;} with no writes" time="0.008938">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:&quot;1&quot;,&quot;status&quot;:&quot;Open&quot;} with no writes" time="0.0093801">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Unknown&quot;} with no writes" time="0.0096319">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Cancelled&quot;} with no writes" time="0.0107808">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Cancelled&quot;,&quot;reason&quot;:&quot; &quot;} with no writes" time="0.009355">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Cancelled&quot;,&quot;reason&quot;:&quot;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot;} with no writes" time="0.0132672">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Open&quot;,&quot;reason&quot;:&quot;Unexpected&quot;} with no writes" time="0.0108042">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validation rejects malformed workflow input {&quot;expectedTicketVersion&quot;:1,&quot;status&quot;:&quot;Open&quot;,&quot;actorId&quot;:&quot;Spoofed&quot;} with no writes" time="0.010759">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; accepts case/underscore aliases, Ticket numbers and stale precedence over the resolution gate" time="0.0193126">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; security: role/current account/CSRF checks precede resources and no advisory or activity identity can be spoofed" time="0.0373666">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-01: status versus &apos;owner&apos;; statusFirst=true" time="0.0673785">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-01: status versus &apos;owner&apos;; statusFirst=false" time="0.0409273">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-01: status versus &apos;priority&apos;; statusFirst=true" time="0.040904">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-01: status versus &apos;priority&apos;; statusFirst=false" time="0.0469411">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-02: Resolve versus &apos;create&apos;; resolveFirst=true" time="0.0499015">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-02: Resolve versus &apos;create&apos;; resolveFirst=false" time="0.0541919">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-02: Resolve versus &apos;follow-up&apos;; resolveFirst=true" time="0.0540335">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-02: Resolve versus &apos;follow-up&apos;; resolveFirst=false" time="0.0530036">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-03: cancellation failure at revision rolls back all actions, parent and history" time="0.039199">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-03: cancellation failure at event rolls back all actions, parent and history" time="0.0360568">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-03: cancellation failure at 40001 rolls back all actions, parent and history" time="0.0297599">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-03: cancellation failure at 40P01 rolls back all actions, parent and history" time="0.035375">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; WF-07: failed public activity rolls back its row and version; attachment boundaries preserve ownership/quota" time="0.0692642">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-04: rechecks actor eligibility after an actual account lock wait" time="0.0331513">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-04: rechecks owner eligibility after an actual account lock wait" time="0.0434535">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-04: rechecks completion-assignee eligibility after an actual account lock wait" time="0.0306601">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; CON-04: rechecks completion-inactive eligibility after an actual account lock wait" time="0.0303774">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; validates authenticated attachment type/size/removal reason without changing parent or consuming quota" time="0.0375538">
+        </testcase>
+        <testcase classname="tests/lab-04/ticket-workflow.api.test.ts" name="Ticket workflow API (Lab 4) &gt; staff detail/queue use the current database role after promotion and demotion of an existing session" time="0.0333642">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/auth.api.test.ts" timestamp="2026-10-23T08:19:33.978Z" hostname="LAPTOP-TPJO7VEP" tests="3" failures="0" errors="0" skipped="0" time="0.3512714">
+        <testcase classname="tests/lab-03/auth.api.test.ts" name="Auth API (Lab 3) &gt; should login successfully with valid credentials and return safe user data" time="0.0948729">
+        </testcase>
+        <testcase classname="tests/lab-03/auth.api.test.ts" name="Auth API (Lab 3) &gt; should return 401 generic error for inactive account with correct password" time="0.0639136">
+        </testcase>
+        <testcase classname="tests/lab-03/auth.api.test.ts" name="Auth API (Lab 3) &gt; should return 401 generic error for wrong password" time="0.0599063">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/authorization.api.test.ts" timestamp="2026-10-23T08:19:33.978Z" hostname="LAPTOP-TPJO7VEP" tests="6" failures="0" errors="0" skipped="0" time="0.3810694">
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-01: Direct API call with forged requesterId ignores client value (AC-03, BR-03)" time="0.025753">
+        </testcase>
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-02: Requester calls Internal Notes endpoint returns 403 with no content (AC-04, BR-04)" time="0.0063518">
+        </testcase>
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-03: Direct API call with an expired/invalidated session token returns 401 (AC-12, BR-08)" time="0.0073502">
+        </testcase>
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-04: Requester calling /staff/* or /admin/* routes returns 403 (FR-08)" time="0.06881">
+        </testcase>
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-06: IT Staff calling /admin/users returns 403 (FR-08)" time="0.0043959">
+        </testcase>
+        <testcase classname="tests/lab-03/authorization.api.test.ts" name="Authorization &amp; Security API Tests &gt; SEC-10: CSRF token omitted or invalid on a state-changing request returns 403" time="0.0079792">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/comments-notes.api.test.ts" timestamp="2026-10-23T08:19:33.980Z" hostname="LAPTOP-TPJO7VEP" tests="8" failures="0" errors="0" skipped="0" time="0.4553392">
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; UNIT-04: Comment/Note content validator (AC-14, BR-16) &gt; rejects empty string and whitespace-only string; accepts valid string" time="0.001352">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; API-07: POST comment with empty/whitespace content &gt; returns 400 VALIDATION_ERROR and creates no Comment row for empty content" time="0.0102879">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; API-07: POST comment with empty/whitespace content &gt; returns 400 VALIDATION_ERROR and creates no Comment row for whitespace-only content" time="0.0067789">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; API-20: IT Staff posts Public Comment regardless of ownership (FR-21) &gt; creates comment with 201 status for IT Staff on unowned ticket" time="0.027173">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; API-08: Requester role blocked from Internal Notes (AC-04, FR-22, BR-04) &gt; returns 403 on GET /api/staff/tickets/:id/notes with no note content or count" time="0.0057447">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; API-08: Requester role blocked from Internal Notes (AC-04, FR-22, BR-04) &gt; returns 403 on POST /api/staff/tickets/:id/notes for Requester" time="0.005287">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; IT Staff Internal Notes operations &gt; allows IT Staff to create and retrieve internal notes" time="0.0203733">
+        </testcase>
+        <testcase classname="tests/lab-03/comments-notes.api.test.ts" name="Public Comments &amp; Internal Notes API (Lab 3) &gt; IT Staff Internal Notes operations &gt; rejects empty internal note content with 400 VALIDATION_ERROR" time="0.0052301">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/requester-ticket-detail.api.test.ts" timestamp="2026-10-23T08:19:33.981Z" hostname="LAPTOP-TPJO7VEP" tests="11" failures="0" errors="0" skipped="0" time="0.5028265">
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; GET /api/tickets/:id without requesterId query param (Lab 3) &gt; returns ticket details using session auth" time="0.0123444">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; GET /api/tickets/:id without requesterId query param (Lab 3) &gt; returns 404 if another requester attempts to view this ticket" time="0.0069378">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; GET /api/tickets/:id without requesterId query param (Lab 3) &gt; allows IT staff to view the ticket" time="0.0070584">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/comments &gt; allows owning requester to post a public comment" time="0.0101476">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/comments &gt; allows IT staff to post a public comment" time="0.0089592">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/comments &gt; rejects empty or whitespace-only comments (BR-16, AC-14)" time="0.0085534">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/comments &gt; rejects comments from unauthenticated users" time="0.0037167">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/comments &gt; rejects comments from a requester who does not own the ticket" time="0.0054213">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/resolved-indicator (AC-08, FR-12, BR-05) &gt; sets problemAppearsResolved=true in Open without changing formal status" time="0.0150652">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/resolved-indicator (AC-08, FR-12, BR-05) &gt; rejects resolution indicator from IT staff (only requester can indicate)" time="0.0033054">
+        </testcase>
+        <testcase classname="tests/lab-03/requester-ticket-detail.api.test.ts" name="Requester Ticket Detail API Tests (Lab 3) &gt; POST /api/tickets/:id/resolved-indicator (AC-08, FR-12, BR-05) &gt; rejects resolution indicator from non-owner requester" time="0.0044344">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/staff-queue.api.test.ts" timestamp="2026-10-23T08:19:33.983Z" hostname="LAPTOP-TPJO7VEP" tests="22" failures="0" errors="0" skipped="0" time="0.5668119">
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; SEC: Unauthenticated request to /api/staff/tickets returns 401 UNAUTHENTICATED" time="0.0071642">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; SEC: Requester calling /api/staff/tickets returns 403 FORBIDDEN" time="0.0070853">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; SEC: IT Staff and Administrator can access /api/staff/tickets" time="0.0217427">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-10: Returns tickets matching default structure with pagination and default sort (-createdAt)" time="0.0121514">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-14: Search by ticket number or summary (case-insensitive substring)" time="0.0201154">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-15: Filter by status returns only matching tickets" time="0.0083095">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-11: Invalid status filter returns 400 VALIDATION_ERROR" time="0.0039759">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-15: Filter by priority returns only matching tickets" time="0.0090569">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-11: Invalid priority filter returns 400 VALIDATION_ERROR" time="0.0041929">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-15: Filter by valid category returns matching tickets" time="0.0096021">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-11: Invalid category returns 400 VALIDATION_ERROR" time="0.004475">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-18: Filter by owner=unassigned returns unassigned tickets" time="0.0079775">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-18: Filter by owner=me returns only tickets assigned to caller" time="0.0075502">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-18: Filter by specific owner userId" time="0.0071026">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-16: Sort by createdAt ascending" time="0.008233">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-16: Invalid sort returns 400 VALIDATION_ERROR" time="0.0038752">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-17: Pagination respects page and pageSize, with correct totalCount" time="0.0074227">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; FR-17: Unrecognized or negative page/pageSize falls back to defaults" time="0.0073719">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-09: Claim and Reassign Ticket Owner (AC-06, FR-18) &gt; IT Staff claims an unassigned Ticket (200, ownerId set to caller, visible in subsequent queue fetch)" time="0.0284568">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-09: Claim and Reassign Ticket Owner (AC-06, FR-18) &gt; Rejects assigning ticket owner to an inactive user (400 VALIDATION_ERROR)" time="0.0033281">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-09: Claim and Reassign Ticket Owner (AC-06, FR-18) &gt; Rejects assigning ticket owner to a non-existent user (400 VALIDATION_ERROR)" time="0.0033602">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-queue.api.test.ts" name="Staff Ticket Queue API (GET /api/staff/tickets) &gt; API-09: Claim and Reassign Ticket Owner (AC-06, FR-18) &gt; Rejects claiming ticket from Requester role (403 FORBIDDEN)" time="0.0035375">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/staff-ticket-detail.api.test.ts" timestamp="2026-10-23T08:19:33.985Z" hostname="LAPTOP-TPJO7VEP" tests="26" failures="0" errors="0" skipped="0" time="0.4141338">
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; UNIT-03: IT Priority default logic (BR-12) &gt; On Ticket creation, itPriority is set equal to requestedPriority" time="0.0239588">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; UNIT-05: Status transition matrix validator (BR-13) &gt; accurately validates all 8x8 combinations against ui-spec.md §1.1 matrix" time="0.0009803">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; UNIT-05: Status transition matrix validator (BR-13) &gt; rejects identity transitions (from == to)" time="0.000178">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; UNIT-05: Status transition matrix validator (BR-13) &gt; returns false for unknown status strings" time="0.000084">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; GET /api/staff/tickets/:id &gt; returns full ticket detail by numeric id or ticketNumber for IT Staff" time="0.0173351">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; GET /api/staff/tickets/:id &gt; returns 404 for non-existent ticket" time="0.0054653">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; GET /api/staff/tickets/:id &gt; returns 403 for Requester accessing staff ticket detail" time="0.0035713">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/priority (API-13, FR-19, BR-11, BR-12) &gt; updates itPriority successfully" time="0.0082278">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/priority (API-13, FR-19, BR-11, BR-12) &gt; API-13: changing IT priority preserves requestedPriority" time="0.0081232">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/priority (API-13, FR-19, BR-11, BR-12) &gt; rejects invalid itPriority values with 400 VALIDATION_ERROR" time="0.0035928">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/status (API-12, AC-07, FR-20, BR-13, BR-14) &gt; permits legal status transition (e.g. New -&gt; In Progress)" time="0.0076331">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/status (API-12, AC-07, FR-20, BR-13, BR-14) &gt; API-12: rejects illegal status transition (e.g. In Progress -&gt; Closed) with 409 CONFLICT" time="0.0051945">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; PATCH /api/staff/tickets/:id/status (API-12, AC-07, FR-20, BR-13, BR-14) &gt; rejects invalid enum status with 400 VALIDATION_ERROR" time="0.0029077">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; API-14: Owner Assignment (FR-18) &gt; API-14: rejects assigning Ticket owner to an inactive user (400 VALIDATION_ERROR)" time="0.0043535">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; API-14: Owner Assignment (FR-18) &gt; assigns owner to active IT staff user" time="0.0063945">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; API-14: Owner Assignment (FR-18) &gt; unassigns ticket owner when ownerId is null" time="0.005554">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; API-06: Resolved-Indicator Endpoint (AC-08, FR-12, BR-05) &gt; API-06: Requester (owner) calls resolved-indicator endpoint (200, status unchanged)" time="0.007003">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; API-06: Resolved-Indicator Endpoint (AC-08, FR-12, BR-05) &gt; rejects resolved-indicator call from IT Staff with 403 (only requester can indicate)" time="0.0030058">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; MIG-02: Pre-existing Ticket itPriority backfill (spec §7.4) &gt; ensures every ticket has itPriority populated matching requestedPriority" time="0.0014833">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects Requester role accessing PATCH /api/staff/tickets/:id/priority with 403" time="0.0031679">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects Requester role accessing PATCH /api/staff/tickets/:id/status with 403" time="0.0035531">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects Requester role accessing PATCH /api/staff/tickets/:id/owner with 403" time="0.0046445">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects unauthenticated requests with 401" time="0.0034424">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects requests missing CSRF token with 403" time="0.0055888">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; Security &amp; Authorization Protections (Staff Operations) &gt; rejects any status transition from terminal status Cancelled with 409 CONFLICT" time="0.0106322">
+        </testcase>
+        <testcase classname="tests/lab-03/staff-ticket-detail.api.test.ts" name="Staff Ticket Detail &amp; Operations API (Lab 3) &gt; GET /api/staff/users &gt; returns active IT Staff and Administrator users" time="0.0052889">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/lab-03/users-admin.api.test.ts" timestamp="2026-10-23T08:19:33.989Z" hostname="LAPTOP-TPJO7VEP" tests="24" failures="0" errors="0" skipped="0" time="2.7909329">
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Authorization &gt; returns 401 UNAUTHENTICATED when unauthenticated" time="0.0054883">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Authorization &gt; returns 403 FORBIDDEN when accessed by Requester" time="0.0083011">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Authorization &gt; returns 403 FORBIDDEN when accessed by IT Staff" time="0.0056904">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; GET /api/admin/users (API-19) &gt; returns list of users with id, name, email, role, isActive" time="0.0076687">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; GET /api/admin/users (API-19) &gt; filters users by role" time="0.0076957">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; GET /api/admin/users (API-19) &gt; returns 400 VALIDATION_ERROR on invalid role filter" time="0.0080507">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; GET /api/admin/users (API-19) &gt; searches users by name or email substring" time="0.0068994">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; GET /api/admin/users (API-19) &gt; combines search and role filters (API-19)" time="0.0067694">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users (API-15) &gt; creates a user successfully with mustChangePassword=true" time="0.1406717">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users (API-15) &gt; rejects creation when email already exists (API-15, 409 EMAIL_ALREADY_EXISTS)" time="0.0053374">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users (API-15) &gt; rejects creation with weak initialPassword (400 VALIDATION_ERROR)" time="0.005032">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users (API-15) &gt; rejects creation with invalid email or missing name" time="0.0102689">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; PATCH /api/admin/users/:id (API-16, API-17) &gt; updates user attributes successfully" time="0.0065884">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; PATCH /api/admin/users/:id (API-16, API-17) &gt; returns 404 for non-existent user" time="0.0048951">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; PATCH /api/admin/users/:id (API-16, API-17) &gt; rejects update if new email conflicts with another user" time="0.00542">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; PATCH /api/admin/users/:id (API-16, API-17) &gt; prevents Administrator from deactivating their own account (API-16, CANNOT_DEACTIVATE_SELF)" time="0.0050765">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; PATCH /api/admin/users/:id (API-16, API-17) &gt; prevents demoting the last active Administrator using that active account (API-17)" time="0.0077635">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users/:id/reset-password (API-18) &gt; rejects weak newPassword with 400 VALIDATION_ERROR" time="0.0047202">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users/:id/reset-password (API-18) &gt; resets password and sets mustChangePassword=true on target user (API-18)" time="0.1181951">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; POST /api/admin/users/:id/reset-password (API-18) &gt; returns 404 for non-existent target user" time="0.0041911">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Email uniqueness normalizer (UNIT-06, BR-09) &gt; rejects user creation when email matches case-insensitively (User@x.com vs user@x.com)" time="0.0038625">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Email uniqueness normalizer (UNIT-06, BR-09) &gt; rejects user update when email matches case-insensitively" time="0.0039509">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Stored password security (SEC-09, BR-06) &gt; ensures no plaintext password is stored in database; only secure bcrypt hash" time="0.1465708">
+        </testcase>
+        <testcase classname="tests/lab-03/users-admin.api.test.ts" name="Administrator User Management API Tests (Lab 3) &gt; Seed script idempotency (MIG-03, spec §7.5) &gt; running seed script twice does not duplicate users or tickets (idempotent)" time="1.7410896">
+        </testcase>
+    </testsuite>
+</testsuites>
