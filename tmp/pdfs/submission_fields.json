@@ -1,0 +1,23 @@
+{
+  "pdf": "67070503411_TokTickIT_Lab4.pdf",
+  "fields": [
+    "section",
+    "reviewer",
+    "review_links",
+    "review_comments",
+    "project",
+    "release",
+    "llm",
+    "prompt1",
+    "prompt2",
+    "prompt3",
+    "prompt4",
+    "prompt5",
+    "prompt6",
+    "prompt7",
+    "prompt8",
+    "reflection_spec",
+    "reflection_code",
+    "reflection_correction"
+  ]
+}
