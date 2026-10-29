@@ -27,7 +27,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
 // 2. ตรวจสอบ CSRF Token สำหรับ POST, PATCH, DELETE[cite: 7]
 export const requireCsrf = (req: Request, res: Response, next: NextFunction) => {
-    if (['POST', 'PATCH', 'DELETE'].includes(req.method)) {
+    if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) {
         const token = req.headers['x-csrf-token'];
         if (!token || token !== req.session.csrfToken) {
             return res.status(403).json({

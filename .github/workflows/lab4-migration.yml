@@ -1,0 +1,63 @@
+name: Lab 4 Migration, Seeds and Recovery
+
+on:
+  push:
+    branches: [main, master, lab4-staging]
+  pull_request:
+    branches: [main, master, lab4-staging]
+
+permissions:
+  contents: read
+
+jobs:
+  migration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: lab4
+          POSTGRES_PASSWORD: lab4-test-only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lab4 -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      LAB4_REGRESSION_DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+      # Schema validation/generation needs a URL; this is also disposable.
+      DATABASE_URL: postgresql://lab4:lab4-test-only@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --prefix server
+      - name: Validate schema and generate client
+        working-directory: server
+        run: |
+          npx prisma validate
+          npx prisma generate
+      - name: Prepare disposable legacy regression database
+        working-directory: server
+        run: |
+          npx prisma migrate deploy
+          npm run prisma:seed
+      - run: npm run build --prefix server
+      - name: Verify all Labs 1-4 API, migration, seed, security and concurrency suites
+        working-directory: server
+        env:
+          LAB4_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: npm run test:regression -- --reporter=default --reporter=junit --outputFile=../test-results/lab4-regression-server.xml
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: lab4-migration-results
+          path: |
+            test-results/lab4-regression-server.xml
+            test-results/lab4-dashboard-performance.json
+          retention-days: 30

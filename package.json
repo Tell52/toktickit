@@ -6,7 +6,9 @@
   "directories": {
     "doc": "docs"
   },
-  "scripts": {},
+  "scripts": {
+    "test:e2e:regression": "playwright test --config=playwright.regression.config.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Tell52/toktickit.git"
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/Tell52/toktickit#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.4.1"
   }

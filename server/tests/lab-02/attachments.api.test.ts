@@ -21,7 +21,7 @@ describe("Attachments API", () => {
     });
 
     describe("POST /api/tickets/:id/attachments", () => {
-        it("returns 400 if the uploaded file is not a supported type", async () => {
+        it("rejects an unauthenticated upload even when requesterId is supplied", async () => {
             // จำลองว่าตั๋วเป็นของ requesterId: 1
             mockPrisma.ticket.findUnique.mockResolvedValue({
                 id: 1,
@@ -35,13 +35,13 @@ describe("Attachments API", () => {
                 .field("requesterId", 1)
                 .attach("file", Buffer.from("test content"), "test.txt");
 
-            expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(/Unsupported file type/i);
+            expect(res.status).toBe(401);
+            expect(res.body.error.code).toBe("UNAUTHENTICATED");
         });
     });
 
     describe("DELETE /api/tickets/:id/attachments/:attachmentId", () => {
-        it("soft-removes the attachment and requires a removal reason", async () => {
+        it("rejects forged requesterId during unauthenticated removal", async () => {
             mockPrisma.ticket.findUnique.mockResolvedValue({ id: 1, requesterId: 1 });
             mockPrisma.attachment.update.mockResolvedValue({
                 id: 101,
@@ -54,26 +54,22 @@ describe("Attachments API", () => {
                 .delete("/api/tickets/1/attachments/101")
                 .send({ requesterId: 1, reason: "Wrong file uploaded" });
 
-            expect(res.status).toBe(200);
-            expect(mockPrisma.attachment.update).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    data: { isRemoved: true, removalReason: "Wrong file uploaded" },
-                })
-            );
+            expect(res.status).toBe(401);
+            expect(mockPrisma.attachment.update).not.toHaveBeenCalled();
         });
 
-        it("returns 400 if the removal reason is missing", async () => {
+        it("authenticates before validating a removal reason", async () => {
             const res = await request(app)
                 .delete("/api/tickets/1/attachments/101")
                 .send({ requesterId: 1 }); // ไม่ได้ส่ง reason
 
-            expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(/removal reason are required/i);
+            expect(res.status).toBe(401);
+            expect(res.body.error.code).toBe("UNAUTHENTICATED");
         });
     });
 
     describe("GET /api/tickets/:id/attachments/:attachmentId", () => {
-        it("returns 403 Forbidden if trying to download a soft-removed attachment", async () => {
+        it("requires a session before downloading even with a forged requesterId", async () => {
             mockPrisma.ticket.findUnique.mockResolvedValue({ id: 1, requesterId: 1 });
 
             // จำลองข้อมูลไฟล์ที่ถูกทำเครื่องหมายว่าถูกลบแล้ว (isRemoved: true)
@@ -86,8 +82,9 @@ describe("Attachments API", () => {
             const res = await request(app).get("/api/tickets/1/attachments/101?requesterId=1");
 
             // ต้องถูกบล็อกไม่ให้ดาวน์โหลด[cite: 8]
-            expect(res.status).toBe(403);
-            expect(res.body.error).toMatch(/has been removed and cannot be downloaded/i);
+            expect(res.status).toBe(401);
+            expect(res.body.error.code).toBe('UNAUTHENTICATED');
+            expect(mockPrisma.attachment.findUnique).not.toHaveBeenCalled();
         });
     });
 });

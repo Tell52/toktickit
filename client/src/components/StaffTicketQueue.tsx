@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   getStaffTickets,
   getCategories,
@@ -7,10 +7,12 @@ import {
 } from "../api.js";
 
 interface StaffTicketQueueProps {
+  query?: string;
+  onNavigate?: (url: string) => void;
   onViewTicket?: (ticketId: string) => void;
 }
 
-type SortField = "ticketNumber" | "createdAt" | "itPriority" | "status";
+type SortField = "ticketNumber" | "createdAt" | "itPriority" | "status" | "updatedAt" | "resolvedAt";
 type SortOrder = "asc" | "desc";
 
 // Utility to render owner avatar initials
@@ -32,11 +34,11 @@ export function StatusBadge({ status }: { status: string }) {
 
   if (norm === "new" || norm === "open") {
     bg = "#E7F5FF";
-    color = "#1971C2";
+    color = "#0755A5";
     border = "#A5D8FF";
   } else if (norm === "in progress" || norm === "in_progress") {
     bg = "#FFF3BF";
-    color = "#D9480F";
+    color = "#9A3412";
     border = "#FFE066";
   } else if (norm === "waiting for requester" || norm === "waiting_for_requester") {
     bg = "#F3F0FF";
@@ -56,7 +58,7 @@ export function StatusBadge({ status }: { status: string }) {
     border = "#FFA8A8";
   } else if (norm === "reopened") {
     bg = "#FFF4E6";
-    color = "#D9480F";
+    color = "#9A3412";
     border = "#FFD8A8";
   }
 
@@ -90,7 +92,7 @@ export function PriorityBadge({ priority }: { priority: string }) {
     border = "#FFA8A8";
   } else if (norm === "medium") {
     bg = "#FFF3BF";
-    color = "#B15600";
+    color = "#844500";
     border = "#FFE066";
   } else if (norm === "low") {
     bg = "#EAF6EF";
@@ -115,7 +117,15 @@ export function PriorityBadge({ priority }: { priority: string }) {
   );
 }
 
-export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps) {
+export default function StaffTicketQueue({ onViewTicket, query = "", onNavigate }: StaffTicketQueueProps) {
+  const params = new URLSearchParams(query);
+  const changeQuery = (key: string, value: string) => {
+    const next = new URLSearchParams(query); next.delete('page');
+    if (value) next.set(key, value); else next.delete(key);
+    if (key === 'status') next.delete('statusGroup');
+    onNavigate?.(`/queue?${next}`);
+  };
+  const requestSequence = useRef(0);
   // Data states
   const [tickets, setTickets] = useState<StaffTicket[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,19 +133,19 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filters
-  const [search, setSearch] = useState<string>("");
-  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [priorityFilter, setPriorityFilter] = useState<string>("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
-  const [ownerFilter, setOwnerFilter] = useState<string>("");
+  const [search, setSearch] = useState<string>(params.get("search") ?? "");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>(params.get("search") ?? "");
+  const [statusFilter, setStatusFilter] = useState<string>(params.get("status") ?? "");
+  const [priorityFilter, setPriorityFilter] = useState<string>(params.get("priority") ?? "");
+  const [categoryFilter, setCategoryFilter] = useState<string>(params.get("category") ?? "");
+  const [ownerFilter, setOwnerFilter] = useState<string>(params.get("owner") ?? "");
 
   // Sorting
-  const [sortField, setSortField] = useState<SortField>("createdAt");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [sortField, setSortField] = useState<SortField>((params.get("sort")?.replace(/^-/, "") ?? "createdAt") as SortField);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(params.get("sort") && !params.get("sort")!.startsWith("-") ? "asc" : "desc");
 
   // Pagination
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState<number>(Number(params.get("page")) || 1);
   const [pageSize] = useState<number>(10);
   const [totalCount, setTotalCount] = useState<number>(0);
 
@@ -158,19 +168,23 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
   // 2. Debounce search input (~300ms)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-      setPage(1);
+      if (search === debouncedSearch) return;
+      if (onNavigate) changeQuery('search', search);
+      else { setDebouncedSearch(search); setPage(1); }
     }, 300);
     return () => clearTimeout(timer);
   }, [search]);
 
   // 3. Fetch tickets from backend API
   const fetchTickets = useCallback(async () => {
+    const sequence = ++requestSequence.current;
     setLoading(true);
+    setTickets([]); setTotalCount(0);
     setError(null);
     try {
       const sortParam = (sortOrder === "desc" ? "-" : "") + sortField;
       const res = await getStaffTickets?.({
+        ...Object.fromEntries(['statusGroup', 'updatedFrom', 'updatedBefore', 'resolvedFrom', 'resolvedBefore'].filter(key => params.has(key)).map(key => [key, params.get(key)!])),
         search: debouncedSearch || undefined,
         status: statusFilter || undefined,
         priority: priorityFilter || undefined,
@@ -181,6 +195,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
         pageSize,
       });
 
+      if (sequence !== requestSequence.current) return;
       if (res && Array.isArray(res.tickets)) {
         setTickets(res.tickets);
         setTotalCount(res.pagination?.totalCount ?? res.tickets.length);
@@ -189,18 +204,21 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
         setTotalCount(0);
       }
     } catch (err: any) {
+      if (sequence !== requestSequence.current) return;
       setError("Unable to load ticket queue. Please try again later.");
     } finally {
-      setLoading(false);
+      if (sequence === requestSequence.current) setLoading(false);
     }
   }, [debouncedSearch, statusFilter, priorityFilter, categoryFilter, ownerFilter, sortField, sortOrder, page, pageSize]);
 
   useEffect(() => {
     fetchTickets();
+    return () => { requestSequence.current++; };
   }, [fetchTickets]);
 
   // Handle Sort column click
   const handleSort = (field: SortField) => {
+    if (onNavigate) { changeQuery('sort', (sortField === field ? (sortOrder === 'asc' ? '-' : '') : field === 'createdAt' ? '-' : '') + field); return; }
     if (sortField === field) {
       setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
@@ -212,6 +230,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
 
   // Clear all filters
   const handleClearFilters = () => {
+    if (onNavigate) { onNavigate('/queue'); return; }
     setSearch("");
     setDebouncedSearch("");
     setStatusFilter("");
@@ -224,7 +243,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
   };
 
   const hasActiveFilters = Boolean(
-    search || statusFilter || priorityFilter || categoryFilter || ownerFilter
+    query || search || statusFilter || priorityFilter || categoryFilter || ownerFilter
   );
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -260,6 +279,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
         </span>
       </div>
 
+      {query && <div role="group" aria-label="Active queue filters">{Array.from(params.entries()).map(([key, value]) => `${key}: ${value}`).join(' · ')}</div>}
       {/* Search & Filter Bar */}
       <div className="card shadow-sm border-0 mb-4" style={{ backgroundColor: "#FFFFFF", borderRadius: 10 }}>
         <div className="card-body p-3">
@@ -286,6 +306,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                 aria-label="Status filter"
                 value={statusFilter}
                 onChange={(e) => {
+                  if (onNavigate) { changeQuery('status', e.target.value); return; }
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
@@ -309,14 +330,15 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                 aria-label="Priority filter"
                 value={priorityFilter}
                 onChange={(e) => {
+                  if (onNavigate) { changeQuery('priority', e.target.value); return; }
                   setPriorityFilter(e.target.value);
                   setPage(1);
                 }}
               >
                 <option value="">All Priorities</option>
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </select>
             </div>
 
@@ -327,6 +349,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                 aria-label="Owner filter"
                 value={ownerFilter}
                 onChange={(e) => {
+                  if (onNavigate) { changeQuery('owner', e.target.value); return; }
                   setOwnerFilter(e.target.value);
                   setPage(1);
                 }}
@@ -344,6 +367,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                 aria-label="Category filter"
                 value={categoryFilter}
                 onChange={(e) => {
+                  if (onNavigate) { changeQuery('category', e.target.value); return; }
                   setCategoryFilter(e.target.value);
                   setPage(1);
                 }}
@@ -374,7 +398,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
       </div>
 
       {/* Main Content Area */}
-      {loading ? (
+      {loading || search !== debouncedSearch ? (
         <div className="card shadow-sm border-0 p-5 text-center bg-white" style={{ borderRadius: 10 }}>
           <div className="spinner-border text-success mx-auto mb-3" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -559,7 +583,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                   type="button"
                   className="btn btn-sm btn-outline-success"
                   disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => onNavigate ? changeQuery('page', String(Math.max(1, page - 1))) : setPage(p => Math.max(1, p - 1))}
                   aria-label="Previous Page"
                 >
                   Previous
@@ -571,7 +595,7 @@ export default function StaffTicketQueue({ onViewTicket }: StaffTicketQueueProps
                   type="button"
                   className="btn btn-sm btn-outline-success"
                   disabled={page >= totalPages}
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => onNavigate ? changeQuery('page', String(page + 1)) : setPage(p => p + 1)}
                   aria-label="Next Page"
                 >
                   Next

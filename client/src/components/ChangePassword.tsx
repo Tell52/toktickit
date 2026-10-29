@@ -78,10 +78,10 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({ onSuccess, onNav
         <form onSubmit={handleSubmit}>
           {/* 1. Current Password */}
           <div className="mb-3">
-            <label className="form-label fw-semibold">Current (temporary) password</label>
+            <label htmlFor="current-password" className="form-label fw-semibold">Current (temporary) password</label>
             <div className="input-group">
               <input
-                type={showCurrentPassword ? 'text' : 'password'}
+                id="current-password" autoComplete="current-password" type={showCurrentPassword ? 'text' : 'password'}
                 className={`form-control ${currentPasswordError ? 'is-invalid' : ''}`}
                 value={currentPassword}
                 onChange={e => {
@@ -109,10 +109,10 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({ onSuccess, onNav
 
           {/* 2. New Password */}
           <div className="mb-3">
-            <label className="form-label fw-semibold">New password</label>
+            <label htmlFor="new-password" className="form-label fw-semibold">New password</label>
             <div className="input-group">
               <input
-                type={showNewPassword ? 'text' : 'password'}
+                id="new-password" autoComplete="new-password" type={showNewPassword ? 'text' : 'password'}
                 className="form-control"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
@@ -145,10 +145,10 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({ onSuccess, onNav
 
           {/* 3. Confirm New Password */}
           <div className="mb-4">
-            <label className="form-label fw-semibold">Confirm new password</label>
+            <label htmlFor="confirm-password" className="form-label fw-semibold">Confirm new password</label>
             <div className="input-group">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirm-password" autoComplete="new-password" type={showConfirmPassword ? 'text' : 'password'}
                 className={`form-control ${confirmPassword && !isMatch ? 'is-invalid' : ''}`}
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}

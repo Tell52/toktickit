@@ -27,7 +27,7 @@ async function apiFetch(endpoint: string, options: RequestInit = {}) {
   if (!res.ok) {
     // ดัก Error ให้คืนค่าเป็น Object ตาม Standard Error Shape ของ Lab 3[cite: 7]
     const errorData = await res.json().catch(() => ({}));
-    throw errorData;
+    throw { ...errorData, status: res.status };
   }
   return res;
 }
@@ -118,12 +118,18 @@ export async function getMyTickets(arg1?: any, arg2?: any) {
   const queryParams = (typeof arg1 === "object" && arg1 !== null) ? arg1 : (arg2 || {});
   const url = new URL(`${API_URL}/api/tickets`);
 
-  if (queryParams.page) url.searchParams.append("page", queryParams.page.toString());
-  if (queryParams.search) url.searchParams.append("search", queryParams.search);
-  if (queryParams.status) url.searchParams.append("status", queryParams.status);
+  for (const key of ['page', 'limit', 'search', 'status', 'statusGroup', 'updatedFrom', 'updatedBefore', 'resolvedFrom', 'resolvedBefore', 'sort']) {
+    if (queryParams[key] !== undefined && queryParams[key] !== '') url.searchParams.set(key, String(queryParams[key]));
+  }
 
-  const res = await apiFetch(url.toString());
+  const res = await apiFetch(url.toString(), { cache: 'no-store' });
   return res.json();
+}
+
+export type DashboardTicket = { id: number; ticketNumber: string; summary: string; currentStatus: string; itPriority: string; updatedAt: string; resolvedAt: string | null };
+export type RequesterDashboardData = { asOf: string; timeZone: string; window: { since: string; before: string }; metrics: { openTickets: number; waitingForRequester: number; recentlyUpdated: number; recentlyResolved: number }; attentionTickets: DashboardTicket[]; recentTickets: DashboardTicket[] };
+export async function getRequesterDashboard(): Promise<RequesterDashboardData> {
+  return (await apiFetch('/api/dashboard/requester', { cache: 'no-store' })).json();
 }
 
 // รองรับทั้ง getTicketDetail(id) และ getTicketDetail(id, requesterId)
@@ -188,6 +194,9 @@ export interface StaffTicketOwner {
 }
 
 export interface StaffTicket {
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number | string;
   ticketNumber: string;
   createdAt: string;
@@ -215,6 +224,7 @@ export interface StaffTicketsResponse {
 }
 
 export interface StaffTicketQueryParams {
+  statusGroup?: string; updatedFrom?: string; updatedBefore?: string; resolvedFrom?: string; resolvedBefore?: string;
   search?: string;
   status?: string;
   category?: string;
@@ -234,17 +244,18 @@ export async function getStaffTickets(params: StaffTicketQueryParams = {}): Prom
   if (params.owner) url.searchParams.append("owner", params.owner);
   if (params.sort) url.searchParams.append("sort", params.sort);
   if (params.page !== undefined) url.searchParams.append("page", String(params.page));
+  for (const key of ['statusGroup', 'updatedFrom', 'updatedBefore', 'resolvedFrom', 'resolvedBefore'] as const) if (params[key]) url.searchParams.set(key, params[key]!);
   if (params.pageSize !== undefined) url.searchParams.append("pageSize", String(params.pageSize));
 
-  const res = await apiFetch(url.toString());
+  const res = await apiFetch(url.toString(), { cache: 'no-store' });
   return res.json();
 }
 
-export async function claimStaffTicket(ticketId: string | number, ownerId: string | null) {
+export async function claimStaffTicket(ticketId: string | number, ownerId: string | null, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ownerId }),
+    body: JSON.stringify({ ownerId, expectedTicketVersion }),
   });
   return res.json();
 }
@@ -278,6 +289,11 @@ export interface StaffTicketAttachment {
 }
 
 export interface StaffTicketDetailData {
+  allowedTransitions?: string[];
+  resolutionGate?: { eligible: boolean; completedCount: number; unfinishedCount: number; followUpCount: number; blockers: string[] };
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number;
   ticketNumber: string;
   summary: string;
@@ -319,30 +335,39 @@ export async function getStaffTicketDetail(ticketId: string | number): Promise<S
   return res.json();
 }
 
-export async function updateStaffTicketOwner(ticketId: string | number, ownerId: string | null) {
+export async function updateStaffTicketOwner(ticketId: string | number, ownerId: string | null, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/owner`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ownerId }),
+    body: JSON.stringify({ ownerId, expectedTicketVersion }),
   });
   return res.json();
 }
 
-export async function updateStaffTicketPriority(ticketId: string | number, itPriority: string) {
+export async function updateStaffTicketPriority(ticketId: string | number, itPriority: string, expectedTicketVersion?: number) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/priority`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ itPriority }),
+    body: JSON.stringify({ itPriority, expectedTicketVersion }),
   });
   return res.json();
 }
 
-export async function updateStaffTicketStatus(ticketId: string | number, status: string) {
+export async function updateStaffTicketStatus(ticketId: string | number, status: string, expectedTicketVersion?: number, reason?: string) {
   const res = await apiFetch(`/api/staff/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, expectedTicketVersion, ...(reason !== undefined ? { reason } : {}) }),
   });
+  return res.json();
+}
+
+export interface TicketStatusEvent {
+  id: string; fromStatus: string; toStatus: string; reason: string | null;
+  resolutionCycle: number; createdAt: string; actor: { id: string; name: string };
+}
+export async function getTicketStatusHistory(ticketId: string | number, page = 1): Promise<{ events: TicketStatusEvent[]; pagination: { page: number; pageSize: number; totalCount: number } }> {
+  const res = await apiFetch(`/api/tickets/${encodeURIComponent(String(ticketId))}/status-history?page=${page}&pageSize=20`, { cache: 'no-store' });
   return res.json();
 }
 
@@ -422,4 +447,13 @@ export async function resetAdminUserPassword(id: string, data: { newPassword: st
   return res.json();
 }
 
-
+
+export interface StaffDashboardData {
+  asOf: string; timeZone: string; window: { since: string; before: string };
+  metrics: { unassignedTickets: number; myTickets: number; recentlyUpdated: number; myActiveActions: number; byStatus: Record<string, number>; byPriority: Record<string, number> };
+  urgentTickets: DashboardTicket[]; recentTickets: DashboardTicket[];
+  myActions: StaffActionsData;
+}
+export interface StaffActionsData { actions: import('./actions-api').ActionTaken[]; pagination: { page: number; pageSize: number; totalCount: number } }
+export async function getStaffDashboard(): Promise<StaffDashboardData> { return (await apiFetch('/api/staff/dashboard', { cache: 'no-store' })).json(); }
+export async function getMyStaffActions(page: number): Promise<StaffActionsData> { return (await apiFetch(`/api/staff/actions/mine?page=${page}`, { cache: 'no-store' })).json(); }

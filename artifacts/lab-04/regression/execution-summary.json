@@ -1,0 +1,1149 @@
+{
+  "issue": "https://github.com/Tell52/toktickit/issues/53",
+  "branch": "feature/lab4-13-e2e-regression",
+  "baseCommit": "fc56ed80758b854d2d60b0b9fc41bcbb1dfbf96d",
+  "scope": "uncommitted working tree, 2026-10-23; not remote CI or final-main certification",
+  "reports": {
+    "server": {
+      "source": "test-results/lab4-regression-server.xml",
+      "sha256": "6024191261d2c39a6075f43776baef7172e6f65241467c8e9568775179d7c9f8",
+      "tests": 424,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 81.463,
+      "suites": [
+        {
+          "path": "server/tests/lab-01/categories.test.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-01/health.test.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-02/attachments.api.test.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-02/create-ticket.api.test.ts",
+          "tests": 2,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-02/my-tickets.api.test.ts",
+          "tests": 2,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-02/ticket-detail.api.test.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/action-validation.test.ts",
+          "tests": 54,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/actions-taken.api.test.ts",
+          "tests": 70,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/authorization.api.test.ts",
+          "tests": 40,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/concurrency.api.test.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/dashboard-calculations.test.ts",
+          "tests": 19,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/dashboard-performance.test.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/migration-regression.test.ts",
+          "tests": 9,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/requester-dashboard.api.test.ts",
+          "tests": 19,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/seed-fixtures.test.ts",
+          "tests": 11,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/staff-dashboard.api.test.ts",
+          "tests": 15,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-04/ticket-workflow.api.test.ts",
+          "tests": 68,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/auth.api.test.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/authorization.api.test.ts",
+          "tests": 6,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/comments-notes.api.test.ts",
+          "tests": 8,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/requester-ticket-detail.api.test.ts",
+          "tests": 11,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/staff-queue.api.test.ts",
+          "tests": 22,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/staff-ticket-detail.api.test.ts",
+          "tests": 26,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "server/tests/lab-03/users-admin.api.test.ts",
+          "tests": 24,
+          "failures": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    "client": {
+      "source": "test-results/lab4-regression-client.xml",
+      "sha256": "8abc04a5e0240824089a2e100e1914b66782164b4a2bdfff97326f7aff8cc4a3",
+      "tests": 228,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 8.975,
+      "suites": [
+        {
+          "path": "client/tests/lab-01/App.test.tsx",
+          "tests": 2,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/AppNavigationAndGuards.test.tsx",
+          "tests": 11,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/ChangePassword.test.tsx",
+          "tests": 11,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/Login.test.tsx",
+          "tests": 8,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/RequesterTicketDetail.test.tsx",
+          "tests": 9,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/StaffTicketDetail.test.tsx",
+          "tests": 20,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/StaffTicketQueue.test.tsx",
+          "tests": 11,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-03/UserManagement.test.tsx",
+          "tests": 14,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-02/AttachmentSection.test.tsx",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-02/CreateTicket.test.tsx",
+          "tests": 7,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-02/MyTickets.test.tsx",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-02/RequesterTicketDetail.test.tsx",
+          "tests": 2,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/ActionsTaken.test.tsx",
+          "tests": 38,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/ActionsTicketDetail.test.tsx",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/AttachmentReference.test.tsx",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/RequesterDashboard.test.tsx",
+          "tests": 12,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/RequesterDashboardApi.test.tsx",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/StaffDashboard.test.tsx",
+          "tests": 10,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/TicketWorkflow.test.tsx",
+          "tests": 41,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/UiAccessibility.test.tsx",
+          "tests": 6,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "path": "client/tests/lab-04/WorkflowApi.test.tsx",
+          "tests": 10,
+          "failures": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    "browser": {
+      "source": "test-results/lab4-regression-browser.xml",
+      "sha256": "c5c55632a0ff2f9b2947b0228e9ade58ea7b998d30d19d85a0553452397a3a1f",
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 298.77809,
+      "suites": [
+        {
+          "path": "e2e/lab-02/requester-ticket-flow.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-03/authentication.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-03/staff-ticket-flow.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-03/user-administration.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/actions-taken-flow.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/dashboards.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/requester-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/staff-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/ticket-resolution.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-04/ui-accessibility.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "chromium"
+        },
+        {
+          "path": "e2e/lab-02/requester-ticket-flow.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-03/authentication.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-03/staff-ticket-flow.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-03/user-administration.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/actions-taken-flow.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/dashboards.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/requester-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/staff-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/ticket-resolution.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-04/ui-accessibility.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "firefox"
+        },
+        {
+          "path": "e2e/lab-02/requester-ticket-flow.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-03/authentication.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-03/staff-ticket-flow.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-03/user-administration.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/actions-taken-flow.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/dashboards.spec.ts",
+          "tests": 1,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/requester-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/staff-dashboard.spec.ts",
+          "tests": 3,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/ticket-resolution.spec.ts",
+          "tests": 4,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        },
+        {
+          "path": "e2e/lab-04/ui-accessibility.spec.ts",
+          "tests": 5,
+          "failures": 0,
+          "skipped": 0,
+          "browser": "webkit"
+        }
+      ]
+    }
+  },
+  "accessibility": {
+    "scans": 84,
+    "violations": 0,
+    "incompleteRuleOccurrences": 54,
+    "results": [
+      {
+        "browser": "chromium",
+        "state": "confirmation",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "confirmation",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "confirmation",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "tickets",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "tickets",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "tickets",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "admin",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "admin",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "admin",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "chromium",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "firefox",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "action-details",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "action-form",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "create-ticket",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-1440",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "dashboard-320",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "private-notes",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "profile",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "queue",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "webkit",
+        "state": "ticket-actions",
+        "violations": 0,
+        "incompleteRules": [
+          "color-contrast"
+        ]
+      },
+      {
+        "browser": "chromium",
+        "state": "sign-in",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "firefox",
+        "state": "sign-in",
+        "violations": 0,
+        "incompleteRules": []
+      },
+      {
+        "browser": "webkit",
+        "state": "sign-in",
+        "violations": 0,
+        "incompleteRules": []
+      }
+    ]
+  },
+  "initialBackendRun": {
+    "passed": 422,
+    "failed": 1,
+    "cause": "Seed SQL oracle implicitly compared timestamptz bounds with UTC timestamp columns using server timezone; fixed explicit UTC conversion and tested UTC/Asia/Bangkok."
+  },
+  "builds": {
+    "server": "passed",
+    "client": "passed"
+  }
+}

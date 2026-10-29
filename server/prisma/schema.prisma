@@ -17,6 +17,13 @@ enum Role {
   ADMINISTRATOR
 }
 
+enum ActionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
@@ -25,102 +32,193 @@ model Category {
 }
 
 model RelatedSystem {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  tickets   Ticket[]
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  tickets Ticket[]
 }
 
 // สร้าง Model User[cite: 8]
 model User {
-  id                 String     @id @default(uuid())
+  id                 String   @id @default(uuid())
   name               String
-  email              String     @unique // case-insensitive จะถูกจัดการใน API หรือ logic
+  email              String   @unique // case-insensitive จะถูกจัดการใน API หรือ logic
   passwordHash       String
-  role               Role       @default(REQUESTER)
-  isActive           Boolean    @default(true)
-  mustChangePassword Boolean    @default(true)
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  role               Role     @default(REQUESTER)
+  isActive           Boolean  @default(true)
+  mustChangePassword Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   // ความสัมพันธ์
-  ticketsRequested   Ticket[]   @relation("RequesterTickets")
-  ticketsOwned       Ticket[]   @relation("OwnerTickets")
-  comments           Comment[]
-  notes              Note[]
+  ticketsRequested     Ticket[]              @relation("RequesterTickets")
+  ticketsOwned         Ticket[]              @relation("OwnerTickets")
+  comments             Comment[]
+  notes                Note[]
+  actionsPerformed     ActionTaken[]         @relation("ActionPerformer")
+  actionsAssigned      ActionTaken[]         @relation("ActionAssignee")
+  actionRevisions      ActionTakenRevision[]
+  ticketStatusEvents   TicketStatusEvent[]
+  actionCreateRequests ActionCreateRequest[]
 }
 
 model Ticket {
-  id                Int           @id @default(autoincrement())
-  ticketNumber      String        @unique
-  summary           String
-  description       String
-  requestedPriority String        // "Low", "Medium", "High"
-  itPriority        String?       // ฟิลด์ใหม่คัดลอกค่าจาก requestedPriority ตอนสร้าง[cite: 8]
-  currentStatus     String        @default("New")
+  id                     Int       @id @default(autoincrement())
+  ticketNumber           String    @unique
+  summary                String
+  description            String
+  requestedPriority      String // "Low", "Medium", "High"
+  itPriority             String? // ฟิลด์ใหม่คัดลอกค่าจาก requestedPriority ตอนสร้าง[cite: 8]
+  currentStatus          String    @default("New")
   problemAppearsResolved Boolean   @default(false)
-  indicatedAt       DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  indicatedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  version                Int       @default(1)
+  resolutionCycle        Int       @default(1)
+  resolvedAt             DateTime?
 
   // เปลี่ยนมาใช้ User (แทน Requester เดิม)[cite: 8]
-  requesterId       String
-  requester         User          @relation("RequesterTickets", fields: [requesterId], references: [id])
-  
+  requesterId String
+  requester   User   @relation("RequesterTickets", fields: [requesterId], references: [id])
+
   // ฟิลด์ใหม่: เจ้าของ Ticket (IT Staff / Admin)[cite: 8]
-  ownerId           String?
-  owner             User?         @relation("OwnerTickets", fields: [ownerId], references: [id])
+  ownerId String?
+  owner   User?   @relation("OwnerTickets", fields: [ownerId], references: [id])
 
-  categoryId        Int
-  category          Category      @relation(fields: [categoryId], references: [id])
-  
-  relatedSystemId   Int
-  relatedSystem     RelatedSystem @relation(fields: [relatedSystemId], references: [id])
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  attachments       Attachment[]
-  comments          Comment[]
-  notes             Note[]
+  relatedSystemId Int
+  relatedSystem   RelatedSystem @relation(fields: [relatedSystemId], references: [id])
+
+  attachments          Attachment[]
+  comments             Comment[]
+  notes                Note[]
+  actions              ActionTaken[]
+  statusEvents         TicketStatusEvent[]
+  actionCreateRequests ActionCreateRequest[]
+
+  @@index([requesterId, currentStatus])
+  @@index([requesterId, updatedAt, id])
+  @@index([requesterId, resolvedAt, id])
+  @@index([ownerId, currentStatus])
+  @@index([currentStatus, itPriority])
+  @@index([updatedAt, id])
+}
+
+// CHECK constraints that Prisma cannot express live in the Lab 4 SQL migration.
+// Eligibility, lifecycle transitions and atomic version/audit writes belong to
+// the service transaction; these models alone do not enforce those workflows.
+model ActionTaken {
+  id                 String                @id @default(uuid()) @db.Uuid
+  ticketId           Int
+  ticket             Ticket                @relation(fields: [ticketId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  resolutionCycle    Int
+  actionAt           DateTime              @default(now())
+  description        String
+  result             String?
+  performedById      String
+  performedBy        User                  @relation("ActionPerformer", fields: [performedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  assigneeId         String
+  assignee           User                  @relation("ActionAssignee", fields: [assigneeId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  status             ActionStatus          @default(PLANNED)
+  followUpRequired   Boolean               @default(false)
+  followUpNote       String?
+  attachmentNotes    String?
+  cancellationReason String?
+  version            Int                   @default(1)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  revisions          ActionTakenRevision[]
+
+  @@index([ticketId, resolutionCycle, status])
+  @@index([ticketId, actionAt, id])
+  @@index([assigneeId, status, actionAt, id])
+}
+
+model ActionTakenRevision {
+  id        String      @id @default(uuid()) @db.Uuid
+  actionId  String      @db.Uuid
+  action    ActionTaken @relation(fields: [actionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  revision  Int
+  actorId   String
+  actor     User        @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt DateTime    @default(now())
+  snapshot  Json
+
+  @@unique([actionId, revision])
+}
+
+model TicketStatusEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  ticketId        Int
+  ticket          Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actorId         String
+  actor           User     @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  fromStatus      String
+  toStatus        String
+  reason          String?
+  resolutionCycle Int
+  createdAt       DateTime @default(now())
+
+  @@index([ticketId, createdAt, id])
+}
+
+model ActionCreateRequest {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String
+  actor       User     @relation(fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  key         String   @db.Uuid
+  ticketId    Int
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  requestHash String   @db.VarChar(64)
+  response    Json
+  createdAt   DateTime @default(now())
+
+  @@unique([actorId, key])
+  @@index([ticketId])
 }
 
 model Attachment {
-  id            Int      @id @default(autoincrement())
-  fileName      String
-  fileType      String
-  fileSize      Int
-  fileUrl       String   // เก็บ path ของไฟล์
-  createdAt     DateTime @default(now())
-  
-  // สำหรับระบบ Soft Removal
-  isRemoved     Boolean  @default(false)
-  removalReason String?  // เหตุผลการลบ
+  id        Int      @id @default(autoincrement())
+  fileName  String
+  fileType  String
+  fileSize  Int
+  fileUrl   String // เก็บ path ของไฟล์
+  createdAt DateTime @default(now())
 
-  ticketId      Int
-  ticket        Ticket   @relation(fields: [ticketId], references: [id])
+  // สำหรับระบบ Soft Removal
+  isRemoved     Boolean @default(false)
+  removalReason String? // เหตุผลการลบ
+
+  ticketId Int
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
 }
 
 // สร้าง Model Comment สำหรับ Public Comments[cite: 8]
 model Comment {
-  id        String   @id @default(uuid())
-  content   String
-  
-  ticketId  Int      // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
-  ticket    Ticket   @relation(fields: [ticketId], references: [id])
-  
-  authorId  String   // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
-  author    User     @relation(fields: [authorId], references: [id])
-  
+  id      String @id @default(uuid())
+  content String
+
+  ticketId Int // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+
+  authorId String // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
+  author   User   @relation(fields: [authorId], references: [id])
+
   createdAt DateTime @default(now())
 }
 
 // สร้าง Model Note สำหรับ Internal Notes[cite: 8]
 model Note {
-  id        String   @id @default(uuid())
-  content   String
-  
-  ticketId  Int      // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
-  ticket    Ticket   @relation(fields: [ticketId], references: [id])
-  
-  authorId  String   // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
-  author    User     @relation(fields: [authorId], references: [id])
-  
+  id      String @id @default(uuid())
+  content String
+
+  ticketId Int // แก้ให้เป็น Int เพื่อให้ตรงกับ Ticket.id
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+
+  authorId String // แก้ให้เป็น String เพื่อให้ตรงกับ User.id
+  author   User   @relation(fields: [authorId], references: [id])
+
   createdAt DateTime @default(now())
 }

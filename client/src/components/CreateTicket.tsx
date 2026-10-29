@@ -6,7 +6,6 @@ interface CreateTicketProps {
 }
 
 export default function CreateTicket({ requesterId }: CreateTicketProps) {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [systems, setSystems] = useState<RelatedSystem[]>([]);
 
@@ -51,6 +50,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
 
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
+            requestAnimationFrame(() => document.getElementById(Object.keys(errors)[0])?.focus());
             return;
         }
 
@@ -67,7 +67,12 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
             setCreatedTicketNumber(newTicket.ticketNumber);
             setStatus("success");
         } catch (error: any) {
-            setApiError(error.message || "Failed to create ticket.");
+            const failure = error?.error;
+            if (failure?.code === 'VALIDATION_ERROR' && failure.fields) setValidationErrors(failure.fields);
+            setApiError(failure?.code === 'PASSWORD_CHANGE_REQUIRED' ? 'Change your password before creating a ticket.'
+                : error?.status === 401 ? 'Your session has ended. Please sign in again.'
+                : error?.status === 403 ? 'You do not have permission to create a ticket.'
+                : error?.status === 400 ? 'Please correct the highlighted fields.' : 'Failed to create ticket. Please try again.');
             setStatus("error");
         }
     }
@@ -75,7 +80,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
     // Success State
     if (status === "success") {
         return (
-            <div className="alert mt-4 p-4 rounded" style={{ backgroundColor: "#EAF6EF", border: "1px solid #0B7A46" }}>
+            <div role="status" className="alert mt-4 p-4 rounded" style={{ backgroundColor: "#EAF6EF", border: "1px solid #0B7A46" }}>
                 <h4 style={{ color: "#006B3C" }}>Ticket Created Successfully!</h4>
                 <p className="mb-0" style={{ color: "#0B7A46" }}>
                     Your official Ticket Number is: <strong className="ticket-number-success">{createdTicketNumber}</strong>
@@ -90,7 +95,6 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                         setCategoryId("");
                         setRelatedSystemId("");
                         setRequestedPriority("");
-                        setSelectedFile(null); // เคลียร์ไฟล์ที่เลือกเมื่อกดสร้างตั๋วใหม่
                     }}
                 >
                     Create Another Ticket
@@ -106,24 +110,25 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                 <h4 className="mb-4" style={{ color: "#006B3C" }}>Create New Ticket</h4>
 
                 {apiError && (
-                    <div className="alert alert-danger">{apiError}</div>
+                    <div className="alert alert-danger" role="alert">{apiError}</div>
                 )}
 
-                <form onSubmit={handleSubmit}>
+                <p id="create-required">Fields marked * are required.</p>
+                <form aria-describedby="create-required" onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-md-12 mb-3">
                             <label htmlFor="summary" className="form-label fw-bold" style={{ color: "#334D41" }}>
                                 Summary <span className="text-danger">*</span>
                             </label>
                             <input
-                                id="summary"
+                                id="summary" aria-required="true" aria-invalid={!!validationErrors.summary} aria-describedby={validationErrors.summary ? 'summary-error' : undefined}
                                 type="text"
                                 className={`form-control ${validationErrors.summary ? "is-invalid" : ""}`}
                                 value={summary}
                                 onChange={(e) => setSummary(e.target.value)}
                                 disabled={status === "submitting"}
                             />
-                            {validationErrors.summary && <div className="invalid-feedback">{validationErrors.summary}</div>}
+                            {validationErrors.summary && <div id="summary-error" className="invalid-feedback">{validationErrors.summary}</div>}
                         </div>
 
                         <div className="col-md-4 mb-3">
@@ -131,7 +136,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                 Category <span className="text-danger">*</span>
                             </label>
                             <select
-                                id="categoryId"
+                                id="categoryId" aria-required="true" aria-invalid={!!validationErrors.categoryId} aria-describedby={validationErrors.categoryId ? 'categoryId-error' : undefined}
                                 className={`form-select ${validationErrors.categoryId ? "is-invalid" : ""}`}
                                 value={categoryId}
                                 onChange={(e) => setCategoryId(e.target.value)}
@@ -142,7 +147,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 ))}
                             </select>
-                            {validationErrors.categoryId && <div className="invalid-feedback">{validationErrors.categoryId}</div>}
+                            {validationErrors.categoryId && <div id="categoryId-error" className="invalid-feedback">{validationErrors.categoryId}</div>}
                         </div>
 
                         <div className="col-md-4 mb-3">
@@ -150,7 +155,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                 Related System <span className="text-danger">*</span>
                             </label>
                             <select
-                                id="relatedSystemId"
+                                id="relatedSystemId" aria-required="true" aria-invalid={!!validationErrors.relatedSystemId} aria-describedby={validationErrors.relatedSystemId ? 'relatedSystemId-error' : undefined}
                                 className={`form-select ${validationErrors.relatedSystemId ? "is-invalid" : ""}`}
                                 value={relatedSystemId}
                                 onChange={(e) => setRelatedSystemId(e.target.value)}
@@ -161,7 +166,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                     <option key={s.id} value={s.id}>{s.name}</option>
                                 ))}
                             </select>
-                            {validationErrors.relatedSystemId && <div className="invalid-feedback">{validationErrors.relatedSystemId}</div>}
+                            {validationErrors.relatedSystemId && <div id="relatedSystemId-error" className="invalid-feedback">{validationErrors.relatedSystemId}</div>}
                         </div>
 
                         <div className="col-md-4 mb-3">
@@ -169,7 +174,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                 Requested Priority <span className="text-danger">*</span>
                             </label>
                             <select
-                                id="requestedPriority"
+                                id="requestedPriority" aria-required="true" aria-invalid={!!validationErrors.requestedPriority} aria-describedby={validationErrors.requestedPriority ? 'requestedPriority-error' : undefined}
                                 className={`form-select ${validationErrors.requestedPriority ? "is-invalid" : ""}`}
                                 value={requestedPriority}
                                 onChange={(e) => setRequestedPriority(e.target.value)}
@@ -180,7 +185,7 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                 <option value="Medium">Medium</option>
                                 <option value="High">High</option>
                             </select>
-                            {validationErrors.requestedPriority && <div className="invalid-feedback">{validationErrors.requestedPriority}</div>}
+                            {validationErrors.requestedPriority && <div id="requestedPriority-error" className="invalid-feedback">{validationErrors.requestedPriority}</div>}
                         </div>
 
                         <div className="col-md-12 mb-4">
@@ -188,45 +193,17 @@ export default function CreateTicket({ requesterId }: CreateTicketProps) {
                                 Description <span className="text-danger">*</span>
                             </label>
                             <textarea
-                                id="description"
+                                id="description" aria-required="true" aria-invalid={!!validationErrors.description} aria-describedby={validationErrors.description ? 'description-error' : undefined}
                                 className={`form-control ${validationErrors.description ? "is-invalid" : ""}`}
                                 rows={4}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 disabled={status === "submitting"}
                             ></textarea>
-                            {validationErrors.description && <div className="invalid-feedback">{validationErrors.description}</div>}
+                            {validationErrors.description && <div id="description-error" className="invalid-feedback">{validationErrors.description}</div>}
                         </div>
 
-                        {/* --- ส่วนที่เพิ่มใหม่: อัปโหลดไฟล์ --- */}
-                        <div className="col-md-12 mb-4">
-                            <label className="form-label fw-bold" style={{ color: "#334D41" }}>
-                                Attachment (Optional)
-                            </label>
-                            <div className="d-flex gap-2">
-                                <input
-                                    type="file"
-                                    className="form-control"
-                                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                                    disabled={status === "submitting"}
-                                />
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => console.log("Upload clicked", selectedFile?.name)}
-                                    disabled={status === "submitting" || !selectedFile}
-                                >
-                                    Upload
-                                </button>
-                            </div>
-                            {selectedFile && (
-                                <div className="form-text text-success mt-2">
-                                    <i className="bi bi-check-circle-fill me-1"></i>
-                                    Ready to upload: {selectedFile.name}
-                                </div>
-                            )}
-                        </div>
-                        {/* ------------------------------------- */}
+                        <p className="text-muted">After creating your ticket, open Ticket Details to add attachments.</p>
 
                     </div>
 

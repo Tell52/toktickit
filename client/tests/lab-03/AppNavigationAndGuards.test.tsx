@@ -13,6 +13,7 @@ describe("Lab 3: Navigation, Role Badges, and Route Guards", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(api.getRequesterDashboard).mockResolvedValue({ asOf: '2026-10-20T10:00:00Z', timeZone: 'Asia/Bangkok', window: { since: '2026-10-13T17:00:00Z', before: '2026-10-20T10:00:00Z' }, metrics: { openTickets: 0, waitingForRequester: 0, recentlyUpdated: 0, recentlyResolved: 0 }, attentionTickets: [], recentTickets: [] });
     window.history.pushState({}, "", "/");
   });
 
@@ -88,7 +89,7 @@ describe("Lab 3: Navigation, Role Badges, and Route Guards", () => {
       expect(badge).toHaveTextContent("IT Staff");
       expect(badge.style.border).toContain("solid");
       // ตรวจสอบโทนสีฟ้า
-      expect(badge.style.color).toBe("rgb(13, 110, 253)");
+      expect(badge.style.color).toBe("rgb(7, 85, 165)");
     });
 
     it("renders dark green outline Role badge for ADMINISTRATOR", () => {

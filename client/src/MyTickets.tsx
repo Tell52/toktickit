@@ -1,5 +1,7 @@
+import { StatusBadge } from './components/StaffTicketQueue.js';
 import { useState, useEffect } from "react";
 import { getMyTickets } from "./api.js";
+import { accessFailure } from "./workflow-feedback";
 
 interface Ticket {
     id: number;
@@ -13,65 +15,54 @@ interface Ticket {
 interface MyTicketsProps {
     requesterId: number | string;
     onViewTicket?: (ticketId: string) => void;
+    query?: string;
+    onNavigate?: (url: string) => void;
 }
 
-export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps) {
+export default function MyTickets({ requesterId, onViewTicket, query, onNavigate }: MyTicketsProps) {
     // 1. จัดการ States ทั้งหมด
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // States สำหรับค้นหา คัดกรอง และแบ่งหน้า
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("");
-    const [page, setPage] = useState(1);
+    const [localQuery, setLocalQuery] = useState('');
+    const [retry, setRetry] = useState(0);
+    const [total, setTotal] = useState(0);
+    const serialized = query ?? localQuery;
+    const params = new URLSearchParams(serialized);
+    const search = params.get('search') ?? '', statusFilter = params.get('status') ?? '';
+    const page = Number(params.get('page') ?? 1);
     const [totalPages, setTotalPages] = useState(1);
-
-    // 2. ดึงข้อมูลจาก API เมื่อ State เปลี่ยนแปลง
-    useEffect(() => {
-        async function fetchTickets() {
-            if (!requesterId) return;
-
-            setLoading(true);
-            setError(null);
-
-            try {
-                const response = await getMyTickets(requesterId, {
-                    page,
-                    search,
-                    status: statusFilter,
-                });
-                setTickets(response.data);
-                setTotalPages(response.meta.totalPages || 1);
-            } catch (err) {
-                setError("Unable to load your tickets. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        // หน่วงเวลา (Debounce) เล็กน้อยเวลาพิมพ์ค้นหาเพื่อไม่ให้ยิง API รัวเกินไป
-        const delayDebounceFn = setTimeout(() => {
-            fetchTickets();
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [requesterId, page, search, statusFilter]);
-
-    // ฟังก์ชันล้างค่า Filter
-    const handleClearFilters = () => {
-        setSearch("");
-        setStatusFilter("");
-        setPage(1);
+    const update = (changes: Record<string, string>) => {
+        const next = new URLSearchParams(serialized);
+        for (const [key, value] of Object.entries(changes)) { if (value) next.set(key, value); else next.delete(key); }
+        if (onNavigate) onNavigate(`/tickets${next.size ? '?' + next : ''}`); else setLocalQuery(next.toString());
     };
+    useEffect(() => {
+        let current = true;
+        setLoading(true); setError(null); setTickets([]);
+        const timer = setTimeout(async () => {
+            try {
+                const response = await getMyTickets(requesterId, Object.fromEntries(new URLSearchParams(serialized)));
+                if (!current) return;
+                setTickets(response.data); setTotalPages(response.meta.totalPages || 1); setTotal(response.meta.total ?? response.data.length);
+            } catch (err: any) {
+                if (current) setError(accessFailure(err) || (err?.status === 400 ? 'These ticket filters are invalid. Clear filters and try again.' : 'Unable to load your tickets. Please try again.'));
+            } finally { if (current) setLoading(false); }
+        }, 300);
+        return () => { current = false; clearTimeout(timer); };
+    }, [requesterId, serialized, retry]);
+    const handleClearFilters = () => { if (onNavigate) onNavigate('/tickets'); else setLocalQuery(''); };
+    const chipNames: Record<string, string> = { statusGroup: 'Status group', updatedFrom: 'Updated from (inclusive)', updatedBefore: 'Updated before (exclusive)', resolvedFrom: 'Resolved from (inclusive)', resolvedBefore: 'Resolved before (exclusive)', sort: 'Sort' };
+    const ticketLink = (ticket: Ticket) => <a href={`/tickets/${ticket.id}`} style={{ color: '#006B3C', overflowWrap: 'anywhere' }} onClick={e => { if (!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && onViewTicket) { e.preventDefault(); onViewTicket(String(ticket.id)); } }}>{ticket.summary}</a>;
 
     return (
         <div className="container py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="h4" style={{ color: "#006B3C" }}>My Tickets</h2>
-                <button className="btn text-white" style={{ backgroundColor: "#006B3C" }}>
+                <a href="/create-ticket" onClick={e => { if (onNavigate) { e.preventDefault(); onNavigate('/create-ticket'); } }} className="btn text-white" style={{ backgroundColor: "#006B3C" }}>
                     + Create Ticket
-                </button>
+                </a>
             </div>
 
             {/* 3. แถบเครื่องมือ Search & Filter */}
@@ -80,18 +71,25 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
                     <input
                         type="text"
                         className="form-control"
+                        aria-label="Search tickets"
                         placeholder="Search by ticket number or summary..."
                         value={search}
-                        onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                        onChange={(e) => update({ search: e.target.value, page: '' })}
                     />
                     <select
                         className="form-select"
+                        aria-label="Ticket status"
                         value={statusFilter}
-                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                        onChange={(e) => update({ status: e.target.value, statusGroup: '', page: '' })}
                     >
                         <option value="">All Statuses</option>
                         <option value="New">New</option>
+                        <option value="Open">Open</option>
                         <option value="In Progress">In Progress</option>
+                        <option value="Waiting for Requester">Waiting for Requester</option>
+                        <option value="Reopened">Reopened</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Cancelled">Cancelled</option>
                         <option value="Resolved">Resolved</option>
                     </select>
                     <button className="btn btn-outline-secondary text-nowrap" onClick={handleClearFilters}>
@@ -100,6 +98,9 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
                 </div>
             </div>
 
+            <div className="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Applied ticket filters">
+                {Object.entries(chipNames).filter(([key]) => params.has(key)).map(([key, label]) => <span className="badge bg-light text-dark border" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }} key={key}>{label}: {params.get(key)}</span>)}
+            </div>
             {/* 4. การจัดการ UI States ต่างๆ */}
             {loading ? (
                 <div className="text-center py-5">
@@ -108,11 +109,11 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
                     </div>
                 </div>
             ) : error ? (
-                <div className="alert alert-danger shadow-sm">{error}</div>
+                <div role="alert" className="alert alert-danger shadow-sm">{error}<button className="btn btn-outline-success ms-2" onClick={() => setRetry(n => n + 1)}>Retry tickets</button></div>
             ) : tickets.length === 0 ? (
                 <div className="text-center py-5 bg-white shadow-sm rounded">
                     <p className="text-muted mb-0">
-                        {search || statusFilter
+                        {serialized
                             ? "No tickets match your search criteria."
                             : "You haven't created any tickets yet."}
                     </p>
@@ -139,19 +140,12 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
 
                                         {/* แก้ไขที่ 1 (Desktop): ทำให้ Summary กดคลิกได้ */}
                                         <td>
-                                            <span
-                                                style={{ cursor: "pointer", color: "#006B3C", textDecoration: "underline" }}
-                                                onClick={() => onViewTicket?.(ticket.id.toString())}
-                                            >
-                                                {ticket.summary}
-                                            </span>
+                                            {ticketLink(ticket)}
                                         </td>
 
                                         <td>{ticket.category.name}</td>
                                         <td>
-                                            <span className="badge bg-success bg-opacity-75">
-                                                {ticket.currentStatus}
-                                            </span>
+                                            <StatusBadge status={ticket.currentStatus} />
                                         </td>
                                     </tr>
                                 ))}
@@ -166,17 +160,12 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
                                 <div className="card-body">
                                     <div className="d-flex justify-content-between mb-2">
                                         <span className="fw-bold" style={{ color: "#006B3C" }}>{ticket.ticketNumber}</span>
-                                        <span className="badge bg-success bg-opacity-75">{ticket.currentStatus}</span>
+                                        <StatusBadge status={ticket.currentStatus} />
                                     </div>
 
                                     {/* แก้ไขที่ 2 (Mobile): ทำให้ Summary กดคลิกได้ */}
                                     <h6 className="card-title">
-                                        <span
-                                            style={{ cursor: "pointer", color: "#006B3C", textDecoration: "underline" }}
-                                            onClick={() => onViewTicket?.(ticket.id.toString())}
-                                        >
-                                            {ticket.summary}
-                                        </span>
+                                        {ticketLink(ticket)}
                                     </h6>
 
                                     <p className="card-text text-muted small mb-0">
@@ -190,20 +179,20 @@ export default function MyTickets({ requesterId, onViewTicket }: MyTicketsProps)
                     {/* 6. ระบบเปลี่ยนหน้า (Pagination) */}
                     <div className="d-flex justify-content-between align-items-center mt-4">
                         <span className="text-muted small">
-                            Page {page} of {totalPages}
+                            {total} tickets · Page {page} of {totalPages}
                         </span>
                         <div className="btn-group">
                             <button
                                 className="btn btn-outline-success"
                                 disabled={page === 1}
-                                onClick={() => setPage(p => p - 1)}
+                                onClick={() => update({ page: String(page - 1) })}
                             >
                                 Previous
                             </button>
                             <button
                                 className="btn btn-outline-success"
                                 disabled={page === totalPages}
-                                onClick={() => setPage(p => p + 1)}
+                                onClick={() => update({ page: String(page + 1) })}
                             >
                                 Next
                             </button>

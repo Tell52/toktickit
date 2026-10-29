@@ -3,11 +3,12 @@ import bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 import { getPrisma } from '../prisma.js';
 import { requireAuth, requireRole, requireCsrf } from '../middleware/auth.js';
+import { requireCurrentBusinessUser } from '../services/action-access.js';
 
 const router = Router();
 
 // Ensure all admin routes require authentication and Administrator role
-router.use(requireAuth, requireRole(['ADMINISTRATOR']));
+router.use(requireAuth, requireCurrentBusinessUser, requireRole(['ADMINISTRATOR']));
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;

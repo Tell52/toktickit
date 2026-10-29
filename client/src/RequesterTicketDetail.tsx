@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import AttachmentReference from './components/AttachmentReference';
+import React, { useState, useEffect, useRef } from "react";
 import {
   getTicketDetail,
   uploadAttachment,
@@ -6,7 +7,13 @@ import {
   createComment,
   indicateResolved,
 } from "./api.js";
+import { StatusBadge, PriorityBadge } from './components/StaffTicketQueue.js';
 import { RoleBadge } from "./App.js";
+import ActionsTaken from './components/ActionsTaken';
+import TicketStatusHistory from './components/TicketStatusHistory';
+import WorkflowDialog from './components/WorkflowDialog';
+import { accessFailure } from './workflow-feedback';
+import { useAuth } from './context/AuthContext';
 
 interface Attachment {
   id: number;
@@ -30,6 +37,9 @@ interface Comment {
 }
 
 interface Ticket {
+  version?: number;
+  resolutionCycle?: number;
+  resolvedAt?: string | null;
   id: number;
   ticketNumber: string;
   summary: string;
@@ -45,94 +55,6 @@ interface Ticket {
   relatedSystem: { name: string };
 }
 
-// Helper badge function for Ticket Status
-function StatusBadge({ status }: { status: string }) {
-  const norm = (status || "").toUpperCase().replace(/\s+/g, "_");
-  let bg = "#F1F3F5";
-  let color = "#495057";
-  let border = "#CED4DA";
-
-  if (norm === "NEW") {
-    bg = "#F8F9FA";
-    color = "#6C757D";
-    border = "#6C757D";
-  } else if (norm === "OPEN") {
-    bg = "#EBF5FF";
-    color = "#0D6EFD";
-    border = "#0D6EFD";
-  } else if (norm === "IN_PROGRESS") {
-    bg = "#FFFBEB";
-    color = "#D97706";
-    border = "#D97706";
-  } else if (norm === "WAITING_FOR_REQUESTER") {
-    bg = "#F3E8FF";
-    color = "#7C3AED";
-    border = "#7C3AED";
-  } else if (norm === "RESOLVED") {
-    bg = "#EAF6EF";
-    color = "#006B3C";
-    border = "#006B3C";
-  } else if (norm === "CLOSED") {
-    bg = "#E9ECEF";
-    color = "#495057";
-    border = "#495057";
-  } else if (norm === "REOPENED") {
-    bg = "#FFF4E6";
-    color = "#FD7E14";
-    border = "#FD7E14";
-  } else if (norm === "CANCELLED") {
-    bg = "#FEE2E2";
-    color = "#DC2626";
-    border = "#DC2626";
-  }
-
-  return (
-    <span
-      className="badge px-2 py-1"
-      style={{
-        backgroundColor: bg,
-        color,
-        border: `1px solid ${border}`,
-        fontWeight: 600,
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-// Helper badge function for Priority
-function PriorityBadge({ priority }: { priority: string }) {
-  const norm = (priority || "").toUpperCase();
-  let bg = "#EAF6EF";
-  let color = "#006B3C";
-  let border = "#006B3C";
-
-  if (norm === "HIGH") {
-    bg = "#FEE2E2";
-    color = "#DC2626";
-    border = "#DC2626";
-  } else if (norm === "MEDIUM") {
-    bg = "#FFFBEB";
-    color = "#D97706";
-    border = "#D97706";
-  }
-
-  return (
-    <span
-      className="badge px-2 py-1"
-      style={{
-        backgroundColor: bg,
-        color,
-        border: `1px solid ${border}`,
-        fontWeight: 600,
-      }}
-    >
-      {priority}
-    </span>
-  );
-}
-
 export default function RequesterTicketDetail({
   ticketId,
   currentRequesterId, // retained as optional for backwards compatibility, not sent to API
@@ -143,6 +65,18 @@ export default function RequesterTicketDetail({
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const auth = useAuth();
+  const revoked = useRef(false), indicatorInFlight = useRef(false);
+  const [indicatorError, setIndicatorError] = useState('');
+  const [indicatorNeedsLatest, setIndicatorNeedsLatest] = useState(false);
+  const onAccessError = (err: any) => {
+    revoked.current = true;
+    setTicket(null); setNewComment(''); setSelectedFile(null); setRemovalReason(''); setShowResolvedDialog(false);
+    setError(accessFailure(err) || 'Ticket access is unavailable.');
+    if (err?.status === 401 || err?.error?.code === 'UNAUTHENTICATED') { localStorage.removeItem('csrfToken'); auth.invalidateSession?.(); }
+    else if (err?.status === 403) void auth.checkAuth();
+  };
 
   // Attachments state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -158,22 +92,21 @@ export default function RequesterTicketDetail({
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  // 1. Fetch ticket details using session auth (no requesterId param)
+  // Background refresh leaves comments, actions, and recoverable drafts mounted.
   const fetchTicket = async () => {
     try {
-      setLoading(true);
-      setError("");
       const data = await getTicketDetail(ticketId);
-      setTicket(data);
-    } catch (err: any) {
-      setError(err?.error?.message || err?.message || "Failed to load ticket details");
-    } finally {
-      setLoading(false);
-    }
+      if (!revoked.current) { setTicket(data); setError(''); }
+      return data;
+    } catch (err) {
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to load ticket details. Please retry.');
+      throw err;
+    } finally { setLoading(false); }
   };
-
   useEffect(() => {
-    fetchTicket();
+    revoked.current = false; setLoading(true); setTicket(null);
+    void fetchTicket().catch(() => {});
   }, [ticketId]);
 
   // 2. Upload attachment
@@ -185,7 +118,8 @@ export default function RequesterTicketDetail({
       setSelectedFile(null);
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to upload attachment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to upload attachment. Please retry.');
     } finally {
       setUploading(false);
     }
@@ -203,30 +137,36 @@ export default function RequesterTicketDetail({
       setRemovalReason("");
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to remove attachment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to remove attachment. Please retry.');
     }
   };
 
-  // 4. Confirm Problem Appears Resolved
+  // The Requester's indication never changes the formal Ticket status.
   const handleConfirmResolved = async () => {
+    if (indicatorInFlight.current || indicatorNeedsLatest) return;
+    indicatorInFlight.current = true; setResolvingIndicator(true); setIndicatorError('');
+    let written = false;
     try {
-      setResolvingIndicator(true);
       const res = await indicateResolved(ticketId);
+      written = true;
       setShowResolvedDialog(false);
-      setTicket((prev) =>
-        prev
-          ? {
-              ...prev,
-              problemAppearsResolved: true,
-              indicatedAt: res.indicatedAt || new Date().toISOString(),
-            }
-          : null
-      );
-    } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to indicate problem resolved");
-    } finally {
-      setResolvingIndicator(false);
-    }
+      setTicket(prev => prev ? { ...prev, problemAppearsResolved: true, indicatedAt: res.indicatedAt, version: res.version ?? prev.version } : null);
+      await fetchTicket();
+    } catch (err) {
+      if (accessFailure(err)) onAccessError(err);
+      else {
+        setIndicatorNeedsLatest(true);
+        setIndicatorError(written ? 'Your indication was saved. Load the latest ticket to refresh this view.' : 'Your indication could not be confirmed. Load the latest ticket before retrying.');
+      }
+    } finally { indicatorInFlight.current = false; setResolvingIndicator(false); }
+  };
+  const refreshIndicator = async () => {
+    if (indicatorInFlight.current) return;
+    indicatorInFlight.current = true; setResolvingIndicator(true);
+    try { await fetchTicket(); setIndicatorNeedsLatest(false); setIndicatorError(''); }
+    catch { /* fetchTicket displays a safe message and clears denied data. */ }
+    finally { indicatorInFlight.current = false; setResolvingIndicator(false); }
   };
 
   // 5. Post Public Comment
@@ -240,7 +180,8 @@ export default function RequesterTicketDetail({
       setNewComment("");
       await fetchTicket();
     } catch (err: any) {
-      alert(err?.error?.message || err?.message || "Failed to post comment");
+      if (accessFailure(err)) onAccessError(err);
+      else setError('Failed to post comment. Please retry.');
     } finally {
       setSubmittingComment(false);
     }
@@ -256,12 +197,13 @@ export default function RequesterTicketDetail({
     );
   }
 
-  if (error) {
+  if (error && !ticket) {
     return (
-      <div className="container py-4">
+      <div className="requester-ticket-detail container py-4">
         <div className="alert alert-danger" role="alert">
           Error: {error}
         </div>
+        <button type="button" className="btn btn-outline-success" onClick={() => { revoked.current = false; void fetchTicket().catch(() => {}); }}>Retry loading ticket</button>
       </div>
     );
   }
@@ -296,14 +238,16 @@ export default function RequesterTicketDetail({
   );
 
   return (
-    <div className="container py-4">
+    <div className="requester-ticket-detail container py-4">
+      {error && <div role="alert">{error}<button type="button" onClick={() => void fetchTicket().catch(() => {})}>Retry loading ticket</button></div>}
+      {indicatorError && !showResolvedDialog && <div role="alert">{indicatorError}<button type="button" disabled={resolvingIndicator} onClick={() => void refreshIndicator()}>Load latest ticket</button></div>}
       {/* Header with Title and Status/Priority Badges */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
           <h2 className="mb-1 fw-bold" style={{ color: "#006B3C" }}>
             Ticket Details: {ticket.ticketNumber}
           </h2>
-          <div className="d-flex align-items-center gap-2 mt-2">
+          <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
             <span className="text-muted small">Status:</span>
             <StatusBadge status={ticket.currentStatus} />
             <span className="text-muted small ms-2">Priority:</span>
@@ -337,23 +281,17 @@ export default function RequesterTicketDetail({
                   className="btn btn-outline-success d-flex align-items-center gap-2 shadow-sm"
                   style={{ borderColor: "#006B3C", color: "#006B3C", fontWeight: 600 }}
                   onClick={() => setShowResolvedDialog(true)}
+                  id="requester-resolved-indicator"
                 >
                   <span>✓</span> Problem Appears Resolved
                 </button>
               ) : (
-                <div
-                  role="dialog"
-                  aria-label="Confirm Problem Resolved"
-                  className="card p-3 shadow-sm border"
-                  style={{
-                    backgroundColor: "#FFFBEB",
-                    borderColor: "#FDE68A",
-                    maxWidth: 420,
-                  }}
-                >
+                <WorkflowDialog title="Confirm Problem Resolved" returnFocusId="requester-resolved-indicator" busy={resolvingIndicator} onDismiss={() => setShowResolvedDialog(false)}>
                   <p className="small mb-2 fw-medium text-dark">
                     This lets IT Staff know the issue seems fixed. It won't close the ticket.
                   </p>
+                  {indicatorError && <div role="alert">{indicatorError}</div>}
+                  {indicatorNeedsLatest && <button type="button" disabled={resolvingIndicator} onClick={() => void refreshIndicator()}>Load latest ticket</button>}
                   <div className="d-flex justify-content-end gap-2">
                     <button
                       type="button"
@@ -368,12 +306,12 @@ export default function RequesterTicketDetail({
                       className="btn btn-sm text-white fw-semibold"
                       style={{ backgroundColor: "#006B3C", borderColor: "#006B3C" }}
                       onClick={handleConfirmResolved}
-                      disabled={resolvingIndicator}
+                      disabled={resolvingIndicator || indicatorNeedsLatest}
                     >
                       {resolvingIndicator ? "Submitting..." : "Confirm"}
                     </button>
                   </div>
-                </div>
+                </WorkflowDialog>
               )}
             </div>
           ) : null}
@@ -387,9 +325,8 @@ export default function RequesterTicketDetail({
         <div className="card-body p-4">
           <div className="row g-3">
             <div className="col-md-6">
-              <label className="form-label text-muted small fw-semibold">Summary</label>
-              <input
-                type="text"
+              <label htmlFor="ticket-summary" className="form-label text-muted small fw-semibold">Summary</label>
+              <textarea id="ticket-summary" rows={2}
                 className="form-control"
                 value={ticket.summary}
                 readOnly
@@ -397,8 +334,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label text-muted small fw-semibold">Status</label>
-              <input
+              <label htmlFor="ticket-status" className="form-label text-muted small fw-semibold">Status</label>
+              <input id="ticket-status"
                 type="text"
                 className="form-control"
                 value={ticket.currentStatus}
@@ -407,8 +344,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Category</label>
-              <input
+              <label htmlFor="ticket-category" className="form-label text-muted small fw-semibold">Category</label>
+              <input id="ticket-category"
                 type="text"
                 className="form-control"
                 value={ticket.category?.name || ""}
@@ -417,8 +354,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Related System</label>
-              <input
+              <label htmlFor="ticket-related-system" className="form-label text-muted small fw-semibold">Related System</label>
+              <input id="ticket-related-system"
                 type="text"
                 className="form-control"
                 value={ticket.relatedSystem?.name || ""}
@@ -427,8 +364,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label text-muted small fw-semibold">Priority</label>
-              <input
+              <label htmlFor="ticket-priority" className="form-label text-muted small fw-semibold">Priority</label>
+              <input id="ticket-priority"
                 type="text"
                 className="form-control"
                 value={ticket.requestedPriority}
@@ -437,8 +374,8 @@ export default function RequesterTicketDetail({
               />
             </div>
             <div className="col-12">
-              <label className="form-label text-muted small fw-semibold">Description</label>
-              <textarea
+              <label htmlFor="ticket-description" className="form-label text-muted small fw-semibold">Description</label>
+              <textarea id="ticket-description"
                 className="form-control"
                 rows={4}
                 value={ticket.description}
@@ -455,7 +392,7 @@ export default function RequesterTicketDetail({
       {/* ======================================================== */}
       <div className="card shadow-sm border-0 mb-4" style={{ borderRadius: 12 }}>
         <div className="card-body p-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
             <h5 className="mb-0 fw-bold" style={{ color: "#006B3C" }}>
               Public Comments ({sortedComments.length})
             </h5>
@@ -539,8 +476,9 @@ export default function RequesterTicketDetail({
           </h5>
 
           {/* ฟอร์มอัปโหลดไฟล์ */}
+          <label htmlFor="ticket-attachment" className="form-label">Add a Ticket attachment (JPG, PNG, WebP or PDF; up to 5 MB)</label>
           <div className="d-flex align-items-center mb-4 mt-2 flex-wrap gap-2">
-            <input
+            <input id="ticket-attachment"
               type="file"
               className="form-control"
               onChange={(e) => setSelectedFile(e.target.files ? e.target.files[0] : null)}
@@ -568,9 +506,9 @@ export default function RequesterTicketDetail({
             {(ticket.attachments || []).map((att) => (
               <li
                 key={att.id}
-                className="list-group-item d-flex justify-content-between align-items-start p-3"
+                className="list-group-item d-flex flex-wrap gap-2 justify-content-between align-items-start p-3"
               >
-                <div>
+                <div className="flex-grow-1" style={{ flexBasis: '12rem', minWidth: 0 }}>
                   {att.isRemoved ? (
                     // กรณี Soft-remove: แสดงแค่ข้อมูล ห้ามมีลิงก์ดาวน์โหลด
                     <div>
@@ -580,26 +518,20 @@ export default function RequesterTicketDetail({
                     </div>
                   ) : (
                     // กรณี Active: แสดงชื่อไฟล์และลิงก์
-                    <a
-                      href={att.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ color: "#006B3C", fontWeight: "600", textDecoration: "none" }}
-                    >
-                      📎 <span>{att.fileName}</span>
-                    </a>
+                    <AttachmentReference fileName={att.fileName} fileUrl={att.fileUrl} />
                   )}
                 </div>
 
                 {/* ปุ่มลบไฟล์ สำหรับไฟล์ที่ยัง Active */}
                 {!att.isRemoved && (
-                  <div>
+                  <div style={{ maxWidth: '100%', flexShrink: 0 }}>
                     {removingId === att.id ? (
                       <div className="input-group input-group-sm" style={{ maxWidth: 300 }}>
                         <input
                           type="text"
                           className="form-control"
                           placeholder="Reason for removal..."
+                          aria-label={`Removal reason for ${att.fileName}`}
                           value={removalReason}
                           onChange={(e) => setRemovalReason(e.target.value)}
                         />
@@ -635,6 +567,8 @@ export default function RequesterTicketDetail({
         </div>
       </div>
 
+      <ActionsTaken key={ticketId} ticketId={ticketId} ticketStatus={ticket.currentStatus} refreshKey={ticket.version} onAccessError={onAccessError} readOnly />
+      <TicketStatusHistory ticketId={ticketId} refreshKey={ticket.version} onAccessError={onAccessError} />
       {/* NOTE: Internal Notes are NEVER rendered in Requester's DOM (BR-04, AC-04) */}
     </div>
   );

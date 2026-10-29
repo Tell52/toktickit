@@ -25,7 +25,8 @@ test.describe('Requester Ticket Flow (Lab 2 E2E)', () => {
         await page.getByPlaceholder(/name@example.com/i).fill(email);
         await page.getByPlaceholder(/enter password/i).fill('RequesterPass123!');
         await page.getByRole('button', { name: /sign in/i }).click();
-        await expect(page).toHaveURL(/\/tickets$/);
+        await expect(page).toHaveURL(/\/dashboard$/);
+        await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible();
         await expect(page.getByText('E2E Ticket Requester')).toBeVisible();
 
         // ---------------------------------------------------------
@@ -60,7 +61,7 @@ test.describe('Requester Ticket Flow (Lab 2 E2E)', () => {
         await page.getByText(testSummary).first().click();
 
         // ตรวจสอบว่าเข้ามาหน้า Detail แล้ว (เช็คจาก input Read-only)
-        await expect(page.locator(`input[value="${testSummary}"]`)).toBeVisible();
+        await expect(page.getByLabel('Summary', { exact: true })).toHaveValue(testSummary);
 
         // ⬇️ ตรงนี้แหละครับที่ต้องอัปโหลดไฟล์! ⬇️
         const filePath = path.join(__dirname, 'test-file.pdf');

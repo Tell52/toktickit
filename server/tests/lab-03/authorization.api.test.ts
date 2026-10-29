@@ -22,8 +22,8 @@ describe('Authorization & Security API Tests', () => {
 
         await prisma.user.createMany({
             data: [
-                { id: '991', name: 'Req User', email: 'req@test.com', role: 'REQUESTER', passwordHash },
-                { id: '992', name: 'Staff User', email: 'staff@test.com', role: 'IT_STAFF', passwordHash },
+                { id: '991', name: 'Req User', email: 'req@test.com', role: 'REQUESTER', passwordHash, mustChangePassword: false },
+                { id: '992', name: 'Staff User', email: 'staff@test.com', role: 'IT_STAFF', passwordHash, mustChangePassword: false },
             ]
         });
 

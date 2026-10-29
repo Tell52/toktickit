@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { getPrisma } from '../prisma.js';
 import { requireAuth, requireCsrf } from '../middleware/auth';
+import { User } from '@prisma/client';
+import { sendApiError, invalid, ApiError } from '../services/api-error.js';
+import { assertBusinessUser, requireCurrentSession } from '../services/action-access.js';
 
 const router = Router();
 
@@ -33,6 +36,8 @@ router.post('/login', async (req, res) => {
         // สร้าง CSRF Token[cite: 7]
         const csrfToken = crypto.randomBytes(32).toString('hex');
 
+        await new Promise<void>((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
+
         req.session.user = {
             id: user.id,
             name: user.name,
@@ -61,45 +66,28 @@ router.post('/logout', requireAuth, requireCsrf, (req, res) => {
 });
 
 // GET /api/auth/me[cite: 7]
-router.get('/me', requireAuth, (req, res) => {
+router.get('/me', requireCurrentSession, (req, res) => {
     res.status(200).json(req.session.user);
 });
 
 // POST /api/auth/change-password[cite: 7]
-router.post('/change-password', requireAuth, requireCsrf, async (req, res) => {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
-
-    if (newPassword !== confirmPassword) {
-        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Passwords do not match' } });
-    }
-
-    // Regex เช็ค กฎรหัสผ่าน: >= 8 ตัว, ตัวพิมพ์เล็ก, พิมพ์ใหญ่, ตัวเลข, อักขระพิเศษ[cite: 8]
-    const strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})");
-    if (!strongRegex.test(newPassword)) {
-        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Password does not meet requirements' } });
-    }
-
-    const prisma = getPrisma();
-    const user = await prisma.user.findUnique({ where: { id: req.session.user!.id } });
-    if (!user) {
-        return res.status(401).json({ error: { code: 'UNAUTHENTICATED', message: 'User not found' } });
-    }
-    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
-
-    if (!isMatch) {
-        return res.status(401).json({ error: { code: 'INVALID_CREDENTIALS', message: 'Current password is incorrect' } });
-    }
-
-    const newHash = await bcrypt.hash(newPassword, 10);
-
-    await prisma.user.update({
-        where: { id: user!.id },
-        data: { passwordHash: newHash, mustChangePassword: false }
-    });
-
-    req.session.user!.mustChangePassword = false;
-
-    res.status(200).json({ user: req.session.user });
+router.post('/change-password', requireCurrentSession, requireCsrf, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        if (![currentPassword, newPassword, confirmPassword].every(value => typeof value === 'string')) invalid('password', 'Enter the current and new passwords.');
+        if (newPassword !== confirmPassword) invalid('confirmPassword', 'Passwords do not match.');
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
+        if (!strongRegex.test(newPassword)) invalid('newPassword', 'Password does not meet requirements.');
+        const user = await getPrisma().$transaction(async tx => {
+            const [current] = await tx.$queryRaw<User[]>`SELECT * FROM "User" WHERE "id" = ${req.session.user!.id} FOR UPDATE`;
+            assertBusinessUser(current ? { ...current, mustChangePassword: false } : null);
+            if (!await bcrypt.compare(currentPassword, current.passwordHash)) throw new ApiError(401, 'INVALID_CREDENTIALS', 'Current password is incorrect');
+            return tx.user.update({ where: { id: current.id }, data: { passwordHash: await bcrypt.hash(newPassword, 10), mustChangePassword: false },
+                select: { id: true, name: true, email: true, role: true, mustChangePassword: true } });
+        });
+        req.session.user = user;
+        res.status(200).json({ user });
+    } catch (error) { sendApiError(res, error); }
 });
 
 export default router;

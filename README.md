@@ -4,6 +4,18 @@ TokTickIT is a full-stack IT service desk and support ticketing web application 
 
 ---
 
+## Lab 4 Database Preparation
+
+The additive Actions Taken migration, legacy-data checks and backup/restore rehearsal are documented in [the Lab 4 migration and recovery guide](docs/lab-04/migration-recovery.md). Follow its preflight/backup steps before deploying to an existing database. Run the isolated PostgreSQL suites with `npm run test:migration --prefix server`; they require `LAB4_MIGRATION_DATABASE_URL` and matching PostgreSQL tools or the disposable server container. [Test coverage and execution evidence](docs/lab-04/tests.md) distinguish database/seed work from upcoming API/UI work.
+
+The normal `npm run prisma:seed --prefix server` now adds Lab 4 demonstration Tickets/actions while preserving existing data and changed passwords. [The seed and fixture guide](docs/lab-04/seed-fixtures.md) lists accounts, expected dashboard counts and separate fixed-clock dashboard/boundary/empty datasets. Run `npm run test:fixtures --prefix server` for seed-specific checks. Exact global metric totals require a separate empty migrated database; the fixed-clock CLI requires `LAB4_FIXTURE_DATABASE_URL` explicitly.
+
+Lab 4 Actions Taken list/create/update/revision APIs are implemented; [the implementation guide](docs/lab-04/actions-api.md) covers permissions, validation, versions and idempotent retries. Run `npm run test:actions --prefix server` with `LAB4_ACTIONS_DATABASE_URL` targeting a disposable PostgreSQL server.
+
+Staff/Admin and Requester Ticket Detail include the responsive Actions Taken section. [The UI guide](docs/lab-04/actions-ui.md) documents controls, privacy, draft/conflict recovery, screenshots and isolated browser verification. Run `npx playwright test --config=playwright.actions.config.ts` with `LAB4_UI_DATABASE_URL` pointing to a separate migrated/seeded test database. Dedicated CI runs this flow on Chromium, Firefox and WebKit.
+
+Ticket workflow APIs now enforce the resolution gate, atomic cancellation/reopening, immutable status history and versioned owner/priority changes. [The workflow guide](docs/lab-04/ticket-workflow-api.md) covers contracts, transaction boundaries and regression evidence. Run `npm run test:workflow --prefix server` with `LAB4_WORKFLOW_DATABASE_URL` targeting a disposable PostgreSQL server. The [Ticket workflow UI guide](docs/lab-04/ticket-workflow-ui.md) covers gated transitions, cancellation/reopen confirmations, shared status history and retained-draft conflict recovery. The dedicated UI browser suite covers both Actions and Ticket workflows. The [Requester dashboard guide](docs/lab-04/requester-dashboard.md) covers scoped metrics, the Bangkok calendar window, bounded previews, authenticated My Tickets filters and refresh/back navigation. Requesters now land on `/dashboard`; staff dashboards follow in issue #50. Run `npm run test:dashboard --prefix server` with `LAB4_DASHBOARD_DATABASE_URL` targeting a disposable PostgreSQL server. The dedicated UI suite includes Requester dashboard flows on all three browsers.
+
 ## Evolution & Sprint Changelog (Lab 1 – Lab 3)
 
 The project has evolved iteratively through three major development sprints:
@@ -201,3 +213,11 @@ toktickit/
 │   └── lab-03/
 └── playwright.config.ts        # Playwright configuration
 ```
+
+Staff/Administrator dashboard: [implementation and verification](docs/lab-04/staff-dashboard.md). All roles now land on `/dashboard`; My Queue and Admin remain available through navigation.
+
+Lab 4 security/concurrency hardening: [contracts, isolated test commands and performance evidence](docs/lab-04/security-concurrency.md). Run `npm run test:hardening --prefix server` with `LAB4_SECURITY_DATABASE_URL` pointing to a disposable PostgreSQL server.
+
+Zen Green UI and accessibility review: [checklist, screenshots and verification](docs/lab-04/ui-accessibility.md). Run `npx playwright test --config=playwright.accessibility.config.ts` against the explicitly selected disposable UI database.
+
+Lab 4 full E2E and Labs 1–3 regression: [coverage, reproducible commands and execution evidence](docs/lab-04/e2e-regression.md). Use `npm run test:regression --prefix server` with `LAB4_REGRESSION_DATABASE_URL` and `npm run test:e2e:regression` with `LAB4_UI_DATABASE_URL`, each targeting its own migrated/seeded disposable database. The combined runs include every opt-in API suite and all three browser projects.
