@@ -19,11 +19,11 @@
 | [#64: Closed Lab4 Issue 10: IT Staff & Administrator Dashboard API & UI](https://github.com/Tell52/toktickit/pull/64) | `feature/lab4-10-staff-dashboard` | [Approved] |
 | [#65: CLosed Lab4 Issue 11: Security, Concurrency & Safe-Failure Hardening](https://github.com/Tell52/toktickit/pull/65) | `feature/lab4-11-security-concurrency` | [Approved] |
 | [#66: Closed Lab4 Issue 12: Zen Green Shell, Responsive & Accessibility Review](https://github.com/Tell52/toktickit/pull/66) | `feature/lab4-12-ui-accessibility` | [Approved] |
-| [#67: Closed lab4 issue 13 e2e regression](https://github.com/Tell52/toktickit/pull/67) | `feature/lab4-13-e2e-regression` | [Approved] |
-| [#68: Realease Lab4 staging](https://github.com/Tell52/toktickit/pull/69) | `lab4-staging` | [Approved] |
+| [#70: Closed lab4 issue 13 e2e regression](https://github.com/Tell52/toktickit/pull/70) | `feature/lab4-13-e2e-regression` | [Approved] |
+| [#71: Realease Lab4 staging](https://github.com/Tell52/toktickit/pull/71) | `lab4-staging` | [Approved] |
 
-Reviewer comment I received: <nice bro, nice bro, nice bro, nice bro, fix it bro, nice fix bro, nice bro, nice bro, go fix it bro 1 test failed na, nice bro, fix it bro, nice bro, nice bro, nice bro, nice bro>
-How I responded: <ty, ty, ty, ty, bruh, ty bro, ty, ty, ty, ok TT, ty, ty, ty>
+Reviewer comment I received: <nice bro, nice bro, nice bro, nice bro, fix it bro, nice fix bro, nice bro, nice bro, go fix it bro 1 test failed na, nice bro, fix it bro, nice bro, nice bro, nice bro, nice bro, nice bro>
+How I responded: <ty, ty, ty, ty, bruh, ty bro, ty, ty, ty, ok TT, ty, ty, ty, ty>
 
 
 ## Pull Requests I reviewed for my partner
@@ -35,8 +35,9 @@ How I responded: <ty, ty, ty, ty, bruh, ty bro, ty, ty, ty, ok TT, ty, ty, ty>
 | [#47: Lab 4: Actions Taken UI](https://github.com/JeenoXD/toktickit/pull/47) | `feature-lab4/3-actions-taken-ui` | [Approved] |
 | [#48: Lab 4: Ticket workflow and resolution gate](https://github.com/JeenoXD/toktickit/pull/48) | `feature-lab4/4-ticket-workflow` | [Approved] |
 | [#49: Lab 4: Role dashboards](https://github.com/JeenoXD/toktickit/pull/49) | `feature-lab4/5-dashboards` | [Approved] |
+| [#50: Lab 4: Final hardening, Lab 4 E2E, and release](https://github.com/JeenoXD/toktickit/pull/50) | `feature-lab4/6-hardening-e2e` | [Approved] |
 
-My comment: “good job bro” on PRs #45–49.
-Partner's response: “thanks bro” on PRs #45–49.
+My comment: “good job bro” on PRs #45–50.
+Partner's response: “thanks bro” on PRs #45–50.
 
 
